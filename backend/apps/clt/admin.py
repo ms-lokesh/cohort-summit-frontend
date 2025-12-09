@@ -20,6 +20,9 @@ class CLTSubmissionAdmin(admin.ModelAdmin):
         ('Course Information', {
             'fields': ('user', 'title', 'description', 'platform', 'completion_date')
         }),
+        ('Certificate/Evidence', {
+            'fields': ('drive_link',)
+        }),
         ('Submission Status', {
             'fields': ('status', 'current_step', 'submitted_at')
         }),

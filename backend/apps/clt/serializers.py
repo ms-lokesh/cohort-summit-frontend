@@ -32,7 +32,7 @@ class CLTSubmissionSerializer(serializers.ModelSerializer):
         model = CLTSubmission
         fields = [
             'id', 'user', 'user_name', 'user_email',
-            'title', 'description', 'platform', 'completion_date',
+            'title', 'description', 'platform', 'completion_date', 'drive_link',
             'status', 'current_step', 'files',
             'reviewer_comments', 'reviewed_by', 'reviewer_name', 'reviewed_at',
             'created_at', 'updated_at', 'submitted_at'
@@ -55,39 +55,21 @@ class CLTSubmissionSerializer(serializers.ModelSerializer):
 
 
 class CLTSubmissionCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating CLT submissions with file uploads"""
-    
-    files = serializers.ListField(
-        child=serializers.FileField(),
-        write_only=True,
-        required=False,
-        allow_empty=True
-    )
+    """Serializer for creating CLT submissions with drive link"""
     
     class Meta:
         model = CLTSubmission
         fields = [
-            'title', 'description', 'platform', 'completion_date',
-            'current_step', 'status', 'files'
+            'title', 'description', 'platform', 'completion_date', 'drive_link',
+            'current_step', 'status'
         ]
     
     def create(self, validated_data):
-        files_data = validated_data.pop('files', [])
-        
         # Set user from context
         validated_data['user'] = self.context['request'].user
         
-        # Create submission
+        # Create submission (files handled separately in view)
         submission = CLTSubmission.objects.create(**validated_data)
-        
-        # Create file objects
-        for file_data in files_data:
-            CLTFile.objects.create(
-                submission=submission,
-                file=file_data,
-                file_name=file_data.name,
-                file_size=file_data.size
-            )
         
         return submission
 

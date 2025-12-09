@@ -3,9 +3,10 @@ import api from './api';
 /**
  * CLT (Creative Learning Track) API Service
  * Handles all API calls for CLT submissions and file management
+ * Updated: Fixed double slash in URLs
  */
 
-const CLT_BASE = '/clt/submissions';
+const CLT_BASE = '/clt/submissions/';
 
 export const cltService = {
   /**
@@ -24,7 +25,7 @@ export const cltService = {
    * @returns {Promise} - Submission details with files
    */
   getSubmission: async (id) => {
-    const response = await api.get(`${CLT_BASE}/${id}/`);
+    const response = await api.get(`${CLT_BASE}${id}/`);
     return response.data;
   },
 
@@ -35,28 +36,13 @@ export const cltService = {
    * @param {string} data.description - Course description
    * @param {string} data.platform - Learning platform
    * @param {string} data.completion_date - Completion date (YYYY-MM-DD)
-   * @param {Array<File>} data.files - Optional files to upload
+   * @param {string} data.drive_link - Google Drive link to certificate/evidence
    * @returns {Promise} - Created submission
    */
   createSubmission: async (data) => {
-    const formData = new FormData();
-    formData.append('title', data.title);
-    formData.append('description', data.description);
-    formData.append('platform', data.platform);
-    formData.append('completion_date', data.completion_date);
-
-    // Add files if provided
-    if (data.files && data.files.length > 0) {
-      data.files.forEach((file) => {
-        formData.append('files', file);
-      });
-    }
-
-    const response = await api.post(CLT_BASE, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    console.log('createSubmission called with:', data);
+    const response = await api.post(CLT_BASE, data);
+    console.log('Server response:', response.data);
     return response.data;
   },
 
@@ -67,7 +53,7 @@ export const cltService = {
    * @returns {Promise} - Updated submission
    */
   updateSubmission: async (id, data) => {
-    const response = await api.patch(`${CLT_BASE}/${id}/`, data);
+    const response = await api.patch(`${CLT_BASE}${id}/`, data);
     return response.data;
   },
 
@@ -77,7 +63,7 @@ export const cltService = {
    * @returns {Promise}
    */
   deleteSubmission: async (id) => {
-    const response = await api.delete(`${CLT_BASE}/${id}/`);
+    const response = await api.delete(`${CLT_BASE}${id}/`);
     return response.data;
   },
 
@@ -93,11 +79,8 @@ export const cltService = {
       formData.append('files', file);
     });
 
-    const response = await api.post(`${CLT_BASE}/${id}/upload_files/`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Don't set Content-Type header - let axios set it with the boundary
+    const response = await api.post(`${CLT_BASE}${id}/upload_files/`, formData);
     return response.data;
   },
 
@@ -107,7 +90,10 @@ export const cltService = {
    * @returns {Promise} - Updated submission with status='submitted'
    */
   submitForReview: async (id) => {
-    const response = await api.post(`${CLT_BASE}/${id}/submit/`);
+    const url = `${CLT_BASE}${id}/submit/`;
+    console.log('submitForReview called with:', { id, url });
+    const response = await api.post(url);
+    console.log('submitForReview response:', response.data);
     return response.data;
   },
 
@@ -118,7 +104,7 @@ export const cltService = {
    * @returns {Promise}
    */
   deleteFile: async (submissionId, fileId) => {
-    const response = await api.delete(`${CLT_BASE}/${submissionId}/delete_file/`, {
+    const response = await api.delete(`${CLT_BASE}${submissionId}/delete_file/`, {
       params: { file_id: fileId },
     });
     return response.data;
@@ -129,7 +115,7 @@ export const cltService = {
    * @returns {Promise} - Stats object with counts by status
    */
   getStats: async () => {
-    const response = await api.get(`${CLT_BASE}/stats/`);
+    const response = await api.get(`${CLT_BASE}stats/`);
     return response.data;
   },
 };

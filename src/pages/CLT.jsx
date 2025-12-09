@@ -17,9 +17,8 @@ export const CLT = () => {
     description: '',
     platform: '',
     completionDate: '',
-    files: [],
+    driveLink: '',
   });
-  const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissions, setSubmissions] = useState([]);
@@ -83,6 +82,14 @@ export const CLT = () => {
       setStats(data);
     } catch (err) {
       console.error('Failed to load stats:', err);
+      console.error('Stats error details:', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        url: err.config?.url
+      });
+      // Stats are not critical, don't show error to user
+      setStats(null);
     }
   };
 
@@ -91,55 +98,111 @@ export const CLT = () => {
     setError(null);
 
     try {
+      console.log('Starting submission...', {
+        title: formData.title,
+        description: formData.description,
+        platform: formData.platform,
+        completionDate: formData.completionDate,
+        driveLink: formData.driveLink
+      });
+
+      // Validate drive link is present
+      if (!formData.driveLink || formData.driveLink.trim() === '') {
+        throw new Error('Please provide a Google Drive link to your certificate/evidence.');
+      }
+
+      // Check if user has auth token
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Not authenticated. Please log in again.');
+      }
+
       // Simulate upload progress for better UX
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
-      // Create submission with files
+      // Create submission with drive link
       const submissionData = {
         title: formData.title,
         description: formData.description,
         platform: formData.platform,
         completion_date: formData.completionDate,
-        files: formData.files,
+        drive_link: formData.driveLink,
       };
 
+      console.log('Calling createSubmission API...');
       const createdSubmission = await cltService.createSubmission(submissionData);
+      console.log('Submission created:', createdSubmission);
 
       clearInterval(progressInterval);
       setUploadProgress(100);
 
       // Wait a moment to show 100% progress
       setTimeout(async () => {
-        // Submit the submission for review
-        await cltService.submitForReview(createdSubmission.id);
+        try {
+          // Submit the submission for review
+          console.log('Submitting for review...', { submissionId: createdSubmission.id });
+          
+          await cltService.submitForReview(createdSubmission.id);
+          console.log('Submitted successfully!');
 
-        alert('Submission successful! Your submission is now under review.');
-        
-        // Reset form
-        setFormData({ 
-          title: '', 
-          description: '', 
-          platform: '', 
-          completionDate: '', 
-          files: [] 
-        });
-        setCurrentStep(1);
-        setUploadProgress(0);
-        setIsSubmitting(false);
+          alert('Submission successful! Your submission is now under review.');
+          
+          // Reset form
+          setFormData({ 
+            title: '', 
+            description: '', 
+            platform: '', 
+            completionDate: '', 
+            driveLink: '' 
+          });
+          setCurrentStep(1);
+          setUploadProgress(0);
+          setIsSubmitting(false);
 
-        // Reload data
-        loadSubmissions();
-        loadStats();
+          // Reload data
+          loadSubmissions();
+          loadStats();
+        } catch (submitErr) {
+          console.error('Submit for review failed:', submitErr);
+          console.error('Error response:', submitErr.response?.data);
+          
+          // Even if submit fails, the draft was created
+          const errorMsg = submitErr.response?.data?.error || submitErr.message || 'Could not submit for review';
+          alert(`Draft saved but could not submit: ${errorMsg}\nYou can submit it later from your submissions list.`);
+          setIsSubmitting(false);
+          loadSubmissions();
+          loadStats();
+        }
       }, 500);
 
     } catch (err) {
       console.error('Submission failed:', err);
-      setError(err.response?.data?.message || 'Submission failed. Please try again.');
+      console.error('Error details:', err.response?.data);
+      
+      let errorMessage = 'Submission failed. ';
+      if (err.response?.data) {
+        // Handle different error formats
+        if (typeof err.response.data === 'string') {
+          errorMessage += err.response.data;
+        } else if (err.response.data.error) {
+          errorMessage += err.response.data.error;
+        } else if (err.response.data.message) {
+          errorMessage += err.response.data.message;
+        } else if (err.response.data.detail) {
+          errorMessage += err.response.data.detail;
+        } else {
+          errorMessage += JSON.stringify(err.response.data);
+        }
+      } else {
+        errorMessage += err.message;
+      }
+      
+      setError(errorMessage);
       setIsSubmitting(false);
       setUploadProgress(0);
-      alert('Submission failed: ' + (err.response?.data?.message || err.message));
+      alert(errorMessage);
     }
   };
 
@@ -280,77 +343,24 @@ export const CLT = () => {
               transition={{ duration: 0.3 }}
               className="clt-step-content"
             >
-              <h2 className="clt-form-title">Upload Evidence</h2>
+              <h2 className="clt-form-title">Certificate/Evidence Link</h2>
+              
+              <p className="clt-form-description" style={{marginBottom: '1.5rem', color: 'var(--text-secondary)'}}>
+                Please upload your certificate or evidence to Google Drive and share the link below. 
+                Make sure the link is accessible to anyone with the link.
+              </p>
 
-              <motion.div
-                className={`clt-upload-zone ${isDragging ? 'clt-upload-zone--dragging' : ''}`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                whileHover={{ scale: 1.01 }}
-                transition={{ duration: 0.2 }}
-              >
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*,.pdf"
-                  onChange={handleFileInput}
-                  className="clt-upload-input"
-                  id="file-upload"
-                />
+              <Input
+                label="Google Drive Link"
+                placeholder="https://drive.google.com/file/d/..."
+                value={formData.driveLink}
+                onChange={(e) => setFormData({ ...formData, driveLink: e.target.value })}
+                floatingLabel
+              />
 
-                <label htmlFor="file-upload" className="clt-upload-label">
-                  <motion.div
-                    className="clt-upload-icon"
-                    animate={{
-                      y: isDragging ? -10 : 0,
-                    }}
-                  >
-                    <Upload size={48} />
-                  </motion.div>
-
-                  <h3 className="clt-upload-title">
-                    {isDragging ? 'Drop files here' : 'Drag & drop files'}
-                  </h3>
-                  <p className="clt-upload-subtitle">or click to browse</p>
-                  <p className="clt-upload-hint">Supports images and PDF files</p>
-                </label>
-              </motion.div>
-
-              {/* File Preview Cards */}
-              {formData.files.length > 0 && (
-                <div className="clt-file-grid">
-                  {formData.files.map((file, index) => (
-                    <motion.div
-                      key={index}
-                      className="clt-file-card"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      whileHover={{ y: -4 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <div className="clt-file-icon">
-                        <FileText size={24} />
-                      </div>
-                      <div className="clt-file-info">
-                        <p className="clt-file-name">{file.name}</p>
-                        <p className="clt-file-size">
-                          {(file.size / 1024).toFixed(2)} KB
-                        </p>
-                      </div>
-                      <button
-                        className="clt-file-remove"
-                        onClick={() => {
-                          const newFiles = formData.files.filter((_, i) => i !== index);
-                          setFormData({ ...formData, files: newFiles });
-                        }}
-                      >
-                        ×
-                      </button>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
+              <p className="clt-upload-hint" style={{marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)'}}>
+                💡 Tip: Right-click your file in Google Drive → Get link → Copy link
+              </p>
 
               <div className="clt-form-actions">
                 <Button
@@ -362,10 +372,10 @@ export const CLT = () => {
                 <Button
                   variant="primary"
                   onClick={() => {
-                    if (formData.files.length > 0) {
+                    if (formData.driveLink && formData.driveLink.trim() !== '') {
                       setCurrentStep(3);
                     } else {
-                      alert('Please upload at least one file');
+                      alert('Please provide a Google Drive link');
                     }
                   }}
                 >
@@ -407,8 +417,8 @@ export const CLT = () => {
               </div>
 
               <div className="clt-review-section">
-                <h3 className="clt-review-label">Uploaded Files</h3>
-                <p className="clt-review-value">{formData.files.length} file(s)</p>
+                <h3 className="clt-review-label">Google Drive Link</h3>
+                <p className="clt-review-value" style={{wordBreak: 'break-all'}}>{formData.driveLink}</p>
               </div>
 
               {error && (

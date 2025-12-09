@@ -70,7 +70,37 @@ class CLTSubmissionViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         
         with transaction.atomic():
+            # Create submission
             submission = serializer.save()
+            
+            # Handle files separately
+            files = request.FILES.getlist('files', [])
+            if files:
+                # Validate file count
+                if len(files) > 10:
+                    submission.delete()
+                    return Response(
+                        {'error': 'Maximum 10 files allowed per submission'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                # Create file objects
+                for file in files:
+                    # Validate file size (10MB)
+                    if file.size > 10 * 1024 * 1024:
+                        submission.delete()
+                        return Response(
+                            {'error': f'File {file.name} exceeds 10MB limit'},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    
+                    CLTFile.objects.create(
+                        submission=submission,
+                        file=file,
+                        file_name=file.name,
+                        file_size=file.size
+                    )
+            
             # Clear user's stats cache
             cache.delete(f'clt_stats_{request.user.id}')
         
@@ -163,9 +193,9 @@ class CLTSubmissionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if not submission.files.exists():
+        if not submission.drive_link:
             return Response(
-                {'error': 'Please upload at least one file (certificate or evidence)'},
+                {'error': 'Please provide a Google Drive link to your certificate/evidence'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         

@@ -23,6 +23,9 @@ class CLTSubmission(models.Model):
     platform = models.CharField(max_length=100, help_text="Learning platform (e.g., Coursera, Udemy)")
     completion_date = models.DateField(help_text="Date of course completion")
     
+    # Certificate/Evidence (Step 2)
+    drive_link = models.URLField(max_length=500, blank=True, null=True, help_text="Google Drive link to certificate/evidence")
+    
     # Submission metadata
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     current_step = models.IntegerField(default=1, help_text="Current step in submission process (1-3)")
