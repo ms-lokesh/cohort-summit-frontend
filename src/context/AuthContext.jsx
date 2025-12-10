@@ -3,14 +3,6 @@ import authService from '../services/auth';
 
 const AuthContext = createContext();
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within AuthProvider');
-    }
-    return context;
-};
-
 // Role-based access control configuration
 const ROLE_ACCESS = {
     student: ['/', '/clt', '/sri', '/cfc', '/iipc', '/scd'],
@@ -75,3 +67,11 @@ export const AuthProvider = ({ children }) => {
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within AuthProvider');
+    }
+    return context;
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, CheckCircle, Image as ImageIcon } from 'lucide-react';
-import { useTheme } from '../../theme/ThemeContext';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -10,7 +10,6 @@ import cltService from '../../services/clt';
 import './CLT.css';
 
 export const CLT = () => {
-  const { theme } = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     title: '',
@@ -143,19 +142,19 @@ export const CLT = () => {
         try {
           // Submit the submission for review
           console.log('Submitting for review...', { submissionId: createdSubmission.id });
-          
+
           await cltService.submitForReview(createdSubmission.id);
           console.log('Submitted successfully!');
 
           alert('Submission successful! Your submission is now under review.');
-          
+
           // Reset form
-          setFormData({ 
-            title: '', 
-            description: '', 
-            platform: '', 
-            completionDate: '', 
-            driveLink: '' 
+          setFormData({
+            title: '',
+            description: '',
+            platform: '',
+            completionDate: '',
+            driveLink: ''
           });
           setCurrentStep(1);
           setUploadProgress(0);
@@ -167,7 +166,7 @@ export const CLT = () => {
         } catch (submitErr) {
           console.error('Submit for review failed:', submitErr);
           console.error('Error response:', submitErr.response?.data);
-          
+
           // Even if submit fails, the draft was created
           const errorMsg = submitErr.response?.data?.error || submitErr.message || 'Could not submit for review';
           alert(`Draft saved but could not submit: ${errorMsg}\nYou can submit it later from your submissions list.`);
@@ -180,7 +179,7 @@ export const CLT = () => {
     } catch (err) {
       console.error('Submission failed:', err);
       console.error('Error details:', err.response?.data);
-      
+
       let errorMessage = 'Submission failed. ';
       if (err.response?.data) {
         // Handle different error formats
@@ -198,7 +197,7 @@ export const CLT = () => {
       } else {
         errorMessage += err.message;
       }
-      
+
       setError(errorMessage);
       setIsSubmitting(false);
       setUploadProgress(0);
@@ -216,7 +215,7 @@ export const CLT = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="clt-title">Creative Learning Track</h1>
+        <h1 className="clt-title">Center for Learning and Teaching</h1>
         <p className="clt-subtitle">
           Document your creative projects and learning journey
         </p>
@@ -344,9 +343,9 @@ export const CLT = () => {
               className="clt-step-content"
             >
               <h2 className="clt-form-title">Certificate/Evidence Link</h2>
-              
-              <p className="clt-form-description" style={{marginBottom: '1.5rem', color: 'var(--text-secondary)'}}>
-                Please upload your certificate or evidence to Google Drive and share the link below. 
+
+              <p className="clt-form-description" style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>
+                Please upload your certificate or evidence to Google Drive and share the link below.
                 Make sure the link is accessible to anyone with the link.
               </p>
 
@@ -358,7 +357,7 @@ export const CLT = () => {
                 floatingLabel
               />
 
-              <p className="clt-upload-hint" style={{marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)'}}>
+              <p className="clt-upload-hint" style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                 💡 Tip: Right-click your file in Google Drive → Get link → Copy link
               </p>
 
@@ -418,7 +417,7 @@ export const CLT = () => {
 
               <div className="clt-review-section">
                 <h3 className="clt-review-label">Google Drive Link</h3>
-                <p className="clt-review-value" style={{wordBreak: 'break-all'}}>{formData.driveLink}</p>
+                <p className="clt-review-value" style={{ wordBreak: 'break-all' }}>{formData.driveLink}</p>
               </div>
 
               {error && (
