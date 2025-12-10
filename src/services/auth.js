@@ -21,15 +21,20 @@ export const authService = {
     });
     
     const { access, refresh } = response.data;
-    // For now, create a basic user object (will be enhanced with profile endpoint later)
-    const user = { username, id: null, email: null };
+    // Create a user object with username and email
+    const user = { 
+      username, 
+      email: `${username}@example.com`, // Placeholder, will be enhanced with profile endpoint later
+      id: null 
+    };
     
     // Store tokens in localStorage
     localStorage.setItem('accessToken', access);
     localStorage.setItem('refreshToken', refresh);
     localStorage.setItem('user', JSON.stringify(user));
     
-    return response.data;
+    // Return both tokens and user
+    return { access, refresh, user };
   },
 
   /**

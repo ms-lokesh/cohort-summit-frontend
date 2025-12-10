@@ -3,9 +3,16 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import permissions
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView as BaseTokenObtainPairView
+from apps.jwt_serializers import EmailTokenObtainPairSerializer
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+
+
+# Custom Token View using email authentication
+class EmailTokenObtainPairView(BaseTokenObtainPairView):
+    serializer_class = EmailTokenObtainPairSerializer
 
 # Swagger/OpenAPI Schema
 schema_view = get_schema_view(
@@ -29,8 +36,8 @@ urlpatterns = [
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
-    # JWT Authentication endpoints
-    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # JWT Authentication endpoints (with email support)
+    path('api/auth/token/', EmailTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
     # App URLs
