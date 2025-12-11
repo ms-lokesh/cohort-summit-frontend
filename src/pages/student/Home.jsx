@@ -60,11 +60,11 @@ export const HomePage = () => {
 
   // Mock data - Replace with actual API calls
   const pillarProgress = {
-    clt: { completed: 3, total: 5, percentage: 60 },
-    sri: { completed: 2, total: 4, percentage: 50 },
-    cfc: { completed: 1, total: 3, percentage: 33 },
-    iipc: { completed: 4, total: 5, percentage: 80 },
-    scd: { completed: 0, total: 3, percentage: 0 },
+    clt: { completed: 1, total: 1, percentage: 100 },
+    sri: { completed: 0, total: 1, percentage: 0 },
+    cfc: { completed: 2, total: 4, percentage: 50 },
+    iipc: { completed: 1, total: 2, percentage: 50 },
+    scd: { completed: 6, total: 10, percentage: 60 },
   };
 
   const notifications = [
