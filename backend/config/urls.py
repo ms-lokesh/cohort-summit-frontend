@@ -53,6 +53,8 @@ urlpatterns = [
     path('api/cfc/', include('apps.cfc.urls')),
     path('api/iipc/', include('apps.iipc.urls')),
     path('api/scd/', include('apps.scd.urls')),
+    path('api/dashboard/', include('apps.dashboard.urls')),
+    path('api/hackathons/', include('hackathons.urls')),
 ]
 
 # Serve media files in development

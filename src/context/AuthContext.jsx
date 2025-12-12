@@ -5,10 +5,10 @@ const AuthContext = createContext();
 
 // Role-based access control configuration
 const ROLE_ACCESS = {
-    student: ['/', '/clt', '/sri', '/cfc', '/iipc', '/scd', '/profile-settings'],
+    student: ['/', '/clt', '/sri', '/cfc', '/iipc', '/scd', '/hackathons', '/monthly-report', '/profile-settings'],
     mentor: ['/mentor-dashboard'],
     floorwing: ['/floorwing-dashboard'],
-    admin: ['/admin-dashboard', '/admin'],
+    admin: ['/admin-dashboard'],
 };
 
 export const AuthProvider = ({ children }) => {
@@ -22,13 +22,13 @@ export const AuthProvider = ({ children }) => {
         try {
             setLoading(true);
             const response = await authService.login(username, password);
-
+            
             const userWithRole = {
                 ...response.user,
                 role: role || response.user.role || 'student',
                 timestamp: new Date().toISOString(),
             };
-
+            
             setUser(userWithRole);
             localStorage.setItem('user', JSON.stringify(userWithRole));
             return userWithRole;
@@ -48,13 +48,7 @@ export const AuthProvider = ({ children }) => {
     const hasAccess = (path) => {
         if (!user) return false;
         const allowedPaths = ROLE_ACCESS[user.role] || [];
-
-        // Allow exact matches or paths that start with allowed prefixes
-        const hasDirectAccess = allowedPaths.some(allowedPath =>
-            path === allowedPath || path.startsWith(allowedPath + '/')
-        );
-
-        return hasDirectAccess || path === '/login';
+        return allowedPaths.includes(path) || path === '/login';
     };
 
     const getToken = () => {
