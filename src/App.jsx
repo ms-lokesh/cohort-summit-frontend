@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Lightbulb, Heart, Trophy, Linkedin, Code, Menu, X, LogOut } from 'lucide-react';
+import { Home, Lightbulb, Heart, Trophy, Linkedin, Code, Menu, X, LogOut, Zap } from 'lucide-react';
 import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ThemeToggle from './components/ThemeToggle';
@@ -13,6 +13,9 @@ import SRI from './pages/student/SRI';
 import CFC from './pages/student/CFC';
 import IIPC from './pages/student/IIPC';
 import SCD from './pages/student/SCD';
+import ProfileSettings from './pages/student/ProfileSettings';
+import Hackathons from './pages/student/Hackathons';
+import MonthlyReport from './pages/student/MonthlyReport';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import MentorDashboard from './pages/mentor/MentorDashboard';
 import FloorWingDashboard from './pages/floorwing/FloorWingDashboard';
@@ -26,6 +29,7 @@ const NAV_ITEMS = [
   { path: '/cfc', label: 'CFC', icon: Trophy },
   { path: '/iipc', label: 'IIPC', icon: Linkedin },
   { path: '/scd', label: 'SCD', icon: Code },
+  { path: '/hackathons', label: 'Hackathons', icon: Zap },
 ];
 
 function Navigation() {
@@ -104,7 +108,7 @@ function Navigation() {
         <div className="nav-actions">
           {user && (
             <div className="nav-user-info">
-              <span className="nav-user-role">{user.role}</span>
+              <span className="nav-user-role">{user.first_name || user.username || user.role}</span>
             </div>
           )}
           <ThemeToggle />
@@ -182,6 +186,9 @@ function AppContent() {
           <Route path="/cfc" element={<ProtectedRoute><CFC /></ProtectedRoute>} />
           <Route path="/iipc" element={<ProtectedRoute><IIPC /></ProtectedRoute>} />
           <Route path="/scd" element={<ProtectedRoute><SCD /></ProtectedRoute>} />
+          <Route path="/hackathons" element={<ProtectedRoute><Hackathons /></ProtectedRoute>} />
+          <Route path="/monthly-report" element={<ProtectedRoute><MonthlyReport /></ProtectedRoute>} />
+          <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
           <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
           <Route path="/mentor-dashboard" element={<ProtectedRoute><MentorDashboard /></ProtectedRoute>} />
           <Route path="/floorwing-dashboard" element={<ProtectedRoute><FloorWingDashboard /></ProtectedRoute>} />

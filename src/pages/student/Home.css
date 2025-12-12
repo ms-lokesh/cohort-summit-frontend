@@ -28,6 +28,17 @@
   margin: 0;
 }
 
+.last-updated-home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem !important;
+  color: var(--text-secondary, #6b7280) !important;
+  margin-top: 0.5rem !important;
+  opacity: 0.8 !important;
+  font-style: italic;
+}
+
 .profile-icon-btn {
   width: 60px;
   height: 60px;
@@ -109,6 +120,16 @@
 .profile-detail-item svg {
   flex-shrink: 0;
   opacity: 0.7;
+}
+
+.profile-settings-button {
+  display: block;
+  margin-top: 1.5rem;
+  text-decoration: none;
+}
+
+.profile-settings-button button {
+  width: 100%;
 }
 
 /* Dashboard Layout */
@@ -439,6 +460,16 @@
 .progress-label {
   font-size: 1rem;
   opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+.monthly-report-link {
+  display: block;
+  margin-top: 1rem;
+}
+
+.monthly-report-link button {
+  width: 100%;
 }
 
 /* Pillars Status Card */
@@ -691,8 +722,9 @@
 
 .footer-links {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
 .footer-links a {

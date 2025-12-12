@@ -34,6 +34,9 @@ INSTALLED_APPS = [
     'apps.cfc',
     'apps.iipc',
     'apps.scd',
+    'apps.profiles',
+    'apps.dashboard',
+    'hackathons',
 ]
 
 MIDDLEWARE = [
