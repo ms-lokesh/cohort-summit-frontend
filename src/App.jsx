@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Lightbulb, Heart, Trophy, Linkedin, Code, Menu, X, LogOut } from 'lucide-react';
+import { Home, Lightbulb, Heart, Trophy, Linkedin, Code, Menu, X, LogOut, Users } from 'lucide-react';
 import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ThemeToggle from './components/ThemeToggle';
@@ -14,7 +14,7 @@ import CFC from './pages/student/CFC';
 import IIPC from './pages/student/IIPC';
 import SCD from './pages/student/SCD';
 import AdminDashboard from './pages/admin/AdminDashboard';
-import MentorDashboard from './pages/mentor/MentorDashboard';
+import MentorLayout from './pages/mentor/MentorLayout';
 import FloorWingDashboard from './pages/floorwing/FloorWingDashboard';
 import Login from './pages/Login';
 import './App.css';
@@ -54,8 +54,14 @@ function Navigation() {
     }
   };
 
-  // Only show navigation items for students
+  // Show navigation items based on role
   const showNavItems = user && user.role === 'student';
+  const showMentorNavItems = user && user.role === 'mentor';
+
+  const MENTOR_NAV_ITEMS = [
+    { path: '/mentor-dashboard', label: 'Home', icon: Home },
+    { path: '/mentor-dashboard/students', label: 'Student List', icon: Users },
+  ];
 
   return (
     <nav className="nav">
@@ -72,10 +78,38 @@ function Navigation() {
           <span className="nav-logo-text">Cohort Web</span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation - Student */}
         {showNavItems && (
           <div className="nav-links">
             {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`nav-link ${isActive ? 'nav-link--active' : ''}`}
+                >
+                  <Icon size={20} />
+                  <span>{item.label}</span>
+                  {isActive && (
+                    <motion.div
+                      className="nav-link-indicator"
+                      layoutId="activeLink"
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Desktop Navigation - Mentor */}
+        {showMentorNavItems && (
+          <div className="nav-links">
+            {MENTOR_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
 
@@ -183,7 +217,7 @@ function AppContent() {
           <Route path="/iipc" element={<ProtectedRoute><IIPC /></ProtectedRoute>} />
           <Route path="/scd" element={<ProtectedRoute><SCD /></ProtectedRoute>} />
           <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/mentor-dashboard" element={<ProtectedRoute><MentorDashboard /></ProtectedRoute>} />
+          <Route path="/mentor-dashboard/*" element={<ProtectedRoute><MentorLayout /></ProtectedRoute>} />
           <Route path="/floorwing-dashboard" element={<ProtectedRoute><FloorWingDashboard /></ProtectedRoute>} />
         </Routes>
       </main>

@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   Lightbulb, Heart, Trophy, Linkedin, Code,
   User, Mail, Phone, Users, Bell, Clock,
-  CheckCircle, XCircle, AlertCircle, FileText
+  CheckCircle, XCircle, AlertCircle, FileText, MessageCircle
 } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import { useAuth } from '../../context/AuthContext';
+import messageService from '../../services/messageService';
 import './Home.css';
 
 const PILLARS = [
@@ -57,6 +58,8 @@ const PILLARS = [
 export const HomePage = () => {
   const { user } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(true);
 
   // Mock data - Replace with actual API calls
   const pillarProgress = {
@@ -67,11 +70,40 @@ export const HomePage = () => {
     scd: { completed: 6, total: 10, percentage: 60 },
   };
 
-  const notifications = [
-    { id: 1, message: 'Your CLT submission has been reviewed', time: '2 hours ago', read: false },
-    { id: 2, message: 'New assignment available in SRI', time: '1 day ago', read: false },
-    { id: 3, message: 'Mentor feedback on CFC project', time: '2 days ago', read: true },
-  ];
+  // Fetch messages from backend
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const messages = await messageService.getUnreadMessages();
+        const formattedNotifications = messages.map(msg => ({
+          id: msg.id,
+          message: `${msg.sender_name}: ${msg.content}`,
+          time: new Date(msg.created_at).toLocaleString(),
+          read: msg.is_read,
+          type: msg.message_type,
+          icon: MessageCircle
+        }));
+        setNotifications(formattedNotifications);
+      } catch (error) {
+        console.error('Failed to fetch messages:', error);
+        // Fallback to mock data if API fails
+        setNotifications([
+          { id: 1, message: 'Your CLT submission has been reviewed', time: '2 hours ago', read: false },
+          { id: 2, message: 'New assignment available in SRI', time: '1 day ago', read: false },
+          { id: 3, message: 'Mentor feedback on CFC project', time: '2 days ago', read: true },
+        ]);
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+
+    fetchMessages();
+
+    // Poll for new messages every 30 seconds
+    const interval = setInterval(fetchMessages, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const recentActivities = [
     { id: 1, title: 'CLT: Web Development Course', status: 'completed', date: '2 days ago' },
@@ -245,15 +277,34 @@ export const HomePage = () => {
               <div className="notifications-card">
                 <h2><Bell size={20} /> Notifications</h2>
                 <div className="notifications-list">
-                  {notifications.map((notif) => (
-                    <div key={notif.id} className={`notification-item ${notif.read ? 'read' : 'unread'}`}>
-                      <div className="notification-dot" />
+                  {loadingMessages ? (
+                    <div className="notification-item">
                       <div className="notification-content">
-                        <p>{notif.message}</p>
-                        <span><Clock size={14} /> {notif.time}</span>
+                        <p>Loading notifications...</p>
                       </div>
                     </div>
-                  ))}
+                  ) : notifications.length > 0 ? (
+                    notifications.map((notif) => {
+                      const NotifIcon = notif.icon || Bell;
+                      return (
+                        <div key={notif.id} className={`notification-item ${notif.read ? 'read' : 'unread'}`}>
+                          <div className="notification-icon">
+                            <NotifIcon size={16} />
+                          </div>
+                          <div className="notification-content">
+                            <p>{notif.message}</p>
+                            <span><Clock size={14} /> {notif.time}</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="notification-item">
+                      <div className="notification-content">
+                        <p>No new notifications</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </GlassCard>

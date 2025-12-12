@@ -557,6 +557,23 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
+.notification-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(247, 201, 72, 0.2);
+  color: #F7C948;
+  flex-shrink: 0;
+}
+
+.notification-item.read .notification-icon {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+}
+
 .notification-content {
   flex: 1;
 }
