@@ -29,7 +29,7 @@
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #FFB300 0%, #FF6F00 100%);
+    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -52,23 +52,52 @@
 }
 
 .leaderboard-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 1.5rem;
     padding: 1.25rem;
     border: 1px solid var(--page-border);
     border-radius: 12px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.leaderboard-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(135deg, #F7C948, #E53935);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .leaderboard-item:hover {
     background: var(--page-bg-hover);
-    transform: translateX(8px);
+    border-color: transparent;
+    transform: translateX(10px);
+    box-shadow: 0 8px 20px rgba(247, 201, 72, 0.25);
+}
+
+.leaderboard-item:hover::before {
+    opacity: 1;
 }
 
 .leaderboard-item.top-three {
-    background: linear-gradient(135deg, rgba(255, 179, 0, 0.1) 0%, rgba(255, 111, 0, 0.05) 100%);
-    border: 2px solid rgba(255, 179, 0, 0.3);
+    background: linear-gradient(135deg, rgba(247, 201, 72, 0.1) 0%, rgba(229, 57, 53, 0.05) 100%);
+    border: 2px solid rgba(247, 201, 72, 0.4);
+}
+
+.leaderboard-item.top-three::before {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
 }
 
 .rank-badge {
@@ -102,7 +131,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
     display: flex;
     align-items: center;
     justify-content: center;

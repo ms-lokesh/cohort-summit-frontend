@@ -1,343 +1,413 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-    Search, Filter, FileText, CheckCircle, XCircle, Clock,
-    User, Calendar, MessageSquare, Award, Eye, Download
+    FileCheck, Clock, CheckCircle, XCircle, Filter,
+    Search, Eye, Calendar, User, Award, AlertCircle
 } from 'lucide-react';
-import GlassCard from '../../../components/GlassCard';
-import Button from '../../../components/Button';
-import Input from '../../../components/Input';
-import './SubmissionsManagement.css';
+import StatCard from '../../../components/admin/StatCard';
+import DataTable from '../../../components/admin/DataTable';
+import Modal from '../../../components/admin/Modal';
+import { submissionsData, mentorsData, studentsData } from '../../../data/mockAdminData';
+
 
 const SubmissionsManagement = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterStatus, setFilterStatus] = useState('all');
-    const [filterPillar, setFilterPillar] = useState('all');
     const [selectedSubmission, setSelectedSubmission] = useState(null);
-    const [comment, setComment] = useState('');
-    const [xpAward, setXPAward] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [filterStatus, setFilterStatus] = useState('All');
+    const [filterPillar, setFilterPillar] = useState('All');
+    const [filterMentor, setFilterMentor] = useState('All');
+    const [dateRange, setDateRange] = useState('All');
 
-    // Mock submissions data
-    const submissions = [
+    // Get unique values for filters
+    const pillars = ['All', 'CLT', 'SRI', 'CFC', 'IIPC', 'SCD'];
+    const statuses = ['All', 'Pending', 'Approved', 'Rejected'];
+    const mentorOptions = ['All', ...mentorsData.map(m => m.name)];
+    const dateRanges = ['All', 'Today', 'This Week', 'This Month', 'Last 3 Months'];
+
+    // Calculate stats
+    const totalSubmissions = submissionsData.length;
+    const pendingCount = submissionsData.filter(s => s.status === 'Pending').length;
+    const approvedCount = submissionsData.filter(s => s.status === 'Approved').length;
+    const rejectedCount = submissionsData.filter(s => s.status === 'Rejected').length;
+
+    // Filter submissions
+    const filteredSubmissions = submissionsData.filter(submission => {
+        const matchesStatus = filterStatus === 'All' || submission.status === filterStatus;
+        const matchesPillar = filterPillar === 'All' || submission.pillar === filterPillar;
+        const matchesMentor = filterMentor === 'All' ||
+            mentorsData.find(m => m.id === submission.mentorId)?.name === filterMentor;
+        return matchesStatus && matchesPillar && matchesMentor;
+    });
+
+    // Get student name
+    const getStudentName = (studentId) => {
+        return studentsData.find(s => s.id === studentId)?.name || 'Unknown';
+    };
+
+    // Get mentor name
+    const getMentorName = (mentorId) => {
+        return mentorsData.find(m => m.id === mentorId)?.name || 'Unknown';
+    };
+
+    // Status badge component
+    const StatusBadge = ({ status }) => {
+        const colors = {
+            Pending: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+            Approved: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+            Rejected: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+        };
+        return (
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${colors[status]}`}>
+                {status}
+            </span>
+        );
+    };
+
+    // Table columns configuration
+    const columns = [
         {
-            id: 1,
-            studentName: 'Amal R',
-            registerNumber: 'CS101',
-            pillar: 'CLT',
-            title: 'LinkedIn Post - Career Development',
-            submittedDate: '2025-12-10',
-            status: 'pending',
-            description: 'Posted about career development strategies and networking tips',
-            link: 'https://linkedin.com/post/123',
-            mentor: 'Reshma',
-            xpEarned: 0
+            key: 'student',
+            label: 'Student',
+            sortable: true,
+            render: (row) => (
+                <div className="flex items-center gap-2">
+                    <User size={16} className="text-gray-400" />
+                    <span className="font-medium">{getStudentName(row.studentId)}</span>
+                </div>
+            )
         },
         {
-            id: 2,
-            studentName: 'Priya S',
-            registerNumber: 'CS102',
-            pillar: 'SCD',
-            title: 'LeetCode Problem Solution',
-            submittedDate: '2025-12-09',
-            status: 'approved',
-            description: 'Solved Two Sum problem with optimal solution',
-            link: 'https://leetcode.com/submissions/456',
-            mentor: 'Gopi',
-            xpEarned: 50,
-            comments: 'Excellent solution with clear explanation'
+            key: 'pillar',
+            label: 'Pillar',
+            sortable: true,
+            render: (row) => (
+                <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded text-sm font-medium">
+                    {row.pillar}
+                </span>
+            )
         },
         {
-            id: 3,
-            studentName: 'Rahul M',
-            registerNumber: 'CS103',
-            pillar: 'CFC',
-            title: 'Community Event Participation',
-            submittedDate: '2025-12-08',
-            status: 'pending',
-            description: 'Volunteered at local coding workshop for school students',
-            link: 'https://photos.com/event',
-            mentor: 'Thulasi',
-            xpEarned: 0
+            key: 'submittedAt',
+            label: 'Submitted',
+            sortable: true,
+            render: (row) => (
+                <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                    <Calendar size={14} />
+                    {new Date(row.submittedAt).toLocaleDateString()}
+                </div>
+            )
         },
         {
-            id: 4,
-            studentName: 'Sneha K',
-            registerNumber: 'CS104',
-            pillar: 'IIPC',
-            title: 'LinkedIn Profile Update',
-            submittedDate: '2025-12-07',
-            status: 'rejected',
-            description: 'Updated LinkedIn profile with new skills',
-            link: 'https://linkedin.com/in/sneha',
-            mentor: 'Reshma',
-            xpEarned: 0,
-            comments: 'Profile needs more detailed project descriptions'
+            key: 'mentor',
+            label: 'Mentor',
+            sortable: true,
+            render: (row) => (
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {getMentorName(row.mentorId)}
+                </span>
+            )
         },
         {
-            id: 5,
-            studentName: 'Vikram P',
-            registerNumber: 'CS105',
-            pillar: 'SRI',
-            title: 'Skill Development - React Course',
-            submittedDate: '2025-12-06',
-            status: 'approved',
-            description: 'Completed React fundamentals course on Udemy',
-            link: 'https://udemy.com/certificate/789',
-            mentor: 'Reshma',
-            xpEarned: 75,
-            comments: 'Great progress on React fundamentals'
+            key: 'status',
+            label: 'Status',
+            sortable: true,
+            render: (row) => <StatusBadge status={row.status} />
+        },
+        {
+            key: 'xpAwarded',
+            label: 'XP',
+            sortable: true,
+            render: (row) => (
+                <div className="flex items-center gap-1">
+                    <Award size={14} className="text-purple-500" />
+                    <span className="font-semibold text-purple-600 dark:text-purple-400">
+                        {row.xpAwarded || 0}
+                    </span>
+                </div>
+            )
         }
     ];
 
-    const filteredSubmissions = submissions.filter(submission => {
-        const matchesSearch = submission.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            submission.registerNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            submission.title.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = filterStatus === 'all' || submission.status === filterStatus;
-        const matchesPillar = filterPillar === 'all' || submission.pillar === filterPillar;
-        return matchesSearch && matchesStatus && matchesPillar;
-    });
+    // Handle row click to open detail modal
+    const handleRowClick = (submission) => {
+        setSelectedSubmission(submission);
+        setIsModalOpen(true);
+    };
 
+    // Mock approve/reject handlers
     const handleApprove = () => {
-        console.log('Approving submission:', selectedSubmission.id, 'XP:', xpAward, 'Comment:', comment);
-        setSelectedSubmission(null);
-        setComment('');
-        setXPAward('');
+        console.log('Approving submission:', selectedSubmission.id);
+        setIsModalOpen(false);
     };
 
     const handleReject = () => {
-        console.log('Rejecting submission:', selectedSubmission.id, 'Comment:', comment);
-        setSelectedSubmission(null);
-        setComment('');
-    };
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'approved': return '#4CAF50';
-            case 'rejected': return '#E53935';
-            case 'pending': return '#FF9800';
-            default: return '#9E9E9E';
-        }
-    };
-
-    const getPillarColor = (pillar) => {
-        switch (pillar) {
-            case 'CLT': return '#F7C948';
-            case 'SRI': return '#E53935';
-            case 'CFC': return '#4CAF50';
-            case 'IIPC': return '#2196F3';
-            case 'SCD': return '#9C27B0';
-            default: return '#9E9E9E';
-        }
+        console.log('Rejecting submission:', selectedSubmission.id);
+        setIsModalOpen(false);
     };
 
     return (
-        <div className="submissions-management-page">
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Submissions Management</h1>
-                    <p className="page-subtitle">Review and manage student submissions across all pillars</p>
+        <div className="p-6 min-h-screen">
+            {/* Header */}
+            <div className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                            Submissions Management
+                        </h1>
+                        <p className="text-gray-600 dark:text-gray-400">
+                            Review and manage student pillar submissions
+                        </p>
+                    </div>
                 </div>
-                <Button variant="secondary">
-                    <Download size={18} />
-                    Export Report
-                </Button>
+
+                {/* Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <StatCard
+                        title="Total Submissions"
+                        value={totalSubmissions}
+                        icon={FileCheck}
+                        iconColor="bg-indigo-600"
+                    />
+                    <StatCard
+                        title="Pending Review"
+                        value={pendingCount}
+                        icon={Clock}
+                        iconColor="bg-amber-600"
+                        trend={{ value: -12.3, isPositive: false }}
+                        trendLabel="vs last week"
+                    />
+                    <StatCard
+                        title="Approved"
+                        value={approvedCount}
+                        icon={CheckCircle}
+                        iconColor="bg-green-600"
+                    />
+                    <StatCard
+                        title="Rejected"
+                        value={rejectedCount}
+                        icon={XCircle}
+                        iconColor="bg-red-600"
+                    />
+                </div>
             </div>
 
-            {/* Filters Section */}
-            <GlassCard className="filters-card">
-                <div className="filters-container">
-                    <div className="search-box">
-                        <Input
-                            icon={Search}
-                            placeholder="Search submissions..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                    <div className="filter-group">
+            {/* Filters */}
+            <div className="glass-card p-4 mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                    <Filter size={20} className="text-gray-600 dark:text-gray-400" />
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Filters</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Status
+                        </label>
                         <select
-                            className="filter-select"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500"
                         >
-                            <option value="all">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
+                            {statuses.map(status => (
+                                <option key={status} value={status}>{status}</option>
+                            ))}
                         </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Pillar
+                        </label>
                         <select
-                            className="filter-select"
                             value={filterPillar}
                             onChange={(e) => setFilterPillar(e.target.value)}
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500"
                         >
-                            <option value="all">All Pillars</option>
-                            <option value="CLT">CLT</option>
-                            <option value="SRI">SRI</option>
-                            <option value="CFC">CFC</option>
-                            <option value="IIPC">IIPC</option>
-                            <option value="SCD">SCD</option>
+                            {pillars.map(pillar => (
+                                <option key={pillar} value={pillar}>{pillar}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Mentor
+                        </label>
+                        <select
+                            value={filterMentor}
+                            onChange={(e) => setFilterMentor(e.target.value)}
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        >
+                            {mentorOptions.map(mentor => (
+                                <option key={mentor} value={mentor}>{mentor}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Date Range
+                        </label>
+                        <select
+                            value={dateRange}
+                            onChange={(e) => setDateRange(e.target.value)}
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        >
+                            {dateRanges.map(range => (
+                                <option key={range} value={range}>{range}</option>
+                            ))}
                         </select>
                     </div>
                 </div>
-            </GlassCard>
-
-            {/* Submissions List */}
-            <div className="submissions-grid">
-                {filteredSubmissions.map((submission) => (
-                    <motion.div
-                        key={submission.id}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
-                        <GlassCard
-                            className="submission-card"
-                            onClick={() => setSelectedSubmission(submission)}
-                        >
-                            <div className="submission-header">
-                                <div className="submission-badges">
-                                    <span
-                                        className="pillar-badge"
-                                        style={{ backgroundColor: `${getPillarColor(submission.pillar)}20`, color: getPillarColor(submission.pillar) }}
-                                    >
-                                        {submission.pillar}
-                                    </span>
-                                    <span
-                                        className="status-badge"
-                                        style={{ backgroundColor: `${getStatusColor(submission.status)}20`, color: getStatusColor(submission.status) }}
-                                    >
-                                        {submission.status}
-                                    </span>
-                                </div>
-                                <span className="submission-date">
-                                    <Calendar size={14} />
-                                    {submission.submittedDate}
-                                </span>
-                            </div>
-                            <h3 className="submission-title">{submission.title}</h3>
-                            <div className="submission-info">
-                                <span className="submission-student">
-                                    <User size={16} />
-                                    {submission.studentName} ({submission.registerNumber})
-                                </span>
-                                <span className="submission-mentor">
-                                    Mentor: {submission.mentor}
-                                </span>
-                            </div>
-                            <p className="submission-description">{submission.description}</p>
-                            {submission.xpEarned > 0 && (
-                                <div className="submission-xp">
-                                    <Award size={16} />
-                                    {submission.xpEarned} XP Earned
-                                </div>
-                            )}
-                        </GlassCard>
-                    </motion.div>
-                ))}
             </div>
 
+            {/* Submissions Table */}
+            <DataTable
+                columns={columns}
+                data={filteredSubmissions}
+                onRowClick={handleRowClick}
+                searchable={true}
+                sortable={true}
+                pageSize={15}
+            />
+
             {/* Submission Detail Modal */}
-            <AnimatePresence>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Submission Details"
+                size="lg"
+            >
                 {selectedSubmission && (
-                    <motion.div
-                        className="modal-overlay"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setSelectedSubmission(null)}
-                    >
-                        <motion.div
-                            className="modal-content"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <GlassCard className="submission-detail">
-                                <div className="detail-header">
-                                    <h2>{selectedSubmission.title}</h2>
-                                    <div className="detail-badges">
-                                        <span
-                                            className="pillar-badge"
-                                            style={{ backgroundColor: `${getPillarColor(selectedSubmission.pillar)}20`, color: getPillarColor(selectedSubmission.pillar) }}
+                    <div className="space-y-6">
+                        {/* Header Info */}
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                                        {getStudentName(selectedSubmission.studentId)}
+                                    </h3>
+                                    <StatusBadge status={selectedSubmission.status} />
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    Submitted on {new Date(selectedSubmission.submittedAt).toLocaleDateString()} at{' '}
+                                    {new Date(selectedSubmission.submittedAt).toLocaleTimeString()}
+                                </p>
+                            </div>
+                            <div className="text-right">
+                                <span className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-lg font-bold text-lg">
+                                    {selectedSubmission.pillar}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Submission Details */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Assigned Mentor</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">
+                                    {getMentorName(selectedSubmission.mentorId)}
+                                </p>
+                            </div>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">XP Awarded</p>
+                                <div className="flex items-center gap-2">
+                                    <Award className="text-purple-500" size={20} />
+                                    <p className="font-semibold text-purple-600 dark:text-purple-400 text-lg">
+                                        {selectedSubmission.xpAwarded || 0} XP
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Evidence Section */}
+                        <div>
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                <FileCheck size={18} />
+                                Submission Evidence
+                            </h4>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    {selectedSubmission.description}
+                                </p>
+                                {selectedSubmission.evidenceUrl && (
+                                    <div className="mt-3">
+                                        <a
+                                            href={selectedSubmission.evidenceUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                                         >
-                                            {selectedSubmission.pillar}
-                                        </span>
-                                        <span
-                                            className="status-badge"
-                                            style={{ backgroundColor: `${getStatusColor(selectedSubmission.status)}20`, color: getStatusColor(selectedSubmission.status) }}
-                                        >
-                                            {selectedSubmission.status}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="detail-section">
-                                    <h3>Student Information</h3>
-                                    <p><strong>Name:</strong> {selectedSubmission.studentName}</p>
-                                    <p><strong>Register Number:</strong> {selectedSubmission.registerNumber}</p>
-                                    <p><strong>Submitted Date:</strong> {selectedSubmission.submittedDate}</p>
-                                    <p><strong>Assigned Mentor:</strong> {selectedSubmission.mentor}</p>
-                                </div>
-
-                                <div className="detail-section">
-                                    <h3>Submission Details</h3>
-                                    <p>{selectedSubmission.description}</p>
-                                    <a href={selectedSubmission.link} target="_blank" rel="noopener noreferrer" className="submission-link">
-                                        <Eye size={16} />
-                                        View Submission
-                                    </a>
-                                </div>
-
-                                {selectedSubmission.comments && (
-                                    <div className="detail-section">
-                                        <h3>Previous Comments</h3>
-                                        <p className="previous-comment">{selectedSubmission.comments}</p>
+                                            <Eye size={16} />
+                                            View Evidence
+                                        </a>
                                     </div>
                                 )}
+                            </div>
+                        </div>
 
-                                {selectedSubmission.status === 'pending' && (
-                                    <div className="detail-section">
-                                        <h3>Review Submission</h3>
-                                        <div className="review-form">
-                                            <Input
-                                                label="XP Award (optional)"
-                                                type="number"
-                                                placeholder="Enter XP amount"
-                                                value={xpAward}
-                                                onChange={(e) => setXPAward(e.target.value)}
-                                                icon={Award}
-                                            />
-                                            <div className="comment-box">
-                                                <label>Comment</label>
-                                                <textarea
-                                                    placeholder="Add your feedback..."
-                                                    value={comment}
-                                                    onChange={(e) => setComment(e.target.value)}
-                                                    rows={4}
-                                                />
-                                            </div>
-                                            <div className="review-actions">
-                                                <Button variant="success" onClick={handleApprove}>
-                                                    <CheckCircle size={18} />
-                                                    Approve
-                                                </Button>
-                                                <Button variant="danger" onClick={handleReject}>
-                                                    <XCircle size={18} />
-                                                    Reject
-                                                </Button>
-                                                <Button variant="secondary" onClick={() => setSelectedSubmission(null)}>
-                                                    Cancel
-                                                </Button>
+                        {/* Timeline */}
+                        {selectedSubmission.timeline && (
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                    <Clock size={18} />
+                                    Activity Timeline
+                                </h4>
+                                <div className="space-y-3">
+                                    {selectedSubmission.timeline.map((event, idx) => (
+                                        <div key={idx} className="flex items-start gap-3">
+                                            <div className={`w-2 h-2 rounded-full mt-2 ${event.type === 'submitted' ? 'bg-blue-500' :
+                                                event.type === 'reviewed' ? 'bg-purple-500' :
+                                                    event.type === 'approved' ? 'bg-green-500' :
+                                                        'bg-red-500'
+                                                }`} />
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {event.action}
+                                                </p>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                                    {new Date(event.timestamp).toLocaleString()}
+                                                </p>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
-                            </GlassCard>
-                        </motion.div>
-                    </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Feedback Section */}
+                        {selectedSubmission.feedback && (
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                    <AlertCircle size={18} />
+                                    Mentor Feedback
+                                </h4>
+                                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                                    <p className="text-gray-700 dark:text-gray-300">
+                                        {selectedSubmission.feedback}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Actions */}
+                        {selectedSubmission.status === 'Pending' && (
+                            <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <button
+                                    onClick={handleApprove}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                                >
+                                    <CheckCircle size={18} />
+                                    Approve Submission
+                                </button>
+                                <button
+                                    onClick={handleReject}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                                >
+                                    <XCircle size={18} />
+                                    Reject Submission
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 )}
-            </AnimatePresence>
+            </Modal>
         </div>
     );
 };

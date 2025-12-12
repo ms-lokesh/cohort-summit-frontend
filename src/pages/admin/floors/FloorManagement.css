@@ -98,8 +98,37 @@
 }
 
 .floor-card {
+    position: relative;
     padding: 1.5rem;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.floor-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1.5rem;
+    padding: 2px;
+    background: linear-gradient(135deg, #F7C948, #E53935);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.floor-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(247, 201, 72, 0.2);
+}
+
+.floor-card:hover::before {
+    opacity: 1;
 }
 
 .floor-header {
@@ -125,6 +154,7 @@
 }
 
 .icon-button {
+    position: relative;
     width: 36px;
     height: 36px;
     border-radius: 8px;
@@ -135,18 +165,45 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.icon-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 6px;
+    padding: 1px;
+    background: linear-gradient(135deg, #F7C948, #E53935);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .icon-button:hover {
     background: var(--profile-bg-hover);
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(5deg);
+    border-color: transparent;
+}
+
+.icon-button:hover::before {
+    opacity: 1;
 }
 
 .icon-button.danger:hover {
     background: rgba(229, 57, 53, 0.1);
-    border-color: #E53935;
+    border-color: transparent;
     color: #E53935;
+}
+
+.icon-button.danger::before {
+    background: linear-gradient(135deg, #E53935, #C62828);
 }
 
 .floor-stats {

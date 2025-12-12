@@ -20,6 +20,11 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminLayout from './pages/admin/AdminLayout';
 import StudentProfiles from './pages/admin/profiles/StudentProfiles';
 import MentorProfiles from './pages/admin/profiles/MentorProfiles';
+import MentorManagement from './pages/admin/mentor/MentorManagement';
+import FloorManagement from './pages/admin/floors/FloorManagement';
+import SubmissionsManagement from './pages/admin/submissions/SubmissionsManagement';
+import PillarRulesConfig from './pages/admin/rules/PillarRulesConfig';
+import CommunicationCenter from './pages/admin/communication/CommunicationCenter';
 import Leaderboard from './pages/admin/leaderboard/Leaderboard';
 import Notifications from './pages/admin/notifications/Notifications';
 import Roles from './pages/admin/roles/Roles';
@@ -207,7 +212,11 @@ function AppContent() {
           {/* Admin routes with /admin prefix */}
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route path="students" element={<StudentProfiles />} />
-            <Route path="mentors" element={<MentorProfiles />} />
+            <Route path="mentors" element={<MentorManagement />} />
+            <Route path="floors" element={<FloorManagement />} />
+            <Route path="submissions" element={<SubmissionsManagement />} />
+            <Route path="rules" element={<PillarRulesConfig />} />
+            <Route path="communication" element={<CommunicationCenter />} />
             <Route path="leaderboard" element={<Leaderboard />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="roles" element={<Roles />} />

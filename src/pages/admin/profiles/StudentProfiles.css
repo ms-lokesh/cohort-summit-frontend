@@ -57,6 +57,32 @@
     overflow-y: auto;
 }
 
+.students-list-panel>div {
+    position: relative;
+}
+
+.students-list-panel>div::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1.5rem;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(247, 201, 72, 0.3), rgba(229, 57, 53, 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.students-list-panel>div:hover::before {
+    opacity: 1;
+}
+
 .search-section {
     padding: 1.5rem;
     border-bottom: 1px solid var(--profile-border);
@@ -72,6 +98,7 @@
 }
 
 .student-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -80,18 +107,45 @@
     border: 1px solid var(--profile-border);
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.student-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(135deg, #F7C948, #E53935);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .student-item:hover {
     background: var(--profile-bg-hover);
-    border-color: var(--profile-border);
-    transform: translateX(4px);
+    border-color: transparent;
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(247, 201, 72, 0.2);
+}
+
+.student-item:hover::before {
+    opacity: 1;
 }
 
 .student-item.active {
     background: rgba(247, 201, 72, 0.15);
     border-color: #F7C948;
+}
+
+.student-item.active::before {
+    opacity: 1;
 }
 
 .student-avatar {
