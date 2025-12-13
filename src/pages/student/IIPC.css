@@ -45,30 +45,41 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 3rem;
-  justify-content: center;
   flex-wrap: wrap;
-  padding: 0.75rem;
+  padding: 0.5rem;
   border-radius: 1.5rem;
   background: rgba(255, 255, 255, 0.05);
 }
 
 .iipc-section-selector>button {
   position: relative;
-  flex: 0 0 auto;
   border-radius: 1rem !important;
   background: transparent !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 1rem 2rem !important;
-  overflow: hidden;
-  min-width: 220px;
-  white-space: nowrap;
-  border: 2px solid transparent !important;
+  padding-bottom: 1.25rem !important;
+  overflow: visible;
+}
+
+.iipc-section-selector>button::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #F7C948 0%, #E53935 100%);
+  border-radius: 3px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.iipc-section-selector>button:hover::after {
+  transform: scaleX(1);
 }
 
 .iipc-section-selector>button:hover {
-  background: rgba(247, 201, 72, 0.15) !important;
-  border-color: rgba(247, 201, 72, 0.3) !important;
-  transform: translateY(-2px);
+  background: rgba(247, 201, 72, 0.1) !important;
 }
 
 .iipc-section-selector>button[class*="primary"],
@@ -76,13 +87,12 @@
   background: linear-gradient(135deg, #F7C948 0%, #E53935 100%) !important;
   color: #000000 !important;
   box-shadow: 0 0 20px rgba(247, 201, 72, 0.6) !important;
-  border-color: transparent !important;
 }
 
-.iipc-section-selector>button[class*="primary"]:hover,
-.iipc-section-selector>button.button--primary:hover {
-  box-shadow: 0 4px 24px rgba(247, 201, 72, 0.8) !important;
-  transform: translateY(-2px);
+.iipc-section-selector>button[class*="primary"]::after,
+.iipc-section-selector>button.button--primary::after {
+  transform: scaleX(1);
+  box-shadow: 0 0 8px rgba(247, 201, 72, 0.8);
 }
 
 /* Card */
@@ -684,32 +694,20 @@
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  align-items: stretch;
-  margin-top: 1.5rem;
-}
-
-.iipc-button-group > button {
-  flex: 0 0 auto;
-  min-width: 200px;
-  padding: 0.75rem 1.5rem !important;
-  white-space: nowrap;
+  align-items: center;
 }
 
 /* Status Badges */
 .iipc-status-badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  padding: 0.875rem 1.75rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
   animation: fadeInScale 0.3s ease;
-  flex: 0 0 auto;
-  white-space: nowrap;
-  min-width: 220px;
 }
 
 @keyframes fadeInScale {
@@ -930,36 +928,5 @@
 
   .iipc-section-selector {
     flex-direction: column;
-    padding: 0.5rem;
-  }
-
-  .iipc-section-selector > button {
-    width: 100%;
-    min-width: unset;
-    padding: 1rem !important;
-  }
-
-  .iipc-button-group {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .iipc-button-group > button {
-    width: 100%;
-    max-width: unset;
-    min-width: unset;
-    padding: 1rem 1.5rem !important;
-  }
-
-  .iipc-status-badge {
-    width: 100%;
-    min-width: unset;
-    justify-content: center;
-    padding: 1rem 1.5rem;
-  }
-
-  .iipc-form-row {
-    grid-template-columns: 1fr;
   }
 }
