@@ -13,7 +13,7 @@
   width: 100%;
   padding: 1rem 1.25rem;
   border-radius: 1rem;
-  border: 2px solid transparent;
+  border: 2px solid #E0E0E0;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -23,13 +23,13 @@
 }
 
 [data-theme='light'] .input-field {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.8);
   color: #000000;
   border-color: #E0E0E0;
 }
 
 [data-theme='dark'] .input-field {
-  background: transparent;
+  background: rgba(30, 30, 30, 0.8);
   color: #FFFFFF;
   border-color: #424242;
 }

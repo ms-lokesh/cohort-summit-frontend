@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 users = [
     {'username': 'student', 'email': 'student@test.com', 'password': 'student123', 'role': 'student'},
     {'username': 'mentor', 'email': 'mentor@test.com', 'password': 'mentor123', 'role': 'mentor'},
-    {'username': 'floorwing', 'email': 'floorwing@test.com', 'password': 'floorwing123', 'role': 'floorwing'},
     {'username': 'admin', 'email': 'admin@test.com', 'password': 'admin123', 'role': 'admin'},
 ]
 
