@@ -8,7 +8,19 @@ const ROLE_ACCESS = {
     student: ['/', '/clt', '/sri', '/cfc', '/iipc', '/scd', '/hackathons', '/monthly-report', '/profile-settings'],
     mentor: ['/mentor-dashboard'],
     floorwing: ['/floorwing-dashboard'],
-    admin: ['/admin-dashboard'],
+    admin: [
+        '/admin-dashboard',
+        '/admin/students',
+        '/admin/mentors',
+        '/admin/floors',
+        '/admin/submissions',
+        '/admin/rules',
+        '/admin/communication',
+        '/admin/leaderboard',
+        '/admin/notifications',
+        '/admin/roles',
+        '/admin/settings'
+    ],
 };
 
 export const AuthProvider = ({ children }) => {
