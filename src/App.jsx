@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Lightbulb, Heart, Trophy, Linkedin, Code, Menu, X, LogOut, Zap, Users, ClipboardCheck } from 'lucide-react';
@@ -48,11 +48,13 @@ const NAV_ITEMS = [
 
 function Navigation() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const handleLogout = () => {
     logout();
+    navigate('/login');
   };
 
   // Determine home path based on user role
@@ -246,9 +248,9 @@ function AppContent() {
   const isLoginPage = location.pathname === '/login';
   const isIntroPage = location.pathname === '/intro';
 
-  // If not logged in and not on login or intro page, redirect to intro
+  // If not logged in and not on login or intro page, redirect to login
   if (!user && location.pathname !== '/login' && location.pathname !== '/intro') {
-    return <Navigate to="/intro" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return (
