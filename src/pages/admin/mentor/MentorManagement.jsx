@@ -15,23 +15,15 @@ import './MentorManagement.css';
 const MentorManagement = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedDepartment, setSelectedDepartment] = useState('All');
-    const [selectedFloor, setSelectedFloor] = useState('All');
     const [selectedMentor, setSelectedMentor] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
-
-    // Get unique departments and floors
-    const departments = ['All', ...new Set(mentorsData.map(m => m.department))];
-    const floors = ['All', ...new Set(mentorsData.map(m => m.floor))];
 
     // Filter mentors
     const filteredMentors = mentorsData.filter(mentor => {
         const matchesSearch = mentor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             mentor.email.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDepartment = selectedDepartment === 'All' || mentor.department === selectedDepartment;
-        const matchesFloor = selectedFloor === 'All' || mentor.floor === selectedFloor;
-        return matchesSearch && matchesDepartment && matchesFloor;
+        return matchesSearch;
     });
 
     // Get students for selected mentor
@@ -154,28 +146,6 @@ const MentorManagement = () => {
                                     className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                 />
                             </div>
-
-                            {/* Department Filter */}
-                            <select
-                                value={selectedDepartment}
-                                onChange={(e) => setSelectedDepartment(e.target.value)}
-                                className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                            >
-                                {departments.map(dept => (
-                                    <option key={dept} value={dept}>{dept}</option>
-                                ))}
-                            </select>
-
-                            {/* Floor Filter */}
-                            <select
-                                value={selectedFloor}
-                                onChange={(e) => setSelectedFloor(e.target.value)}
-                                className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                            >
-                                {floors.map(floor => (
-                                    <option key={floor} value={floor}>{floor}</option>
-                                ))}
-                            </select>
 
                             {/* View Toggle */}
                             <div className="flex gap-2">
