@@ -14,7 +14,6 @@ import CFC from './pages/student/CFC';
 import IIPC from './pages/student/IIPC';
 import SCD from './pages/student/SCD';
 import ProfileSettings from './pages/student/ProfileSettings';
-import Hackathons from './pages/student/Hackathons';
 import MonthlyReport from './pages/student/MonthlyReport';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminLayout from './pages/admin/AdminLayout';
@@ -42,7 +41,6 @@ const NAV_ITEMS = [
   { path: '/cfc', label: 'CFC', icon: Trophy },
   { path: '/iipc', label: 'IIPC', icon: Linkedin },
   { path: '/scd', label: 'SCD', icon: Code },
-  { path: '/hackathons', label: 'Hackathons', icon: Zap },
 ];
 
 function Navigation() {
@@ -265,7 +263,8 @@ function AppContent() {
           <Route path="/cfc" element={<ProtectedRoute><CFC /></ProtectedRoute>} />
           <Route path="/iipc" element={<ProtectedRoute><IIPC /></ProtectedRoute>} />
           <Route path="/scd" element={<ProtectedRoute><SCD /></ProtectedRoute>} />
-          <Route path="/hackathons" element={<ProtectedRoute><Hackathons /></ProtectedRoute>} />
+          {/* Redirect old hackathons route to CFC */}
+          <Route path="/hackathons" element={<Navigate to="/cfc" replace />} />
           <Route path="/monthly-report" element={<ProtectedRoute><MonthlyReport /></ProtectedRoute>} />
           <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
 

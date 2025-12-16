@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Calendar, AlertCircle, Megaphone, X, Edit2, Trash2, CheckCircle } from 'lucide-react';
+import { Plus, Calendar, AlertCircle, Megaphone, X, Edit2, Trash2, CheckCircle, Briefcase } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
 import { getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement } from '../../services/announcements';
@@ -10,6 +10,7 @@ function Announcements() {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showJobModal, setShowJobModal] = useState(false);
     const [editingAnnouncement, setEditingAnnouncement] = useState(null);
     const [formData, setFormData] = useState({
         title: '',
@@ -17,6 +18,20 @@ function Announcements() {
         category: 'general',
         priority: 'medium',
         event_date: ''
+    });
+    const [jobFormData, setJobFormData] = useState({
+        title: '',
+        description: '',
+        category: 'internship',
+        priority: 'high',
+        company_name: '',
+        job_location: '',
+        job_mode: 'remote',
+        job_duration: '',
+        job_stipend: '',
+        application_url: '',
+        application_deadline: '',
+        required_skills: ''
     });
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
@@ -69,6 +84,38 @@ function Announcements() {
         } catch (error) {
             console.error('Error saving announcement:', error);
             showMessage('error', 'Failed to save announcement');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleJobSubmit = async (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+
+        try {
+            await createAnnouncement(jobFormData);
+            showMessage('success', 'Job/Internship posted successfully!');
+            
+            setShowJobModal(false);
+            setJobFormData({
+                title: '',
+                description: '',
+                category: 'internship',
+                priority: 'high',
+                company_name: '',
+                job_location: '',
+                job_mode: 'remote',
+                job_duration: '',
+                job_stipend: '',
+                application_url: '',
+                application_deadline: '',
+                required_skills: ''
+            });
+            await loadAnnouncements();
+        } catch (error) {
+            console.error('Error posting job:', error);
+            showMessage('error', 'Failed to post job/internship');
         } finally {
             setSubmitting(false);
         }
@@ -140,20 +187,45 @@ function Announcements() {
                         Create and manage announcements for your students
                     </p>
                 </div>
-                <Button onClick={() => {
-                    setEditingAnnouncement(null);
-                    setFormData({
-                        title: '',
-                        description: '',
-                        category: 'general',
-                        priority: 'medium',
-                        event_date: ''
-                    });
-                    setShowModal(true);
-                }}>
-                    <Plus size={20} />
-                    New Announcement
-                </Button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <Button 
+                        onClick={() => {
+                            setJobFormData({
+                                title: '',
+                                description: '',
+                                category: 'internship',
+                                priority: 'high',
+                                company_name: '',
+                                job_location: '',
+                                job_mode: 'remote',
+                                job_duration: '',
+                                job_stipend: '',
+                                application_url: '',
+                                application_deadline: '',
+                                required_skills: ''
+                            });
+                            setShowJobModal(true);
+                        }}
+                        style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                    >
+                        <Briefcase size={20} />
+                        Post Job/Internship
+                    </Button>
+                    <Button onClick={() => {
+                        setEditingAnnouncement(null);
+                        setFormData({
+                            title: '',
+                            description: '',
+                            category: 'general',
+                            priority: 'medium',
+                            event_date: ''
+                        });
+                        setShowModal(true);
+                    }}>
+                        <Plus size={20} />
+                        New Announcement
+                    </Button>
+                </div>
             </div>
 
             {/* Success/Error Message */}
@@ -335,6 +407,185 @@ function Announcements() {
                                         </button>
                                         <Button type="submit" disabled={submitting}>
                                             {submitting ? 'Saving...' : editingAnnouncement ? 'Update' : 'Create & Notify'}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </GlassCard>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Job/Internship Posting Modal */}
+            <AnimatePresence>
+                {showJobModal && (
+                    <div className="modal-overlay" onClick={() => setShowJobModal(false)}>
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="modal-content modal-content-large"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <GlassCard>
+                                <div className="modal-header">
+                                    <h2>Post Job/Internship Opportunity</h2>
+                                    <button className="modal-close" onClick={() => setShowJobModal(false)}>
+                                        <X size={24} />
+                                    </button>
+                                </div>
+                                <form onSubmit={handleJobSubmit} className="announcement-form">
+                                    <div className="form-group">
+                                        <label>Opportunity Type *</label>
+                                        <select
+                                            value={jobFormData.category}
+                                            onChange={(e) => setJobFormData({ ...jobFormData, category: e.target.value })}
+                                            className="form-select"
+                                            required
+                                        >
+                                            <option value="internship">Internship</option>
+                                            <option value="job">Full-Time Job</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Job/Internship Title *</label>
+                                        <input
+                                            type="text"
+                                            value={jobFormData.title}
+                                            onChange={(e) => setJobFormData({ ...jobFormData, title: e.target.value })}
+                                            required
+                                            placeholder="e.g., Frontend Developer Internship"
+                                            className="form-input"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Company Name *</label>
+                                        <input
+                                            type="text"
+                                            value={jobFormData.company_name}
+                                            onChange={(e) => setJobFormData({ ...jobFormData, company_name: e.target.value })}
+                                            required
+                                            placeholder="Enter company name"
+                                            className="form-input"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Description *</label>
+                                        <textarea
+                                            value={jobFormData.description}
+                                            onChange={(e) => setJobFormData({ ...jobFormData, description: e.target.value })}
+                                            required
+                                            placeholder="Describe the role, responsibilities, and requirements"
+                                            className="form-textarea"
+                                            rows={5}
+                                        />
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Location *</label>
+                                            <input
+                                                type="text"
+                                                value={jobFormData.job_location}
+                                                onChange={(e) => setJobFormData({ ...jobFormData, job_location: e.target.value })}
+                                                required
+                                                placeholder="e.g., Bangalore, India"
+                                                className="form-input"
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Work Mode *</label>
+                                            <select
+                                                value={jobFormData.job_mode}
+                                                onChange={(e) => setJobFormData({ ...jobFormData, job_mode: e.target.value })}
+                                                className="form-select"
+                                                required
+                                            >
+                                                <option value="remote">Remote</option>
+                                                <option value="on-site">On-site</option>
+                                                <option value="hybrid">Hybrid</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Duration</label>
+                                            <input
+                                                type="text"
+                                                value={jobFormData.job_duration}
+                                                onChange={(e) => setJobFormData({ ...jobFormData, job_duration: e.target.value })}
+                                                placeholder="e.g., 3 months, 6 months"
+                                                className="form-input"
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Stipend/Salary</label>
+                                            <input
+                                                type="text"
+                                                value={jobFormData.job_stipend}
+                                                onChange={(e) => setJobFormData({ ...jobFormData, job_stipend: e.target.value })}
+                                                placeholder="e.g., ₹15,000/month"
+                                                className="form-input"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Required Skills *</label>
+                                        <input
+                                            type="text"
+                                            value={jobFormData.required_skills}
+                                            onChange={(e) => setJobFormData({ ...jobFormData, required_skills: e.target.value })}
+                                            required
+                                            placeholder="e.g., React, Node.js, MongoDB (comma-separated)"
+                                            className="form-input"
+                                        />
+                                        <small style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
+                                            Separate skills with commas
+                                        </small>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Application URL *</label>
+                                            <input
+                                                type="url"
+                                                value={jobFormData.application_url}
+                                                onChange={(e) => setJobFormData({ ...jobFormData, application_url: e.target.value })}
+                                                required
+                                                placeholder="https://..."
+                                                className="form-input"
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Application Deadline</label>
+                                            <input
+                                                type="date"
+                                                value={jobFormData.application_deadline}
+                                                onChange={(e) => setJobFormData({ ...jobFormData, application_deadline: e.target.value })}
+                                                className="form-input"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-actions">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowJobModal(false)}
+                                            className="btn-secondary"
+                                            disabled={submitting}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <Button type="submit" disabled={submitting}>
+                                            {submitting ? 'Posting...' : 'Post Opportunity'}
                                         </Button>
                                     </div>
                                 </form>

@@ -265,23 +265,23 @@ export const HomePage = () => {
                 <div className="profile-avatar">
                   <User size={48} />
                 </div>
-                <h2>{user?.username || 'Student'}</h2>
+                <h2>{dashboardData?.student_info?.name || user?.username || 'Student'}</h2>
                 <div className="profile-details">
                   <div className="profile-detail-item">
                     <Mail size={18} />
-                    <span>{user?.email || 'student@test.com'}</span>
+                    <span>{dashboardData?.student_info?.email || user?.email || 'student@test.com'}</span>
                   </div>
                   <div className="profile-detail-item">
                     <FileText size={18} />
-                    <span>Roll No: CS101</span>
+                    <span>Roll No: {dashboardData?.student_info?.roll_number || user?.roll_number || 'N/A'}</span>
                   </div>
                   <div className="profile-detail-item">
                     <Phone size={18} />
-                    <span>+91 9876543210</span>
+                    <span>{dashboardData?.student_info?.phone || user?.phone || 'N/A'}</span>
                   </div>
                   <div className="profile-detail-item">
                     <Users size={18} />
-                    <span>Mentor: Dr. Priya Sharma</span>
+                    <span>Mentor: {dashboardData?.student_info?.mentor_name || user?.mentor_name || 'Not Assigned'}</span>
                   </div>
                 </div>
                 <Link to="/profile-settings" className="profile-settings-button">
@@ -637,17 +637,18 @@ export const HomePage = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.6rem 1rem',
+              justifyContent: 'center',
+              padding: '0.75rem',
               background: 'rgba(255, 193, 7, 0.1)',
               border: '1px solid rgba(255, 193, 7, 0.3)',
               borderRadius: '12px',
               cursor: 'pointer',
-              position: 'relative'
+              position: 'relative',
+              width: '48px',
+              height: '48px'
             }}
           >
-            <Trophy size={20} style={{ color: '#FFC107' }} />
-            <span style={{ color: 'var(--text-primary)', fontWeight: '500', fontSize: '0.9rem' }}>Hackathons</span>
+            <Trophy size={22} style={{ color: '#FFC107' }} />
             {upcomingHackathons.length > 0 && (
               <span style={{
                 position: 'absolute',
@@ -678,17 +679,18 @@ export const HomePage = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.6rem 1rem',
+              justifyContent: 'center',
+              padding: '0.75rem',
               background: 'rgba(247, 201, 72, 0.1)',
               border: '1px solid rgba(247, 201, 72, 0.3)',
               borderRadius: '12px',
               cursor: 'pointer',
-              position: 'relative'
+              position: 'relative',
+              width: '48px',
+              height: '48px'
             }}
           >
-            <Megaphone size={20} style={{ color: '#F7C948' }} />
-            <span style={{ color: 'var(--text-primary)', fontWeight: '500', fontSize: '0.9rem' }}>Announcements</span>
+            <Megaphone size={22} style={{ color: '#F7C948' }} />
             {unreadCount > 0 && (
               <span style={{
                 position: 'absolute',

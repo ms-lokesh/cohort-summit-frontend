@@ -259,6 +259,10 @@
     overflow-y: auto;
 }
 
+.modal-content-large {
+    max-width: 900px !important;
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
