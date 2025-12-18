@@ -78,17 +78,6 @@ class UserProfile(models.Model):
             models.Index(fields=['campus', 'floor']),
             models.Index(fields=['assigned_mentor']),
         ]
-        constraints = [
-            # Ensure Tech campus has floors 1-4, Arts has floors 1-3
-            models.CheckConstraint(
-                check=(
-                    models.Q(campus='TECH', floor__in=[1, 2, 3, 4]) |
-                    models.Q(campus='ARTS', floor__in=[1, 2, 3]) |
-                    models.Q(campus__isnull=True, floor__isnull=True)
-                ),
-                name='valid_campus_floor_combination'
-            )
-        ]
     
     def __str__(self):
         campus_str = f" - {self.get_campus_display()}" if self.campus else ""
@@ -185,12 +174,6 @@ class FloorAnnouncement(models.Model):
         indexes = [
             models.Index(fields=['campus', 'floor', 'status']),
             models.Index(fields=['created_at']),
-        ]
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(floor__gte=1) & models.Q(floor__lte=4),
-                name='valid_floor_announcement_floor_range'
-            )
         ]
     
     def __str__(self):
