@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Notification
+from .notification_models import Notification
 
 
 class NotificationSerializer(serializers.ModelSerializer):

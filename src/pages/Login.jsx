@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, LogIn, UserPlus, Lightbulb, ArrowRight, GraduationCap, Users, Shield, Crown } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, LogIn, UserPlus, Lightbulb, ArrowRight, GraduationCap, Users, Crown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
+import WingsIcon from '../components/WingsIcon';
 import './Login.css';
 
 const ROLES = [
     { id: 'STUDENT', label: 'Student', icon: GraduationCap, color: '#F7C948', description: 'Access student dashboard' },
     { id: 'MENTOR', label: 'Mentor', icon: Users, color: '#42A5F5', description: 'Guide and support students' },
-    { id: 'FLOOR_WING', label: 'Floor Wing', icon: Shield, color: '#66BB6A', description: 'Manage floor operations' },
+    { id: 'FLOOR_WING', label: 'Floor Wing', icon: WingsIcon, color: '#66BB6A', description: 'Manage floor operations' },
     { id: 'ADMIN', label: 'Admin', icon: Crown, color: '#E53935', description: 'Full system access' },
 ];
 //vishnu

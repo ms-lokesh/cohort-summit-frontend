@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db.models import Q, Count, Avg
+from django.contrib.auth.models import User
 from .models import FloorAnnouncement, UserProfile
+from .notification_models import Notification
 from .announcement_serializers import FloorAnnouncementSerializer, FloorAnnouncementListSerializer
 from .permissions import IsFloorWing
 
@@ -34,8 +36,46 @@ class FloorAnnouncementViewSet(viewsets.ModelViewSet):
         return FloorAnnouncementSerializer
     
     def perform_create(self, serializer):
-        """Save announcement with auto-set campus/floor"""
-        serializer.save()
+        """Save announcement with auto-set campus/floor and create notifications"""
+        announcement = serializer.save()
+        
+        # If announcement is published, create notifications for all students on the floor
+        if announcement.status == 'published':
+            self._create_notifications_for_floor(announcement)
+    
+    def perform_update(self, serializer):
+        """Update announcement and create notifications if status changed to published"""
+        old_status = self.get_object().status
+        announcement = serializer.save()
+        
+        # If announcement was just published, create notifications
+        if old_status != 'published' and announcement.status == 'published':
+            self._create_notifications_for_floor(announcement)
+    
+    def _create_notifications_for_floor(self, announcement):
+        """Create notifications for all students on the same campus and floor"""
+        # Get all students on the same campus and floor
+        students = UserProfile.objects.filter(
+            campus=announcement.campus,
+            floor=announcement.floor,
+            role='STUDENT'
+        ).select_related('user')
+        
+        # Create notifications for each student
+        notifications = []
+        for student_profile in students:
+            notifications.append(Notification(
+                recipient=student_profile.user,
+                notification_type='floor_announcement',
+                title=f"New Announcement: {announcement.title}",
+                message=announcement.message[:200],  # Truncate if too long
+                announcement_id=announcement.id
+            ))
+        
+        # Bulk create all notifications at once
+        if notifications:
+            Notification.objects.bulk_create(notifications)
+            print(f"Created {len(notifications)} notifications for announcement: {announcement.title}")
     
     @action(detail=False, methods=['get'])
     def stats(self, request):

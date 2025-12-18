@@ -53,8 +53,7 @@ function FloorWingDashboard() {
         title: '',
         message: '',
         priority: 'normal',
-        status: 'published',
-        expires_at: ''
+        status: 'published'
     });
 
     useEffect(() => {
@@ -140,14 +139,14 @@ function FloorWingDashboard() {
                 title: '',
                 message: '',
                 priority: 'normal',
-                status: 'published',
-                expires_at: ''
+                status: 'published'
             });
             await loadAnnouncements();
             alert('Announcement created successfully');
         } catch (error) {
             console.error('Failed to create announcement:', error);
-            alert('Failed to create announcement');
+            const errorMsg = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+            alert('Failed to create announcement: ' + errorMsg);
         }
     };
 

@@ -32,7 +32,7 @@ const NotificationBell = () => {
 
     const fetchUnreadCount = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             const response = await fetch('http://127.0.0.1:8000/api/profiles/notifications/unread_count/', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -48,7 +48,7 @@ const NotificationBell = () => {
     const fetchNotifications = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             const response = await fetch('http://127.0.0.1:8000/api/profiles/notifications/', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -65,7 +65,7 @@ const NotificationBell = () => {
 
     const markAsRead = async (notificationId) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             await fetch(`http://127.0.0.1:8000/api/profiles/notifications/${notificationId}/mark_read/`, {
                 method: 'POST',
                 headers: {
@@ -85,7 +85,7 @@ const NotificationBell = () => {
 
     const markAllAsRead = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             await fetch('http://127.0.0.1:8000/api/profiles/notifications/mark_all_read/', {
                 method: 'POST',
                 headers: {

@@ -9,6 +9,7 @@ class FloorAnnouncementSerializer(serializers.ModelSerializer):
     is_expired = serializers.BooleanField(read_only=True)
     read_count = serializers.IntegerField(read_only=True)
     is_read = serializers.SerializerMethodField()
+    expires_at = serializers.DateTimeField(required=False, allow_null=True)
     
     class Meta:
         model = FloorAnnouncement
@@ -31,6 +32,12 @@ class FloorAnnouncementSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.is_read_by(request.user)
         return False
+    
+    def validate_expires_at(self, value):
+        """Convert empty string to None"""
+        if value == '':
+            return None
+        return value
     
     def create(self, validated_data):
         """Auto-set floor wing, campus, and floor from request user"""
