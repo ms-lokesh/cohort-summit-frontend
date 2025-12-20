@@ -33,7 +33,11 @@ from apps.dashboard.notifications_serializers import (
 # Helper function to check if user is a mentor
 def is_mentor(user):
     """Check if user has mentor privileges"""
-    return user.is_staff or user.is_superuser or hasattr(user, 'is_mentor')
+    if user.is_staff or user.is_superuser:
+        return True
+    if hasattr(user, 'profile'):
+        return user.profile.role in ['MENTOR', 'FLOOR_WING', 'ADMIN']
+    return False
 
 
 @api_view(['GET'])
@@ -1038,7 +1042,185 @@ def mark_announcement_read(request, announcement_id):
             status=status.HTTP_404_NOT_FOUND
         )
     except StudentProfile.DoesNotExist:
-        return Response({
-            'announcements': [],
-            'total': 0
-        })
+        return Response(
+            {'error': 'Student profile not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_student_monthly_report(request, student_id):
+    """Get monthly report for a specific student (Mentor view)"""
+    from datetime import datetime
+    from apps.clt.models import CLTSubmission
+    from apps.cfc.models import HackathonSubmission, BMCVideoSubmission, InternshipSubmission, GenAIProjectSubmission
+    from apps.iipc.models import LinkedInPostVerification, LinkedInConnectionVerification
+    from apps.scd.models import LeetCodeProfile
+    
+    # Check if user is mentor
+    if not is_mentor(request.user):
+        return Response(
+            {"error": "You don't have permission to access this resource"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    month = request.GET.get('month')
+    year = request.GET.get('year')
+    
+    if not month or not year:
+        return Response(
+            {'error': 'Month and year are required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        month = int(month)
+        year = int(year)
+        student = User.objects.get(id=student_id)
+        
+        # Create date range
+        start_date = datetime(year, month, 1)
+        if month == 12:
+            end_date = datetime(year + 1, 1, 1)
+        else:
+            end_date = datetime(year, month + 1, 1)
+        
+        # Monthly task requirements
+        MONTHLY_REQUIREMENTS = {
+            'clt': 1,
+            'sri': 0,
+            'cfc': 3,
+            'iipc': 2,
+            'scd': 1,
+        }
+        
+        # Calculate CLT stats
+        clt_submissions = CLTSubmission.objects.filter(
+            user=student,
+            created_at__gte=start_date,
+            created_at__lt=end_date
+        )
+        clt_completed = clt_submissions.filter(status='approved').count()
+        
+        # Calculate CFC stats
+        cfc_hackathons = HackathonSubmission.objects.filter(
+            user=student, created_at__gte=start_date, created_at__lt=end_date, status='approved'
+        ).count()
+        cfc_bmc = BMCVideoSubmission.objects.filter(
+            user=student, created_at__gte=start_date, created_at__lt=end_date, status='approved'
+        ).count()
+        cfc_genai = GenAIProjectSubmission.objects.filter(
+            user=student, created_at__gte=start_date, created_at__lt=end_date, status='approved'
+        ).count()
+        cfc_completed = cfc_hackathons + cfc_bmc + cfc_genai
+        
+        # Calculate IIPC stats
+        iipc_posts = LinkedInPostVerification.objects.filter(
+            user=student, created_at__gte=start_date, created_at__lt=end_date, status='approved'
+        ).count()
+        iipc_connections = LinkedInConnectionVerification.objects.filter(
+            user=student, created_at__gte=start_date, created_at__lt=end_date, status='approved'
+        ).count()
+        iipc_completed = iipc_posts + iipc_connections
+        
+        # Calculate SCD stats
+        scd_profile = LeetCodeProfile.objects.filter(user=student).first()
+        scd_completed = 1 if (scd_profile and scd_profile.problems_solved >= 10) else 0
+        
+        report_data = {
+            'month': month,
+            'year': year,
+            'student': {
+                'id': student.id,
+                'name': f"{student.first_name} {student.last_name}",
+                'email': student.email,
+            },
+            'overall_progress': round((clt_completed + cfc_completed + iipc_completed + scd_completed) / 7 * 100),
+            'pillars': {
+                'clt': {
+                    'completed': clt_completed,
+                    'target': MONTHLY_REQUIREMENTS['clt'],
+                    'percentage': min(100, round((clt_completed / MONTHLY_REQUIREMENTS['clt']) * 100)) if MONTHLY_REQUIREMENTS['clt'] > 0 else 0,
+                },
+                'cfc': {
+                    'completed': cfc_completed,
+                    'target': MONTHLY_REQUIREMENTS['cfc'],
+                    'percentage': min(100, round((cfc_completed / MONTHLY_REQUIREMENTS['cfc']) * 100)) if MONTHLY_REQUIREMENTS['cfc'] > 0 else 0,
+                },
+                'iipc': {
+                    'completed': iipc_completed,
+                    'target': MONTHLY_REQUIREMENTS['iipc'],
+                    'percentage': min(100, round((iipc_completed / MONTHLY_REQUIREMENTS['iipc']) * 100)) if MONTHLY_REQUIREMENTS['iipc'] > 0 else 0,
+                },
+                'scd': {
+                    'completed': scd_completed,
+                    'target': MONTHLY_REQUIREMENTS['scd'],
+                    'percentage': min(100, round((scd_completed / MONTHLY_REQUIREMENTS['scd']) * 100)) if MONTHLY_REQUIREMENTS['scd'] > 0 else 0,
+                },
+            }
+        }
+        
+        return Response(report_data)
+        
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'Student not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_student_available_months(request, student_id):
+    """Get available months for a student's monthly reports (Mentor view)"""
+    from datetime import datetime
+    from apps.clt.models import CLTSubmission
+    
+    # Check if user is mentor
+    if not is_mentor(request.user):
+        return Response(
+            {"error": "You don't have permission to access this resource"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    try:
+        student = User.objects.get(id=student_id)
+        
+        # Get all months where student has any submissions
+        submissions = CLTSubmission.objects.filter(user=student).order_by('created_at')
+        
+        if not submissions.exists():
+            # Default to current month if no submissions
+            now = datetime.now()
+            return Response({
+                'months': [{
+                    'month': now.month,
+                    'year': now.year,
+                    'label': now.strftime('%B %Y')
+                }]
+            })
+        
+        # Get unique year-month combinations
+        months_set = set()
+        for sub in submissions:
+            months_set.add((sub.created_at.year, sub.created_at.month))
+        
+        # Sort and format
+        months_sorted = sorted(months_set, reverse=True)
+        available_months = [
+            {
+                'month': month,
+                'year': year,
+                'label': datetime(year, month, 1).strftime('%B %Y')
+            }
+            for year, month in months_sorted
+        ]
+        
+        return Response({'months': available_months})
+        
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'Student not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )

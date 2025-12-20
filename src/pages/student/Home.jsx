@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-  Lightbulb, Heart, Trophy, Linkedin, Code,
+  Lightbulb, Heart, Trophy, Linkedin, Code, Gamepad2,
   User, Mail, Phone, Users, Bell, Clock,
   CheckCircle, XCircle, AlertCircle, FileText, Settings, Loader2, Calendar, Megaphone
 } from 'lucide-react';
@@ -25,12 +25,12 @@ const PILLARS = [
     path: '/clt',
   },
   {
-    id: 'sri',
-    title: 'Social Responsibility Initiatives',
-    description: 'Track your community service and social impact activities',
-    icon: Heart,
-    color: '#E53935',
-    path: '/sri',
+    id: 'scd',
+    title: 'Skill and Career Development',
+    description: 'Track your coding skills and competitive programming journey',
+    icon: Code,
+    color: '#FF5722',
+    path: '/scd',
   },
   {
     id: 'cfc',
@@ -49,12 +49,20 @@ const PILLARS = [
     path: '/iipc',
   },
   {
-    id: 'scd',
-    title: 'Skill and Career Development',
-    description: 'Track your coding skills and competitive programming journey',
-    icon: Code,
-    color: '#FF5722',
-    path: '/scd',
+    id: 'sri',
+    title: 'Social Responsibility Initiatives',
+    description: 'Track your community service and social impact activities',
+    icon: Heart,
+    color: '#E53935',
+    path: '/sri',
+  },
+  {
+    id: 'games',
+    title: 'Brain Games',
+    description: 'Challenge yourself with daily puzzles and track your progress',
+    icon: Gamepad2,
+    color: '#9C27B0',
+    path: '/games',
   },
 ];
 
@@ -183,12 +191,18 @@ export const HomePage = () => {
       total: dashboardData.pillars.scd.monthly_target,
       percentage: dashboardData.pillars.scd.percentage
     },
+    games: {
+      completed: 0,
+      total: 30,
+      percentage: 0
+    },
   } : {
     clt: { completed: 0, total: 1, percentage: 0 },
     sri: { completed: 0, total: 0, percentage: 0 },
     cfc: { completed: 0, total: 3, percentage: 0 },
     iipc: { completed: 0, total: 2, percentage: 0 },
     scd: { completed: 0, total: 1, percentage: 0 },
+    games: { completed: 0, total: 30, percentage: 0 },
   };
 
   const notifications = dashboardData?.notifications || [];
@@ -669,6 +683,30 @@ export const HomePage = () => {
               </span>
             )}
           </motion.button>
+
+          {/* Games Button */}
+          <Link to="/games">
+            <motion.button
+              className="hackathon-notif-btn"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0.75rem',
+                background: 'rgba(233, 30, 99, 0.1)',
+                border: '1px solid rgba(233, 30, 99, 0.3)',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                position: 'relative',
+                width: '48px',
+                height: '48px'
+              }}
+            >
+              <Gamepad2 size={22} style={{ color: '#E91E63' }} />
+            </motion.button>
+          </Link>
 
           {/* Announcements Button */}
           <motion.button

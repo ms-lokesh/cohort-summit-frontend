@@ -149,16 +149,13 @@ function MentorDashboard() {
                                         className={`student-card ${selectedStudent?.id === student.id ? 'active' : ''}`}
                                         onClick={() => setSelectedStudent(student)}
                                     >
-                                        <div className="student-avatar">
-                                            {student.name.charAt(0)}
-                                        </div>
                                         <div className="student-info">
-                                            <h3 className="student-name">{student.name}</h3>
-                                            <p className="student-roll">{student.rollNo}</p>
-                                            <p className="student-email">{student.email}</p>
+                                            <h3 className="student-name">{student.name || 'Unknown Student'}</h3>
+                                            <p className="student-roll">{student.rollNo || student.roll_no || 'N/A'}</p>
+                                            <p className="student-email">{student.email || 'No email'}</p>
                                         </div>
                                         <div className="student-status-summary">
-                                            {Object.values(student.submissions).filter(s => s.status === 'pending').length > 0 && (
+                                            {student.submissions && Object.values(student.submissions).filter(s => s.status === 'pending').length > 0 && (
                                                 <span className="pending-badge">
                                                     {Object.values(student.submissions).filter(s => s.status === 'pending').length} Pending
                                                 </span>

@@ -35,10 +35,10 @@ const PILLARS_CONFIG = [
         description: 'Structured learning paths with measurable progress'
     },
     {
-        icon: Heart,
-        initial: 'SRI',
-        title: 'Social Responsibility Initiative',
-        description: 'Community engagement and social impact projects'
+        icon: Code,
+        initial: 'SCD',
+        title: 'Self-Code Development',
+        description: 'Personal coding projects and technical growth'
     },
     {
         icon: Trophy,
@@ -53,10 +53,10 @@ const PILLARS_CONFIG = [
         description: 'Professional readiness and career preparation'
     },
     {
-        icon: Code,
-        initial: 'SCD',
-        title: 'Self-Code Development',
-        description: 'Personal coding projects and technical growth'
+        icon: Heart,
+        initial: 'SRI',
+        title: 'Social Responsibility Initiative',
+        description: 'Community engagement and social impact projects'
     }
 ];
 

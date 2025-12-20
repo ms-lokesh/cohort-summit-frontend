@@ -38,4 +38,8 @@ urlpatterns = [
     # Announcements
     path('announcements/', mentor_views.announcements, name='announcements'),
     path('announcements/<int:announcement_id>/', mentor_views.announcement_detail, name='announcement-detail'),
+    
+    # Student Monthly Reports (Mentor View)
+    path('student/<int:student_id>/monthly-report/', mentor_views.get_student_monthly_report, name='student-monthly-report'),
+    path('student/<int:student_id>/available-months/', mentor_views.get_student_available_months, name='student-available-months'),
 ]

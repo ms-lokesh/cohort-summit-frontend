@@ -42,11 +42,10 @@ import './App.css';
 const NAV_ITEMS = [
   { path: '/', label: 'Home', icon: Home },
   { path: '/clt', label: 'CLT', icon: Lightbulb },
-  { path: '/sri', label: 'SRI', icon: Heart },
+  { path: '/scd', label: 'SCD', icon: Code },
   { path: '/cfc', label: 'CFC', icon: Trophy },
   { path: '/iipc', label: 'IIPC', icon: Linkedin },
-  { path: '/scd', label: 'SCD', icon: Code },
-  { path: '/games', label: 'Games', icon: Gamepad2 },
+  { path: '/sri', label: 'SRI', icon: Heart },
 ];
 
 function Navigation() {

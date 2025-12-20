@@ -8,6 +8,7 @@ import {
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
 import { getPillarSubmissions } from '../../services/mentorApi';
+import StudentMonthlyReport from './StudentMonthlyReport';
 import './SubmissionReview.css';
 
 const PILLARS = [
@@ -37,6 +38,7 @@ function SubmissionReview({ selectedStudent }) {
     const [reviewMessage, setReviewMessage] = useState('');
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showMonthlyReport, setShowMonthlyReport] = useState(false);
 
     // Fetch real submissions from API
     useEffect(() => {
@@ -233,6 +235,13 @@ function SubmissionReview({ selectedStudent }) {
 
     return (
         <div className="submission-review">
+            {showMonthlyReport ? (
+                <StudentMonthlyReport 
+                    student={selectedStudent} 
+                    onBack={() => setShowMonthlyReport(false)}
+                />
+            ) : (
+                <>
             {/* Student Profile Overview */}
             <motion.div
                 className="student-profile-overview"
@@ -248,6 +257,13 @@ function SubmissionReview({ selectedStudent }) {
                             <h2 className="profile-name">{selectedStudent.name}</h2>
                             <p className="profile-roll">{selectedStudent.rollNo}</p>
                             <p className="profile-email">{selectedStudent.email}</p>
+                            <Button 
+                                onClick={() => setShowMonthlyReport(true)}
+                                style={{ marginTop: '0.5rem' }}
+                            >
+                                <Calendar size={16} />
+                                View Monthly Report
+                            </Button>
                         </div>
                         <div className="profile-stats-grid">
                             <div className="profile-stat-item">
@@ -622,6 +638,8 @@ function SubmissionReview({ selectedStudent }) {
                     ))
                 )}
             </motion.div>
+            )}
+            </>
             )}
         </div>
     );
