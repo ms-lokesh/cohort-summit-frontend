@@ -919,3 +919,311 @@
     gap: 2rem;
   }
 }
+
+/* ========================================
+   TOP 3 PERFORMERS PODIUM
+   ======================================== */
+
+.podium-card {
+  padding: 2.5rem 2rem;
+  min-height: 550px;
+}
+
+.podium-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  filter: grayscale(0.8);
+  opacity: 0.6;
+}
+
+.podium-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2.5rem;
+  padding: 2.5rem 1.5rem;
+  position: relative;
+}
+
+.podium-position {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.podium-position:hover {
+  filter: brightness(1.15);
+}
+
+/* Rank Badges */
+.podium-rank {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+  z-index: 10;
+  border: 3px solid rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.podium-rank.champion {
+  width: 48px;
+  height: 48px;
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  animation: championPulse 3s ease-in-out infinite;
+  border-color: #FFD700;
+}
+
+@keyframes championPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(255, 215, 0, 0.9), 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.rank-2 .podium-rank {
+  background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+  color: #fff;
+}
+
+.rank-3 .podium-rank {
+  background: linear-gradient(135deg, #CD7F32, #B87333);
+  color: #fff;
+}
+
+/* Crown for Champion */
+.podium-crown {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  z-index: 5;
+  animation: crownFloat 2.5s ease-in-out infinite;
+}
+
+@keyframes crownFloat {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
+/* Podium Content Cards */
+.podium-content {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  border-radius: 18px;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-width: 220px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.podium-position:hover .podium-content {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.rank-1 .podium-content {
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 165, 0, 0.08));
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+  min-width: 260px;
+  padding: 3rem 2.25rem;
+}
+
+.rank-1 .podium-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmerChampion 3s infinite;
+}
+
+@keyframes shimmerChampion {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.rank-2 .podium-content {
+  border: 2px solid rgba(192, 192, 192, 0.3);
+}
+
+.rank-3 .podium-content {
+  border: 2px solid rgba(205, 127, 50, 0.3);
+}
+
+/* Podium Avatars */
+.podium-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(247, 201, 72, 0.2), rgba(229, 57, 53, 0.2));
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.champion-avatar {
+  width: 96px;
+  height: 96px;
+  border: 3px solid #FFD700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.podium-content h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.rank-1 .podium-content h3 {
+  font-size: 1.2rem;
+}
+
+.podium-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.champion-title {
+  color: #FFD700;
+  opacity: 1;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Podium Scores */
+.podium-score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.podium-score .score-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.rank-1 .podium-score .score-value {
+  font-size: 2.2rem;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.podium-score .score-label {
+  font-size: 0.9rem;
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+/* Podium Bases */
+.podium-base {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  margin-top: 1rem;
+  position: relative;
+}
+
+.rank-1-base {
+  height: 80px;
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.3), rgba(255, 215, 0, 0.1));
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-bottom: none;
+}
+
+.rank-2-base {
+  height: 60px;
+  background: linear-gradient(180deg, rgba(192, 192, 192, 0.25), rgba(192, 192, 192, 0.08));
+  border: 2px solid rgba(192, 192, 192, 0.3);
+  border-bottom: none;
+}
+
+.rank-3-base {
+  height: 50px;
+  background: linear-gradient(180deg, rgba(205, 127, 50, 0.25), rgba(205, 127, 50, 0.08));
+  border: 2px solid rgba(205, 127, 50, 0.3);
+  border-bottom: none;
+}
+
+/* Responsive Podium */
+@media (max-width: 768px) {
+  .podium-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .podium-position {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .podium-content {
+    min-width: 100%;
+  }
+
+  .podium-base {
+    display: none;
+  }
+
+  .rank-1 {
+    order: 1;
+  }
+
+  .rank-2 {
+    order: 2;
+  }
+
+  .rank-3 {
+    order: 3;
+  }
+}

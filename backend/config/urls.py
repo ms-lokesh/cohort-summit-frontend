@@ -56,6 +56,9 @@ urlpatterns = [
     path('api/dashboard/', include('apps.dashboard.urls')),
     path('api/hackathons/', include('apps.hackathons.urls')),
     
+    # Gamification System
+    path('api/gamification/', include('apps.gamification.urls')),
+    
     # Mentor APIs
     path('api/mentor/', include('apps.mentor_urls')),
     

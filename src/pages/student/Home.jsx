@@ -5,14 +5,18 @@ import { Link } from 'react-router-dom';
 import {
   Lightbulb, Heart, Trophy, Linkedin, Code, Gamepad2,
   User, Mail, Phone, Users, Bell, Clock,
-  CheckCircle, XCircle, AlertCircle, FileText, Settings, Loader2, Calendar, Megaphone
+  CheckCircle, XCircle, AlertCircle, FileText, Settings, Loader2, Calendar, Megaphone, ShoppingBag
 } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
+import GamificationCard from '../../components/GamificationCard';
+import ProgressAlert from '../../components/ProgressAlert';
+import BatchStatsCard from '../../components/BatchStatsCard';
 import { useAuth } from '../../context/AuthContext';
 import dashboardService from '../../services/dashboard';
 import { getUpcomingHackathons } from '../../services/cfc';
 import { getStudentAnnouncements, markAnnouncementAsRead } from '../../services/announcements';
+import gamificationAPI from '../../services/gamification';
 import './Home.css';
 
 const PILLARS = [
@@ -78,6 +82,12 @@ export const HomePage = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showAnnouncementsModal, setShowAnnouncementsModal] = useState(false);
+  const [showStoreModal, setShowStoreModal] = useState(false);
+  const [storeItems, setStoreItems] = useState([]);
+  const [userCredits, setUserCredits] = useState(0);
+  const [loadingStore, setLoadingStore] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [seasonActive, setSeasonActive] = useState(false);
 
   useEffect(() => {
     document.title = 'Dashboard | Cohort Web';
@@ -93,6 +103,7 @@ export const HomePage = () => {
     fetchDashboardData();
     fetchHackathons();
     fetchAnnouncements();
+    fetchLeaderboard();
 
     // Set up auto-refresh every 30 seconds
     const refreshInterval = setInterval(() => {
@@ -228,6 +239,65 @@ export const HomePage = () => {
     return `${Math.floor(diffDays / 30)} months ago`;
   };
 
+  const fetchStoreItems = async () => {
+    try {
+      setLoadingStore(true);
+      const [titlesResponse, walletResponse] = await Promise.all([
+        gamificationAPI.getTitles(),
+        gamificationAPI.getMyWallet()
+      ]);
+      setStoreItems(titlesResponse.data);
+      setUserCredits(walletResponse.data.available_credits);
+    } catch (err) {
+      console.error('Error fetching store items:', err);
+    } finally {
+      setLoadingStore(false);
+    }
+  };
+
+  const handleRedeemTitle = async (titleId, cost) => {
+    if (userCredits < cost) {
+      alert('Insufficient credits!');
+      return;
+    }
+
+    try {
+      await gamificationAPI.redeemTitle(titleId);
+      alert('Title redeemed successfully!');
+      fetchStoreItems(); // Refresh store data
+    } catch (err) {
+      console.error('Error redeeming title:', err);
+      alert(err.response?.data?.error || 'Failed to redeem title');
+    }
+  };
+
+  const handleEquipTitle = async (titleId) => {
+    try {
+      await gamificationAPI.equipTitle(titleId);
+      alert('Title equipped successfully!');
+      fetchStoreItems(); // Refresh store data
+    } catch (err) {
+      console.error('Error equipping title:', err);
+      alert(err.response?.data?.error || 'Failed to equip title');
+    }
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      const response = await gamificationAPI.getCurrentSeasonLeaderboard();
+      // Get top 3 performers only
+      const top3 = response.data.slice(0, 3);
+      setLeaderboard(top3);
+      setSeasonActive(true);
+    } catch (err) {
+      console.error('Error fetching leaderboard:', err);
+      // If 404, season might not be active
+      if (err.response?.status === 404) {
+        setSeasonActive(false);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="home-container">
@@ -260,6 +330,9 @@ export const HomePage = () => {
 
   return (
     <div className="home-container">
+      {/* Progress Alert - Random Motivational Notifications */}
+      <ProgressAlert />
+
       {/* Profile Modal */}
       {showProfile && (
         <motion.div
@@ -750,6 +823,32 @@ export const HomePage = () => {
             )}
           </motion.button>
 
+          {/* Store Button */}
+          <motion.button
+            className="hackathon-notif-btn"
+            onClick={() => {
+              setShowStoreModal(true);
+              fetchStoreItems();
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0.75rem',
+              background: 'rgba(255, 193, 7, 0.1)',
+              border: '1px solid rgba(255, 193, 7, 0.3)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              position: 'relative',
+              width: '48px',
+              height: '48px'
+            }}
+          >
+            <ShoppingBag size={22} style={{ color: '#FFC107' }} />
+          </motion.button>
+
           <motion.button
             className="profile-icon-btn"
             onClick={() => setShowProfile(true)}
@@ -803,53 +902,125 @@ export const HomePage = () => {
             </GlassCard>
           </motion.div>
 
-          {/* 5 Pillars Status */}
+          {/* Batch Statistics Card */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
           >
-            <GlassCard>
-              <div className="pillars-status-card">
-                <h2>5 Pillars Status</h2>
-                <div className="pillars-status-list">
-                  {PILLARS.map((pillar) => {
-                    const Icon = pillar.icon;
-                    const progress = pillarProgress[pillar.id];
-                    return (
-                      <Link key={pillar.id} to={pillar.path} className="pillar-status-item">
-                        <div className="pillar-status-icon" style={{ backgroundColor: `${pillar.color}20` }}>
-                          <Icon size={20} style={{ color: pillar.color }} />
-                        </div>
-                        <div className="pillar-status-info">
-                          <h4>{pillar.id.toUpperCase()}</h4>
-                          <div className="pillar-progress-bar">
-                            <div
-                              className="pillar-progress-fill"
-                              style={{
-                                width: `${progress.percentage}%`,
-                                backgroundColor: pillar.color
-                              }}
-                            />
-                          </div>
-                          <span>{progress.completed}/{progress.total} completed</span>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </GlassCard>
+            <BatchStatsCard />
           </motion.div>
+
+          <GamificationCard />
         </div>
 
         {/* Right Column */}
         <div className="home-right-column">
+          {/* Top 3 Performers Podium */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
+            <GlassCard>
+              <div className="podium-card">
+                <h2 style={{ marginBottom: '2.5rem', textAlign: 'center', fontSize: '1.8rem', fontWeight: '700' }}>
+                  🏆 Season Champions
+                </h2>
+                
+                {!seasonActive || leaderboard.length === 0 ? (
+                  <div className="podium-locked">
+                    <Trophy size={80} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                    <p style={{ opacity: 0.5, textAlign: 'center', fontSize: '1.1rem' }}>Complete the season to unlock the podium</p>
+                  </div>
+                ) : (
+                  <div className="podium-container">
+                    {/* Rank 2 - Left */}
+                    {leaderboard[1] && (
+                      <motion.div
+                        className="podium-position rank-2"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.6 }}
+                        whileHover={{ scale: 1.05, y: -5 }}
+                      >
+                        <div className="podium-rank">2</div>
+                        <div className="podium-content">
+                          <div className="podium-avatar">
+                            <User size={42} />
+                          </div>
+                          <h3>{leaderboard[1].student_name}</h3>
+                          <p className="podium-title">Elite Performer</p>
+                          <div className="podium-score">
+                            <span className="score-value">{leaderboard[1].total_score}</span>
+                            <span className="score-label">pts</span>
+                          </div>
+                        </div>
+                        <div className="podium-base rank-2-base"></div>
+                      </motion.div>
+                    )}
+
+                    {/* Rank 1 - Center (Champion) */}
+                    {leaderboard[0] && (
+                      <motion.div
+                        className="podium-position rank-1"
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7, duration: 0.7 }}
+                        whileHover={{ scale: 1.08, y: -8 }}
+                      >
+                        <div className="podium-crown">👑</div>
+                        <div className="podium-rank champion">1</div>
+                        <div className="podium-content">
+                          <div className="podium-avatar champion-avatar">
+                            <User size={52} />
+                          </div>
+                          <h3>{leaderboard[0].student_name}</h3>
+                          <p className="podium-title champion-title">Champion</p>
+                          <div className="podium-score champion-score">
+                            <span className="score-value">{leaderboard[0].total_score}</span>
+                            <span className="score-label">pts</span>
+                          </div>
+                        </div>
+                        <div className="podium-base rank-1-base"></div>
+                      </motion.div>
+                    )}
+
+                    {/* Rank 3 - Right */}
+                    {leaderboard[2] && (
+                      <motion.div
+                        className="podium-position rank-3"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6, duration: 0.6 }}
+                        whileHover={{ scale: 1.05, y: -5 }}
+                      >
+                        <div className="podium-rank">3</div>
+                        <div className="podium-content">
+                          <div className="podium-avatar">
+                            <User size={42} />
+                          </div>
+                          <h3>{leaderboard[2].student_name}</h3>
+                          <p className="podium-title">Elite Performer</p>
+                          <div className="podium-score">
+                            <span className="score-value">{leaderboard[2].total_score}</span>
+                            <span className="score-label">pts</span>
+                          </div>
+                        </div>
+                        <div className="podium-base rank-3-base"></div>
+                      </motion.div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </GlassCard>
+          </motion.div>
+
           {/* Mentor Notifications */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.4 }}
           >
             <GlassCard>
               <div className="notifications-card">
@@ -918,6 +1089,205 @@ export const HomePage = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Store Modal */}
+      {showStoreModal && (
+        <motion.div
+          className="profile-modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={() => setShowStoreModal(false)}
+        >
+          <motion.div
+            className="profile-modal"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '800px', width: '90%' }}
+          >
+            <GlassCard>
+              <div style={{ padding: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <ShoppingBag size={32} style={{ color: '#FFC107' }} />
+                    <h2 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700' }}>Vault Store</h2>
+                  </div>
+                  <div style={{
+                    padding: '0.75rem 1.25rem',
+                    background: 'rgba(255, 193, 7, 0.2)',
+                    border: '1px solid rgba(255, 193, 7, 0.3)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFC107' }}>
+                      {userCredits} Credits
+                    </span>
+                  </div>
+                </div>
+
+                {loadingStore ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+                    <Loader2 size={48} className="spinner" />
+                  </div>
+                ) : (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                    gap: '1.5rem',
+                    maxHeight: '500px',
+                    overflowY: 'auto',
+                    padding: '0.5rem'
+                  }}>
+                    {storeItems.length > 0 ? (
+                      storeItems.map((item) => (
+                        <div key={item.id} style={{
+                          padding: '1.5rem',
+                          background: 'rgba(255, 255, 255, 0.03)',
+                          border: `2px solid ${
+                            item.rarity === 'legendary' ? 'rgba(255, 215, 0, 0.5)' :
+                            item.rarity === 'epic' ? 'rgba(147, 51, 234, 0.5)' :
+                            item.rarity === 'rare' ? 'rgba(59, 130, 246, 0.5)' :
+                            'rgba(255, 255, 255, 0.1)'
+                          }`,
+                          borderRadius: '12px',
+                          transition: 'all 0.3s ease',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
+                          {item.rarity && (
+                            <div style={{
+                              position: 'absolute',
+                              top: '0.75rem',
+                              right: '0.75rem',
+                              padding: '0.25rem 0.6rem',
+                              background: 
+                                item.rarity === 'legendary' ? 'rgba(255, 215, 0, 0.2)' :
+                                item.rarity === 'epic' ? 'rgba(147, 51, 234, 0.2)' :
+                                item.rarity === 'rare' ? 'rgba(59, 130, 246, 0.2)' :
+                                'rgba(255, 255, 255, 0.1)',
+                              borderRadius: '8px',
+                              fontSize: '0.7rem',
+                              fontWeight: '700',
+                              textTransform: 'uppercase',
+                              color: 
+                                item.rarity === 'legendary' ? '#FFD700' :
+                                item.rarity === 'epic' ? '#9333ea' :
+                                item.rarity === 'rare' ? '#3b82f6' :
+                                '#fff'
+                            }}>
+                              {item.rarity}
+                            </div>
+                          )}
+                          
+                          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--text-primary)', paddingRight: '60px' }}>
+                            {item.name}
+                          </h3>
+                          <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', opacity: 0.7, lineHeight: '1.4' }}>
+                            {item.description}
+                          </p>
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
+                            <span style={{
+                              padding: '0.4rem 0.8rem',
+                              background: 'rgba(255, 193, 7, 0.2)',
+                              border: '1px solid rgba(255, 193, 7, 0.3)',
+                              borderRadius: '8px',
+                              fontSize: '0.9rem',
+                              fontWeight: '700',
+                              color: '#FFC107'
+                            }}>
+                              {item.cost} Credits
+                            </span>
+                            
+                            {item.is_owned ? (
+                              item.is_equipped ? (
+                                <span style={{
+                                  padding: '0.5rem 1rem',
+                                  background: 'rgba(76, 175, 80, 0.2)',
+                                  border: '1px solid rgba(76, 175, 80, 0.3)',
+                                  borderRadius: '8px',
+                                  fontSize: '0.85rem',
+                                  fontWeight: '600',
+                                  color: '#4caf50'
+                                }}>
+                                  ✓ Equipped
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => handleEquipTitle(item.id)}
+                                  style={{
+                                    padding: '0.5rem 1rem',
+                                    background: 'rgba(59, 130, 246, 0.2)',
+                                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                                    borderRadius: '8px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '600',
+                                    color: '#3b82f6',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                  }}
+                                  onMouseOver={(e) => {
+                                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)';
+                                    e.currentTarget.style.transform = 'scale(1.05)';
+                                  }}
+                                  onMouseOut={(e) => {
+                                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                                    e.currentTarget.style.transform = 'scale(1)';
+                                  }}
+                                >
+                                  Equip
+                                </button>
+                              )
+                            ) : (
+                              <button
+                                onClick={() => handleRedeemTitle(item.id, item.cost)}
+                                disabled={userCredits < item.cost}
+                                style={{
+                                  padding: '0.5rem 1rem',
+                                  background: userCredits >= item.cost ? 'rgba(255, 193, 7, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                  border: `1px solid ${userCredits >= item.cost ? 'rgba(255, 193, 7, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
+                                  borderRadius: '8px',
+                                  fontSize: '0.85rem',
+                                  fontWeight: '600',
+                                  color: userCredits >= item.cost ? '#FFC107' : 'rgba(255, 255, 255, 0.3)',
+                                  cursor: userCredits >= item.cost ? 'pointer' : 'not-allowed',
+                                  transition: 'all 0.3s ease',
+                                  opacity: userCredits >= item.cost ? 1 : 0.5
+                                }}
+                                onMouseOver={(e) => {
+                                  if (userCredits >= item.cost) {
+                                    e.currentTarget.style.background = 'rgba(255, 193, 7, 0.3)';
+                                    e.currentTarget.style.transform = 'scale(1.05)';
+                                  }
+                                }}
+                                onMouseOut={(e) => {
+                                  if (userCredits >= item.cost) {
+                                    e.currentTarget.style.background = 'rgba(255, 193, 7, 0.2)';
+                                    e.currentTarget.style.transform = 'scale(1)';
+                                  }
+                                }}
+                              >
+                                Redeem
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '3rem', gridColumn: '1 / -1' }}>
+                        <ShoppingBag size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+                        <p style={{ opacity: 0.6 }}>No items available in store</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </GlassCard>
+          </motion.div>
+        </motion.div>
+      )}
 
       {/* Footer */}
       <footer className="home-footer">

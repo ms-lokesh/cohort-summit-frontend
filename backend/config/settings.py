@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'apps.profiles',
     'apps.dashboard',
     'hackathons',
+    
+    # Gamification System
+    'apps.gamification',
 ]
 
 MIDDLEWARE = [
