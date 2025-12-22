@@ -100,7 +100,7 @@ def setup_mentors(request):
         
         # Assign first 5 students to Mentor 1
         for i, student_profile in enumerate(list(students)[:5]):
-            student_profile.mentor = mentor1
+            student_profile.assigned_mentor = mentor1
             student_profile.save()
             result['students_assigned'].append({
                 'student_id': student_profile.user.id,
@@ -113,7 +113,7 @@ def setup_mentors(request):
         
         # Assign next 5 students to Mentor 2
         for i, student_profile in enumerate(list(students)[5:10]):
-            student_profile.mentor = mentor2
+            student_profile.assigned_mentor = mentor2
             student_profile.save()
             result['students_assigned'].append({
                 'student_id': student_profile.user.id,
