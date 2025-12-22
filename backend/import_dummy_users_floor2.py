@@ -9,24 +9,15 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from apps.profiles.models import UserProfile, Campus, Floor
+from apps.profiles.models import UserProfile
 
 def import_users():
-    # Get or create campus
-    campus, _ = Campus.objects.get_or_create(
-        name="SNS College of Technology",
-        defaults={'address': 'Coimbatore', 'code': 'SNSCT'}
-    )
+    # Use campus and floor from UserProfile choices
+    campus = 'TECH'  # SNS College of Technology
+    floor = 2  # 2nd Year / Floor 2
     
-    # Get or create Floor 2
-    floor, _ = Floor.objects.get_or_create(
-        campus=campus,
-        floor_number=2,
-        defaults={'wing': 'Main'}
-    )
-    
-    print(f"✅ Campus: {campus.name}")
-    print(f"✅ Floor: {floor.floor_number}")
+    print(f"✅ Campus: SNS College of Technology")
+    print(f"✅ Floor: 2nd Year")
     print("\n" + "="*60)
     
     # Read CSV file
@@ -69,31 +60,28 @@ def import_users():
             profile, profile_created = UserProfile.objects.get_or_create(
                 user=user,
                 defaults={
-                    'role': 'student',
+                    'role': 'STUDENT',
                     'campus': campus,
                     'floor': floor,
-                    'year': 1  # Default to 1st year
                 }
             )
             
             if not profile_created:
                 # Update existing profile
-                profile.role = 'student'
+                profile.role = 'STUDENT'
                 profile.campus = campus
                 profile.floor = floor
-                if not profile.year:
-                    profile.year = 1
                 profile.save()
             
-            print(f"{status} | {username:30} | {email:40} | Floor {floor.floor_number}")
+            print(f"{status} | {username:30} | {email:40} | Floor {floor}")
     
     print("\n" + "="*60)
     print(f"✅ Total Created: {created_count}")
     print(f"🔄 Total Updated: {updated_count}")
     print(f"📊 Total Processed: {created_count + updated_count}")
     print("\n🔑 All passwords set to: pass123#")
-    print(f"🏢 Campus: {campus.name}")
-    print(f"🏢 Floor: {floor.floor_number}")
+    print(f"🏢 Campus: SNS College of Technology")
+    print(f"🏢 Floor: 2")
     print("="*60)
 
 if __name__ == '__main__':
