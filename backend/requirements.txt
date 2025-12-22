@@ -8,8 +8,8 @@ setuptools>=65.0.0
 # Authentication (handled by another team member)
 djangorestframework-simplejwt==5.3.0
 
-# Database - PostgreSQL
-psycopg2-binary==2.9.9
+# Database - PostgreSQL (Python 3.13 compatible)
+psycopg[binary]>=3.1.0
 dj-database-url==2.1.0
 
 # Environment Variables
