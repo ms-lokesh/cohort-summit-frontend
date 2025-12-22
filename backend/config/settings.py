@@ -1,4 +1,5 @@
 import os
+import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -86,28 +87,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database Configuration - Supports both SQLite (dev) and PostgreSQL (production)
-DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.sqlite3')
-
-if DB_ENGINE == 'django.db.backends.sqlite3':
-    # SQLite for local development
+# Database - PostgreSQL (production) or SQLite (development)
+if os.getenv('DATABASE_URL'):
+    # Production: Use PostgreSQL from DATABASE_URL (Render/Cloud provides this)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-else:
-    # PostgreSQL for production
+elif os.getenv('DB_ENGINE') == 'django.db.backends.postgresql':
+    # Local PostgreSQL development
     DATABASES = {
         'default': {
-            'ENGINE': DB_ENGINE,
+            'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('DB_NAME', 'cohort_db'),
             'USER': os.getenv('DB_USER', 'postgres'),
             'PASSWORD': os.getenv('DB_PASSWORD', ''),
             'HOST': os.getenv('DB_HOST', 'localhost'),
             'PORT': os.getenv('DB_PORT', '5432'),
-            'CONN_MAX_AGE': 600,  # Connection pooling
+            'CONN_MAX_AGE': 600,
+        }
+    }
+else:
+    # Development: Use SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
