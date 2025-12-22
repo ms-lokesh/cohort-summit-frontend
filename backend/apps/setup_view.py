@@ -52,10 +52,21 @@ def setup_database(request):
         results['errors'].append(f'Admin creation error: {str(e)}')
     
     # Import CSV users
-    csv_path = os.path.join(os.path.dirname(__file__), '..', '..', 'dummy users - Sheet1.csv')
+    # Try multiple possible paths
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), '..', '..', 'dummy users - Sheet1.csv'),
+        os.path.join(os.path.dirname(__file__), '..', '..', '..', 'dummy users - Sheet1.csv'),
+        '/app/dummy users - Sheet1.csv',
+    ]
     
-    if not os.path.exists(csv_path):
-        results['errors'].append(f'CSV not found at: {csv_path}')
+    csv_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            csv_path = path
+            break
+    
+    if not csv_path:
+        results['errors'].append(f'CSV not found. Tried: {possible_paths}')
         return JsonResponse(results)
     
     campus = 'TECH'
