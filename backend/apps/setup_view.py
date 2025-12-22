@@ -48,6 +48,20 @@ def setup_database(request):
             admin.is_staff = True
             admin.save()
             results['admin_updated'] = True
+        
+        # Create admin profile
+        admin_profile, _ = UserProfile.objects.get_or_create(
+            user=admin,
+            defaults={
+                'role': 'ADMIN',
+                'campus': 'TECH',
+                'floor': 1
+            }
+        )
+        admin_profile.role = 'ADMIN'
+        admin_profile.campus = 'TECH'
+        admin_profile.save()
+        
     except Exception as e:
         results['errors'].append(f'Admin creation error: {str(e)}')
     
