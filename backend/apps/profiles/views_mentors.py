@@ -45,7 +45,7 @@ def setup_mentors(request):
         profile1, _ = UserProfile.objects.get_or_create(user=mentor1)
         profile1.role = 'MENTOR'
         profile1.campus = 'TECH'
-        profile1.floor = 1
+        profile1.floor = 2  # Changed to Floor 2 where students are
         profile1.save()
         
         result['mentors_created'].append({
