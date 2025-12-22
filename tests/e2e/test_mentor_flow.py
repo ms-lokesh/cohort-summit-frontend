@@ -15,7 +15,7 @@ class TestMentorDashboard:
         """Test mentor dashboard loads successfully"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -29,7 +29,7 @@ class TestMentorDashboard:
         """Test pending submissions section exists"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -44,7 +44,7 @@ class TestMentorDashboard:
         """Test assigned students section exists"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -63,7 +63,7 @@ class TestMentorSubmissionReview:
         """Test approve button exists for pending submissions"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -82,7 +82,7 @@ class TestMentorSubmissionReview:
         """Test reject button exists for pending submissions"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -101,7 +101,7 @@ class TestMentorSubmissionReview:
         """Test quality score input exists for submissions"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -128,7 +128,7 @@ class TestMentorStudentManagement:
         """Test mentor can view assigned students"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -143,7 +143,7 @@ class TestMentorStudentManagement:
         """Test mentor has at least one assigned student (from test data)"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -162,7 +162,7 @@ class TestMentorUnlockRequests:
         """Test unlock request section exists (OD/WFH)"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -185,7 +185,7 @@ class TestMentorPermissions:
         """Test mentor cannot redeem rewards (student feature)"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -202,7 +202,7 @@ class TestMentorPermissions:
         """Test mentor cannot access admin controls"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -223,7 +223,7 @@ class TestMentorAPIValidation:
         """Test mentor can access submissions API"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -240,7 +240,7 @@ class TestMentorAPIValidation:
         """Test mentor can access assigned students API"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -257,7 +257,7 @@ class TestMentorAPIValidation:
         """Test mentor cannot access admin-only API endpoints"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -278,7 +278,7 @@ class TestMentorReviewFlow:
         """Test complete review flow updates database correctly"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         

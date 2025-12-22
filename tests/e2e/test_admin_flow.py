@@ -15,7 +15,7 @@ class TestAdminDashboard:
         """Test admin dashboard loads successfully"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -29,7 +29,7 @@ class TestAdminDashboard:
         """Test admin can access system-wide statistics"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -44,7 +44,7 @@ class TestAdminDashboard:
         """Test admin can access leaderboard data"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -63,7 +63,7 @@ class TestAdminSeasonConfiguration:
         """Test admin can access season configuration"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -92,7 +92,7 @@ class TestAdminUserManagement:
         """Test admin can access user management"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -121,7 +121,7 @@ class TestAdminPermissions:
         """Test admin cannot directly act as mentor (separate roles)"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -138,7 +138,7 @@ class TestAdminPermissions:
         """Test admin cannot modify student submissions directly"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -203,7 +203,7 @@ class TestAdminAPIValidation:
         """Test admin can access system stats API"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -220,7 +220,7 @@ class TestAdminAPIValidation:
         """Test admin can access leaderboard API"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -237,7 +237,7 @@ class TestAdminAPIValidation:
         """Test admin can access users API"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -258,7 +258,7 @@ class TestAdminAuditAndMonitoring:
         """Test admin can view system-wide user activity"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         
@@ -279,7 +279,7 @@ class TestAdminAuditAndMonitoring:
         """Test admin dashboard shows real-time statistics"""
         auth = AuthHelper(driver)
         auth.login_as_admin(
-            test_admin_credentials["username"],
+            test_admin_credentials["email"],
             test_admin_credentials["password"]
         )
         

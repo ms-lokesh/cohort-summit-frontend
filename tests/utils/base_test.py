@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import requests
+import time
 from typing import Optional, Tuple
 
 
@@ -17,7 +18,7 @@ class BaseTest:
         self.config = driver.test_config
         self.base_url = self.config["base_url"]
         self.api_url = self.config["api_url"]
-        self.wait = WebDriverWait(driver, 10)
+        self.wait_helper = WebDriverWait(driver, 10)
         self.long_wait = WebDriverWait(driver, 30)
     
     # ==================== NAVIGATION ====================
@@ -34,6 +35,10 @@ class BaseTest:
     def refresh_page(self):
         """Refresh current page"""
         self.driver.refresh()
+    
+    def sleep(self, seconds: float):
+        """Simple sleep/wait for specified seconds"""
+        time.sleep(seconds)
     
     # ==================== ELEMENT FINDERS ====================
     
@@ -168,6 +173,11 @@ class BaseTest:
     def get_auth_token_from_browser(self) -> Optional[str]:
         """Extract auth token from browser localStorage or cookies"""
         try:
+            # Check for accessToken (used by the app)
+            token = self.driver.execute_script("return localStorage.getItem('accessToken');")
+            if token:
+                return token
+            # Fallback to 'token' key
             token = self.driver.execute_script("return localStorage.getItem('token');")
             return token
         except Exception:

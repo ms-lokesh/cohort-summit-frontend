@@ -34,7 +34,7 @@ class TestAPIStatusCodes:
         """Test API returns 404 for non-existent endpoints"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -54,7 +54,7 @@ class TestAPIDatabaseValidation:
         """Test API submission creates database record"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -105,7 +105,7 @@ class TestSessionExpiry:
         """Test expired session redirects to login"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -129,7 +129,7 @@ class TestNetworkErrorHandling:
         """Test app handles invalid API endpoint gracefully"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -150,7 +150,7 @@ class TestDuplicateSubmissionPrevention:
         """Test duplicate submissions are prevented"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -194,7 +194,7 @@ class TestInvalidPayloadHandling:
         """Test API returns 400 for missing required fields"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -221,7 +221,7 @@ class TestInvalidPayloadHandling:
         """Test API returns 400 for invalid data types"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -254,7 +254,7 @@ class TestAPITimeoutHandling:
         """Test long-running requests are handled properly"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -275,7 +275,7 @@ class TestPermissionEnforcement:
         """Test student cannot delete other student's data"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -296,7 +296,7 @@ class TestPermissionEnforcement:
         """Test mentor cannot modify admin-level data"""
         auth = AuthHelper(driver)
         auth.login_as_mentor(
-            test_mentor_credentials["username"],
+            test_mentor_credentials["email"],
             test_mentor_credentials["password"]
         )
         
@@ -324,7 +324,7 @@ class TestRollbackOnFailure:
         """Test failed operations don't leave partial data"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -365,7 +365,7 @@ class TestConcurrentOperations:
         
         # Login once
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         

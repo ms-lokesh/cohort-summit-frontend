@@ -12,6 +12,7 @@ def test_student_credentials():
     """Test student credentials"""
     return {
         "username": "test_student",
+        "email": "test_student@cohort.com",
         "password": "test_password_123",
         "role": "student"
     }
@@ -22,6 +23,7 @@ def test_mentor_credentials():
     """Test mentor credentials"""
     return {
         "username": "test_mentor",
+        "email": "test_mentor@cohort.com",
         "password": "test_password_123",
         "role": "mentor"
     }
@@ -32,6 +34,7 @@ def test_floorwing_credentials():
     """Test floor wing credentials"""
     return {
         "username": "test_floorwing",
+        "email": "test_floorwing@cohort.com",
         "password": "test_password_123",
         "role": "floor_wing"
     }
@@ -42,6 +45,7 @@ def test_admin_credentials():
     """Test admin credentials"""
     return {
         "username": "test_admin",
+        "email": "test_admin@cohort.com",
         "password": "test_password_123",
         "role": "admin"
     }

@@ -15,7 +15,7 @@ class TestFloorWingDashboard:
         """Test floor wing dashboard loads successfully"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -31,7 +31,7 @@ class TestFloorWingDashboard:
         """Test floor students section exists"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -46,7 +46,7 @@ class TestFloorWingDashboard:
         """Test floor statistics section exists"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -65,7 +65,7 @@ class TestFloorWingStudentMonitoring:
         """Test floor wing can view assigned students"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -80,7 +80,7 @@ class TestFloorWingStudentMonitoring:
         """Test student progress information is visible"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -100,7 +100,7 @@ class TestFloorWingAnnouncements:
         """Test announcement creation button exists"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -115,7 +115,7 @@ class TestFloorWingAnnouncements:
         """Test can open announcement creation form"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -138,7 +138,7 @@ class TestFloorWingPermissions:
         """Test floor wing cannot approve submissions (mentor feature)"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -155,7 +155,7 @@ class TestFloorWingPermissions:
         """Test floor wing cannot modify student scores"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -172,7 +172,7 @@ class TestFloorWingPermissions:
         """Test floor wing cannot access admin-level settings"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -193,7 +193,7 @@ class TestFloorWingAPIValidation:
         """Test floor wing can access floor students API"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -210,7 +210,7 @@ class TestFloorWingAPIValidation:
         """Test floor wing can access announcements API"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -227,7 +227,7 @@ class TestFloorWingAPIValidation:
         """Test floor wing cannot access mentor-only API endpoints"""
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         
@@ -249,7 +249,7 @@ class TestFloorWingAnnouncementFlow:
         # Login as floor wing and create announcement
         auth = AuthHelper(driver)
         auth.login_as_floor_wing(
-            test_floorwing_credentials["username"],
+            test_floorwing_credentials["email"],
             test_floorwing_credentials["password"]
         )
         

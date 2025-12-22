@@ -15,7 +15,7 @@ class TestStudentDashboard:
         """Test student dashboard loads with all required elements"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -29,7 +29,7 @@ class TestStudentDashboard:
         """Test Season Score is visible on dashboard"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -44,7 +44,7 @@ class TestStudentDashboard:
         """Test Legacy Score is visible on dashboard"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -59,7 +59,7 @@ class TestStudentDashboard:
         """Test Vault Credits are visible on dashboard"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -74,7 +74,7 @@ class TestStudentDashboard:
         """Test 5 Pillars Status card is removed from dashboard"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -93,7 +93,7 @@ class TestStudentPodium:
         """Test podium is locked before season completion"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -112,7 +112,7 @@ class TestStudentPodium:
         """Test locked podium shows correct message"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -133,7 +133,7 @@ class TestStudentPillarSubmissions:
         """Test CLT submission button exists"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -147,7 +147,7 @@ class TestStudentPillarSubmissions:
         """Test CFC submission button exists"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -161,7 +161,7 @@ class TestStudentPillarSubmissions:
         """Test IIPC submission button exists"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -175,7 +175,7 @@ class TestStudentPillarSubmissions:
         """Test SRI submission button exists"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -189,7 +189,7 @@ class TestStudentPillarSubmissions:
         """Test SCD (LeetCode) section exists"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -207,7 +207,7 @@ class TestStudentLeetCodeStreak:
         """Test streak count is visible"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -222,7 +222,7 @@ class TestStudentLeetCodeStreak:
         """Test streak count displays a number"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -243,7 +243,7 @@ class TestStudentGamification:
         """Test redemption button exists for Vault Credits"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -258,7 +258,7 @@ class TestStudentGamification:
         """Test user title display exists"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -279,7 +279,7 @@ class TestStudentSeasonCompletion:
         """Test partial season completion shows no Season Score"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -302,7 +302,7 @@ class TestStudentAPIValidation:
         """Test student can access their profile API"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
@@ -318,7 +318,7 @@ class TestStudentAPIValidation:
         """Test student can access gamification stats API"""
         auth = AuthHelper(driver)
         auth.login_as_student(
-            test_student_credentials["username"],
+            test_student_credentials["email"],
             test_student_credentials["password"]
         )
         
