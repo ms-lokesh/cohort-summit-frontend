@@ -481,7 +481,7 @@ const FloorDetail = () => {
                         </GlassCard>
                     )}
                 </div>
-            </div>
+            </motion.div>
 
             {/* Student Detail Drawer */}
             <AnimatePresence>
