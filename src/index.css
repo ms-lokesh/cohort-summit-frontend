@@ -55,6 +55,20 @@
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #BDBDBD;
   --color-border: #424242;
+  
+  /* Aliases for components */
+  --text-primary: #FFFFFF;
+  --text-secondary: #BDBDBD;
+  --primary-color: #F7C948;
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+/* Light Theme Aliases */
+[data-theme='light'] {
+  --text-primary: #000000;
+  --text-secondary: #616161;
+  --primary-color: #F7C948;
+  --glass-border: rgba(0, 0, 0, 0.1);
 }
 
 /* CSS Reset */
