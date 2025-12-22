@@ -57,7 +57,8 @@ MIDDLEWARE = [
 
 # Security Settings for Production
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    # Railway handles SSL, so don't redirect (causes CORS preflight issues)
+    SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000  # 1 year
@@ -158,6 +159,8 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 ).split(',')
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False  # Keep it secure
+CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_ALLOW_HEADERS = ['accept', 'accept-encoding', 'authorization', 'content-type', 'dnt', 'origin', 'user-agent', 'x-csrftoken', 'x-requested-with']
 
 # Django REST Framework Settings
 REST_FRAMEWORK = {
