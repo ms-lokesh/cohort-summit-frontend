@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenObtainPairView as BaseTokenObtainPairView
 from apps.jwt_serializers import EmailTokenObtainPairSerializer
 from apps.users_views import UserProfileView
+from apps.setup_view import setup_database
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -32,6 +33,9 @@ schema_view = get_schema_view(
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
+    
+    # One-time database setup endpoint
+    path('api/setup-database/', setup_database, name='setup_database'),
     
     # API Documentation
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
