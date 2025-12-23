@@ -56,6 +56,15 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    overflow: hidden;
+    padding: 0.5rem;
+}
+
+.campus-logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
 }
 
 .campus-card:hover .campus-icon {
