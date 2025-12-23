@@ -117,7 +117,7 @@ const FloorDetail = () => {
         );
     }
 
-    const campusName = campus === 'TECH' ? 'Technology' : 'Arts & Science';
+    const campusName = campus === 'TECH' ? 'Dr. SNS Rajalakshmi College of Arts and Science' : 'SNS College of Technology';
 
     return (
         <div className="floor-detail">
