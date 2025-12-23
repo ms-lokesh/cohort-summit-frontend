@@ -18,6 +18,7 @@ from .announcement_views import FloorAnnouncementViewSet, StudentAnnouncementVie
 from .notification_views import NotificationViewSet
 from .views_import import import_dummy_users
 from .views_mentors import setup_mentors
+from .views_floorwings import setup_floorwings
 
 app_name = 'profiles'
 
@@ -48,6 +49,9 @@ urlpatterns = [
     
     # Setup mentors endpoint (admin only)
     path('admin/setup-mentors/', setup_mentors, name='admin-setup-mentors'),
+    
+    # Setup floor wings endpoint (admin only)
+    path('admin/setup-floorwings/', setup_floorwings, name='admin-setup-floorwings'),
     
     # Announcement routes (via router)
     path('', include(router.urls)),
