@@ -44,6 +44,8 @@ function CampusOverview() {
         );
     }
 
+    // Helper for subtitle label
+    const floorLabel = campus === 'TECH' ? 'Floors' : 'Years';
     return (
         <div className="campus-overview-container">
             <motion.div
@@ -64,7 +66,7 @@ function CampusOverview() {
                     </Button>
                     <h1 className="campus-overview-title">{campusData.campus_name}</h1>
                     <p className="campus-overview-subtitle">
-                        {campusData.floors?.length || 0} Floors - Manage floor wings, mentors, and students
+                        {campusData.floors?.length || 0} {floorLabel} - Manage {floorLabel.toLowerCase()} wings, mentors, and students
                     </p>
                 </div>
             </motion.div>
@@ -85,8 +87,8 @@ function CampusOverview() {
                             <div className="floor-card">
                                 <div className="floor-header">
                                     <div>
-                                        <h2 className="floor-title">{campus === 'ARTS' ? `Floor ${floor.floor}` : floor.floor_name}</h2>
-                                        <p className="floor-subtitle">{campus === 'ARTS' ? floor.floor_name : ''}</p>
+                                        <h2 className="floor-title">{floor.floor_name}</h2>
+                                        <p className="floor-subtitle">{campus === 'TECH' ? 'Engineering Floor' : ''}</p>
                                     </div>
                                     <ChevronRight size={24} color="var(--primary-color)" />
                                 </div>

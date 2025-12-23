@@ -11,20 +11,20 @@ function CampusSelection() {
     const campuses = [
         {
             id: 'TECH',
-            name: 'Dr. SNS Rajalakshmi College of Arts and Science',
-            icon: GraduationCap,
-            color: '#9C27B0',
-            floors: 3,
-            description: 'Arts and Science Campus',
-            path: '/admin/campus/TECH'
-        },
-        {
-            id: 'ARTS',
             name: 'SNS College of Technology',
             icon: Building2,
             color: '#2196F3',
             floors: 4,
             description: 'Engineering and Technology Campus',
+            path: '/admin/campus/TECH'
+        },
+        {
+            id: 'ARTS',
+            name: 'Dr. SNS Rajalakshmi College of Arts and Science',
+            icon: GraduationCap,
+            color: '#9C27B0',
+            floors: 3,
+            description: 'Arts and Science Campus',
             path: '/admin/campus/ARTS'
         }
     ];
