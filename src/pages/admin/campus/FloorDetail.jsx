@@ -226,7 +226,7 @@ const FloorDetail = () => {
                                                 </div>
                                                 <div className="detail-row">
                                                     <span className="detail-label">Submissions:</span>
-                                                    <span className="detail-value">{student.submission_count || 0}</span>
+                                                    <span className="detail-value">{student.submissions || student.submission_count || 0}</span>
                                                 </div>
                                             </div>
                                         </div>

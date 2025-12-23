@@ -218,7 +218,7 @@ const FloorDetail = () => {
                                                     {student.mentor ? `Mentor: ${student.mentor}` : 'No Mentor'}
                                                 </span>
                                                 <span className="submission-count">
-                                                    {student.submission_count || 0} submissions
+                                                    {student.submissions || student.submission_count || 0} submissions
                                                 </span>
                                             </div>
                                         </motion.div>
@@ -237,7 +237,7 @@ const FloorDetail = () => {
                         <GlassCard>
                             <div className="section-header">
                                 <h3>Mentors on Floor {floor}</h3>
-                                <button 
+                                <button
                                     className="assign-button"
                                     onClick={() => setAssignmentMode('mentor')}
                                 >
