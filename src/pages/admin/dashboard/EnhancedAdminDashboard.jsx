@@ -25,9 +25,33 @@ function EnhancedAdminDashboard() {
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [likes, setLikes] = useState({});
 
-    // Simulate data loading
+    // Fetch real-time stats from API
+    const fetchStats = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profiles/admin/stats/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setStats(data);
+            }
+        } catch (error) {
+            console.error('Error fetching admin stats:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch stats on mount and set up auto-refresh every 30 seconds
     useEffect(() => {
-        setTimeout(() => setLoading(false), 800);
+        fetchStats();
+        const interval = setInterval(fetchStats, 30000); // Refresh every 30 seconds
+        return () => clearInterval(interval);
     }, []);
 
     // Chart colors matching brand

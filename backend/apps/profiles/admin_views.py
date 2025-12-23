@@ -6,6 +6,10 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from apps.profiles.models import UserProfile
 from apps.profiles.permissions import IsAdmin
+from apps.clt.models import CLTSubmission
+from apps.cfc.models import HackathonSubmission, BMCVideoSubmission, InternshipSubmission, GenAIProjectSubmission
+from apps.iipc.models import LinkedInPostVerification, LinkedInConnectionVerification
+from apps.scd.models import LeetCodeProfile
 
 
 class AdminCampusOverviewView(APIView):
@@ -366,3 +370,92 @@ class AdminStudentDetailView(APIView):
             return 'at_risk'
         else:
             return 'behind'
+
+
+class AdminStatsView(APIView):
+    """Admin dashboard stats view - real-time data"""
+    permission_classes = [IsAuthenticated, IsAdmin]
+    
+    def get(self, request):
+        try:
+            # Get all students count
+            total_students = UserProfile.objects.filter(role='STUDENT').count()
+            
+            # Get all mentors count
+            total_mentors = UserProfile.objects.filter(role='MENTOR').count()
+            
+            # Get all floor wings count (total floors with floor wings)
+            total_floors = UserProfile.objects.filter(role='FLOOR_WING').values('campus', 'floor').distinct().count()
+            
+            # Get submission stats from all pillars
+            # CLT Submissions
+            clt_pending = CLTSubmission.objects.filter(status__in=['draft', 'submitted', 'under_review']).count()
+            clt_approved = CLTSubmission.objects.filter(status='approved').count()
+            clt_rejected = CLTSubmission.objects.filter(status='rejected').count()
+            
+            # CFC Submissions
+            hackathon_pending = HackathonSubmission.objects.filter(status__in=['draft', 'submitted', 'under_review']).count()
+            hackathon_approved = HackathonSubmission.objects.filter(status='approved').count()
+            hackathon_rejected = HackathonSubmission.objects.filter(status='rejected').count()
+            
+            bmc_pending = BMCVideoSubmission.objects.filter(status__in=['draft', 'submitted', 'under_review']).count()
+            bmc_approved = BMCVideoSubmission.objects.filter(status='approved').count()
+            bmc_rejected = BMCVideoSubmission.objects.filter(status='rejected').count()
+            
+            internship_pending = InternshipSubmission.objects.filter(status__in=['draft', 'submitted', 'under_review']).count()
+            internship_approved = InternshipSubmission.objects.filter(status='approved').count()
+            internship_rejected = InternshipSubmission.objects.filter(status='rejected').count()
+            
+            genai_pending = GenAIProjectSubmission.objects.filter(status__in=['draft', 'submitted', 'under_review']).count()
+            genai_approved = GenAIProjectSubmission.objects.filter(status='approved').count()
+            genai_rejected = GenAIProjectSubmission.objects.filter(status='rejected').count()
+            
+            # IIPC Submissions
+            linkedin_post_pending = LinkedInPostVerification.objects.filter(status__in=['draft', 'submitted', 'under_review']).count()
+            linkedin_post_approved = LinkedInPostVerification.objects.filter(status='approved').count()
+            linkedin_post_rejected = LinkedInPostVerification.objects.filter(status='rejected').count()
+            
+            linkedin_conn_pending = LinkedInConnectionVerification.objects.filter(status__in=['draft', 'submitted', 'under_review']).count()
+            linkedin_conn_approved = LinkedInConnectionVerification.objects.filter(status='approved').count()
+            linkedin_conn_rejected = LinkedInConnectionVerification.objects.filter(status='rejected').count()
+            
+            # Aggregate totals
+            total_pending = (clt_pending + hackathon_pending + bmc_pending + internship_pending + 
+                           genai_pending + linkedin_post_pending + linkedin_conn_pending)
+            total_approved = (clt_approved + hackathon_approved + bmc_approved + internship_approved + 
+                            genai_approved + linkedin_post_approved + linkedin_conn_approved)
+            total_rejected = (clt_rejected + hackathon_rejected + bmc_rejected + internship_rejected + 
+                            genai_rejected + linkedin_post_rejected + linkedin_conn_rejected)
+            
+            # Get active users (users with at least one submission)
+            active_users = UserProfile.objects.filter(
+                role='STUDENT',
+                user__in=User.objects.filter(
+                    Q(cltsubmission__isnull=False) |
+                    Q(hackathonsubmission__isnull=False) |
+                    Q(bmcvideosubmission__isnull=False) |
+                    Q(internshipsubmission__isnull=False) |
+                    Q(genaiprojectsubmission__isnull=False) |
+                    Q(linkedinpostverification__isnull=False) |
+                    Q(linkedinconnectionverification__isnull=False) |
+                    Q(leetcodeprofile__isnull=False)
+                )
+            ).distinct().count()
+            
+            return Response({
+                'totalStudents': total_students,
+                'totalMentors': total_mentors,
+                'totalFloors': total_floors,
+                'pendingSubmissions': total_pending,
+                'approvedSubmissions': total_approved,
+                'rejectedSubmissions': total_rejected,
+                'activeUsers': active_users,
+                'submissionsThisWeek': total_pending + total_approved + total_rejected,  # Total submissions as proxy
+                'xpGivenThisMonth': 0,  # TODO: Implement gamification XP tracking
+                'floorPerformanceScore': 0,  # TODO: Implement floor performance calculation
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

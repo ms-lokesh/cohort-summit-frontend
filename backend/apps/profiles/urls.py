@@ -12,7 +12,8 @@ from .admin_views import (
     AdminFloorDetailView,
     AdminAssignFloorWingView,
     AdminAssignMentorView,
-    AdminStudentDetailView
+    AdminStudentDetailView,
+    AdminStatsView
 )
 from .announcement_views import FloorAnnouncementViewSet, StudentAnnouncementViewSet
 from .notification_views import NotificationViewSet
@@ -38,6 +39,7 @@ urlpatterns = [
     path('floor-wing/assign-student/', FloorWingAssignStudentView.as_view(), name='floor-wing-assign-student'),
     
     # Admin routes
+    path('admin/stats/', AdminStatsView.as_view(), name='admin-stats'),
     path('admin/campus/<str:campus>/', AdminCampusOverviewView.as_view(), name='admin-campus-overview'),
     path('admin/campus/<str:campus>/floor/<int:floor>/', AdminFloorDetailView.as_view(), name='admin-floor-detail'),
     path('admin/assign-floor-wing/', AdminAssignFloorWingView.as_view(), name='admin-assign-floor-wing'),
