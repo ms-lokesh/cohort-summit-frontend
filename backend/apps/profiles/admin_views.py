@@ -496,13 +496,7 @@ class AdminStudentDetailView(APIView):
     def _get_pillar_progress(self, profile):
         """Calculate pillar progress - real implementation"""
         user = profile.user
-        pillar_stats = {
-            'CFC': {'completed': 0, 'total': 4, 'percentage': 0},
-            'CLT': {'completed': 0, 'total': 1, 'percentage': 0},
-            'SRI': {'completed': 0, 'total': 0, 'percentage': 0},
-            'IIPC': {'completed': 0, 'total': 2, 'percentage': 0},
-            'SCD': {'completed': 0, 'total': 1, 'percentage': 0}
-        }
+        pillar_percentages = {}
         
         # CFC - 4 tasks (hackathon, BMC, internship, GenAI)
         try:
@@ -512,18 +506,16 @@ class AdminStudentDetailView(APIView):
                 InternshipSubmission.objects.filter(user=user, status='approved').count() +
                 GenAIProjectSubmission.objects.filter(user=user, status='approved').count()
             )
-            pillar_stats['CFC']['completed'] = cfc_completed
-            pillar_stats['CFC']['percentage'] = min(100, int((cfc_completed / 4) * 100))
+            pillar_percentages['CFC'] = min(100, int((cfc_completed / 4) * 100))
         except Exception:
-            pass
+            pillar_percentages['CFC'] = 0
         
         # CLT - 1 certificate
         try:
             clt_completed = CLTSubmission.objects.filter(user=user, status='approved').count()
-            pillar_stats['CLT']['completed'] = min(1, clt_completed)
-            pillar_stats['CLT']['percentage'] = min(100, clt_completed * 100)
+            pillar_percentages['CLT'] = min(100, clt_completed * 100)
         except Exception:
-            pass
+            pillar_percentages['CLT'] = 0
         
         # IIPC - 2 tasks (LinkedIn post + connection)
         try:
@@ -531,27 +523,26 @@ class AdminStudentDetailView(APIView):
                 LinkedInPostVerification.objects.filter(user=user, status='approved').count() +
                 LinkedInConnectionVerification.objects.filter(user=user, status='approved').count()
             )
-            pillar_stats['IIPC']['completed'] = iipc_completed
-            pillar_stats['IIPC']['percentage'] = min(100, int((iipc_completed / 2) * 100))
+            pillar_percentages['IIPC'] = min(100, int((iipc_completed / 2) * 100))
         except Exception:
-            pass
+            pillar_percentages['IIPC'] = 0
         
         # SCD - 1 LeetCode profile with 10+ problems
         try:
             scd_profile = LeetCodeProfile.objects.filter(user=user, total_solved__gte=10).exists()
-            pillar_stats['SCD']['completed'] = 1 if scd_profile else 0
-            pillar_stats['SCD']['percentage'] = 100 if scd_profile else 0
+            pillar_percentages['SCD'] = 100 if scd_profile else 0
         except Exception:
-            pass
+            pillar_percentages['SCD'] = 0
+        
+        # SRI - not implemented yet
+        pillar_percentages['SRI'] = 0
         
         # Calculate overall progress
-        total_completed = sum(p['completed'] for p in pillar_stats.values())
-        total_tasks = sum(p['total'] for p in pillar_stats.values())
-        overall = int((total_completed / total_tasks) * 100) if total_tasks > 0 else 0
+        overall = int(sum(pillar_percentages.values()) / len(pillar_percentages)) if pillar_percentages else 0
         
         return {
             'overall': overall,
-            'pillars': pillar_stats
+            'pillars': pillar_percentages
         }
     
     def _get_submission_stats(self, profile):
