@@ -426,19 +426,30 @@ class AdminStudentDetailView(APIView):
             
             # Get mentor info
             mentor_info = None
-            if hasattr(profile, 'assigned_mentor') and profile.assigned_mentor:
-                mentor = profile.assigned_mentor
-                mentor_info = {
-                    'id': mentor.id,
-                    'name': f"{mentor.first_name} {mentor.last_name}",
-                    'email': mentor.email
-                }
+            try:
+                if hasattr(profile, 'assigned_mentor') and profile.assigned_mentor:
+                    mentor = profile.assigned_mentor
+                    mentor_info = {
+                        'id': mentor.id,
+                        'name': f"{mentor.first_name} {mentor.last_name}",
+                        'email': mentor.email
+                    }
+            except Exception as e:
+                print(f"Error getting mentor info: {e}")
             
-            # Get pillar progress (placeholder - implement based on your submission models)
-            pillar_details = self._get_pillar_progress(profile)
+            # Get pillar progress
+            pillar_details = {'overall': 0, 'pillars': {}}
+            try:
+                pillar_details = self._get_pillar_progress(profile)
+            except Exception as e:
+                print(f"Error getting pillar progress: {e}")
             
             # Get submission counts
-            submission_stats = self._get_submission_stats(profile)
+            submission_stats = {'total': 0, 'approved': 0, 'pending': 0, 'rejected': 0}
+            try:
+                submission_stats = self._get_submission_stats(profile)
+            except Exception as e:
+                print(f"Error getting submission stats: {e}")
             
             # Get campus name safely
             campus_name = 'N/A'
@@ -467,6 +478,13 @@ class AdminStudentDetailView(APIView):
             return Response({
                 'error': 'Student not found'
             }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            import traceback
+            print(f"AdminStudentDetailView Error: {str(e)}")
+            print(traceback.format_exc())
+            return Response({
+                'error': f'Error loading student details: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def _get_pillar_progress(self, profile):
         """Calculate pillar progress - real implementation"""
