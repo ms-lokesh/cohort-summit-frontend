@@ -14,7 +14,7 @@ export const Games = () => {
             name: 'KenKen Puzzle',
             description: 'Daily mathematical logic puzzle. Solve a new 4x4 KenKen puzzle each day and maintain your streak!',
             icon: Brain,
-            color: 'linear-gradient(135deg, #F7C948 0%, #FFA726 100%)',
+            color: 'linear-gradient(135deg, #ffcc00 0%, #FFA726 100%)',
             borderColor: 'rgba(247, 201, 72, 0.5)',
         },
         // More games can be added here in the future

@@ -127,7 +127,7 @@ const Settings = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                 >
-                    <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #F7C948 0%, #E53935 100%)' }}>
+                    <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%)' }}>
                         <Database size={28} />
                     </div>
                     <div className="stat-content">

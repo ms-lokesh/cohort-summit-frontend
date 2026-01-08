@@ -25,7 +25,7 @@ const PILLARS = [
     title: 'Center for Learning and Teaching',
     description: 'Document your creative projects and showcase your learning journey',
     icon: Lightbulb,
-    color: '#F7C948',
+    color: '#ffcc00',
     path: '/clt',
   },
   {
@@ -57,7 +57,7 @@ const PILLARS = [
     title: 'Social Responsibility Initiatives',
     description: 'Track your community service and social impact activities',
     icon: Heart,
-    color: '#E53935',
+    color: '#ffcc00',
     path: '/sri',
   },
   {
@@ -312,7 +312,7 @@ export const HomePage = () => {
     return (
       <div className="home-container">
         <div style={{ textAlign: 'center', padding: '3rem' }}>
-          <XCircle size={48} color="#E53935" style={{ marginBottom: '1rem' }} />
+          <XCircle size={48} color="#ffcc00" style={{ marginBottom: '1rem' }} />
           <h2>{error}</h2>
           {error.includes('log in') ? (
             <Button onClick={() => window.location.href = '/login'} style={{ marginTop: '1rem' }}>
@@ -559,7 +559,7 @@ export const HomePage = () => {
             <GlassCard>
               <div className="profile-modal-content">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                  <Megaphone size={32} style={{ color: '#F7C948' }} />
+                  <Megaphone size={32} style={{ color: '#ffcc00' }} />
                   <h2 style={{ margin: 0 }}>Announcements from Mentor</h2>
                 </div>
                 
@@ -593,7 +593,7 @@ export const HomePage = () => {
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
                             <div style={{ flex: 1 }}>
                               <strong style={{ fontSize: '1.15rem', color: 'var(--text-primary)' }}>
-                                {!announcement.is_read && <span style={{ color: '#F7C948', marginRight: '0.5rem' }}>●</span>}
+                                {!announcement.is_read && <span style={{ color: '#ffcc00', marginRight: '0.5rem' }}>●</span>}
                                 {announcement.title}
                               </strong>
                             </div>
@@ -628,7 +628,7 @@ export const HomePage = () => {
                           </p>
                           {announcement.event_date && (
                             <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                              <Calendar size={16} style={{ verticalAlign: 'middle', marginRight: '0.5rem', color: '#F7C948' }} />
+                              <Calendar size={16} style={{ verticalAlign: 'middle', marginRight: '0.5rem', color: '#ffcc00' }} />
                               {new Date(announcement.event_date).toLocaleDateString('en-US', { 
                                 weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
                               })}
@@ -651,7 +651,7 @@ export const HomePage = () => {
                                   background: 'rgba(247, 201, 72, 0.2)',
                                   border: '1px solid rgba(247, 201, 72, 0.4)',
                                   borderRadius: '8px',
-                                  color: '#F7C948',
+                                  color: '#ffcc00',
                                   fontSize: '0.8rem',
                                   fontWeight: '600',
                                   cursor: 'pointer',
@@ -801,13 +801,13 @@ export const HomePage = () => {
               height: '48px'
             }}
           >
-            <Megaphone size={22} style={{ color: '#F7C948' }} />
+            <Megaphone size={22} style={{ color: '#ffcc00' }} />
             {unreadCount > 0 && (
               <span style={{
                 position: 'absolute',
                 top: '-6px',
                 right: '-6px',
-                background: '#F7C948',
+                background: '#ffcc00',
                 color: '#000',
                 borderRadius: '50%',
                 width: '20px',
@@ -877,8 +877,8 @@ export const HomePage = () => {
                   <svg viewBox="0 0 100 100">
                     <defs>
                       <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#F7C948" />
-                        <stop offset="100%" stopColor="#E53935" />
+                        <stop offset="0%" stopColor="#ffcc00" />
+                        <stop offset="100%" stopColor="#ffcc00" />
                       </linearGradient>
                     </defs>
                     <circle cx="50" cy="50" r="45" className="progress-bg" />

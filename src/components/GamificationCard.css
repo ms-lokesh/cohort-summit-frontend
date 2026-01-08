@@ -41,7 +41,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #F7C948;
+  color: #ffcc00;
   flex-shrink: 0;
 }
 
@@ -129,7 +129,7 @@
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #F7C948;
+  color: #ffcc00;
   white-space: nowrap;
 }
 
@@ -197,7 +197,7 @@
 }
 
 .progress-bar-fill.score {
-  background: linear-gradient(90deg, #F7C948, #ff9800);
+  background: linear-gradient(90deg, #ffcc00, #ff9800);
 }
 
 /* Task Checklist */

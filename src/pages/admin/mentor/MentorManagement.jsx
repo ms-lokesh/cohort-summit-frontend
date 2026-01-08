@@ -78,7 +78,7 @@ const MentorManagement = () => {
                             transition={{ delay: 0.1 }}
                         >
                             <div className="stat-icon-dashboard" style={{ backgroundColor: 'rgba(247, 201, 72, 0.2)' }}>
-                                <UserCheck size={24} style={{ color: '#F7C948' }} />
+                                <UserCheck size={24} style={{ color: '#ffcc00' }} />
                             </div>
                             <div className="stat-content-dashboard">
                                 <span className="stat-value-dashboard">{mentorsData.length}</span>
@@ -93,7 +93,7 @@ const MentorManagement = () => {
                             transition={{ delay: 0.2 }}
                         >
                             <div className="stat-icon-dashboard" style={{ backgroundColor: 'rgba(229, 57, 53, 0.2)' }}>
-                                <TrendingUp size={24} style={{ color: '#E53935' }} />
+                                <TrendingUp size={24} style={{ color: '#ffcc00' }} />
                             </div>
                             <div className="stat-content-dashboard">
                                 <span className="stat-value-dashboard">{(mentorsData.reduce((sum, m) => sum + m.approvalRate, 0) / mentorsData.length).toFixed(1)}%</span>

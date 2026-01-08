@@ -55,7 +55,7 @@ function EnhancedAdminDashboard() {
     }, []);
 
     // Chart colors matching brand
-    const COLORS = ['#F7C948', '#E53935', '#FFC107', '#FF5722', '#4CAF50'];
+    const COLORS = ['#ffcc00', '#ffcc00', '#FFC107', '#FF5722', '#4CAF50'];
 
     // Top performers
     const topMentors = mentorsData
@@ -85,7 +85,7 @@ function EnhancedAdminDashboard() {
             ],
             score: 98,
             likes: 469,
-            color: '#F7C948',
+            color: '#ffcc00',
             logo: "https://ui-avatars.com/api/?name=CC&background=F7C948&color=000&size=120&bold=true"
         },
         {
@@ -105,7 +105,7 @@ function EnhancedAdminDashboard() {
             ],
             score: 95,
             likes: 223,
-            color: '#E53935',
+            color: '#ffcc00',
             logo: "https://ui-avatars.com/api/?name=TT&background=E53935&color=fff&size=120&bold=true"
         },
         {
@@ -190,7 +190,7 @@ function EnhancedAdminDashboard() {
                                 <div className="admin-stats-grid">
                                     <div className="admin-stat-item" onClick={() => navigate('/admin/students')}>
                                         <div className="admin-stat-icon" style={{ backgroundColor: 'rgba(247, 201, 72, 0.2)' }}>
-                                            <Users size={24} style={{ color: '#F7C948' }} />
+                                            <Users size={24} style={{ color: '#ffcc00' }} />
                                         </div>
                                         <div className="admin-stat-info">
                                             <span className="admin-stat-value">{stats.totalStudents}</span>
@@ -201,7 +201,7 @@ function EnhancedAdminDashboard() {
 
                                     <div className="admin-stat-item" onClick={() => navigate('/admin/mentors')}>
                                         <div className="admin-stat-icon" style={{ backgroundColor: 'rgba(229, 57, 53, 0.2)' }}>
-                                            <UserCheck size={24} style={{ color: '#E53935' }} />
+                                            <UserCheck size={24} style={{ color: '#ffcc00' }} />
                                         </div>
                                         <div className="admin-stat-info">
                                             <span className="admin-stat-value">{stats.totalMentors}</span>
@@ -266,8 +266,8 @@ function EnhancedAdminDashboard() {
                                         />
                                         <defs>
                                             <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="0%" stopColor="#F7C948" />
-                                                <stop offset="100%" stopColor="#E53935" />
+                                                <stop offset="0%" stopColor="#ffcc00" />
+                                                <stop offset="100%" stopColor="#ffcc00" />
                                             </linearGradient>
                                         </defs>
                                         <Bar dataKey="completion" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
@@ -329,7 +329,7 @@ function EnhancedAdminDashboard() {
                             <div className="hackathon-spotlight-container">
                                 <div className="hackathon-header">
                                     <h2>
-                                        <Trophy size={24} style={{ marginRight: '10px', color: '#F7C948' }} />
+                                        <Trophy size={24} style={{ marginRight: '10px', color: '#ffcc00' }} />
                                         Projects Spotlight
                                     </h2>
                                     <p className="hackathon-subtitle">Celebrating our champion teams</p>
@@ -370,7 +370,7 @@ function EnhancedAdminDashboard() {
                                                             toggleLike(team.id);
                                                         }}
                                                     >
-                                                        <Heart size={18} fill={likes[team.id] ? '#E53935' : 'none'} />
+                                                        <Heart size={18} fill={likes[team.id] ? '#ffcc00' : 'none'} />
                                                     </button>
                                                     <span className="likes-count">{team.likes + (likes[team.id] ? 1 : 0)}</span>
                                                 </div>
@@ -418,7 +418,7 @@ function EnhancedAdminDashboard() {
                                         className={`modal-like-btn ${likes[selectedTeam.id] ? 'liked' : ''}`}
                                         onClick={() => toggleLike(selectedTeam.id)}
                                     >
-                                        <Heart size={24} fill={likes[selectedTeam.id] ? '#E53935' : 'none'} />
+                                        <Heart size={24} fill={likes[selectedTeam.id] ? '#ffcc00' : 'none'} />
                                     </button>
                                     <span className="modal-likes-count">{selectedTeam.likes + (likes[selectedTeam.id] ? 1 : 0)}</span>
                                 </div>
@@ -436,7 +436,7 @@ function EnhancedAdminDashboard() {
                                         </div>
 
                                         <div className="modal-info-item">
-                                            <Award size={20} style={{ color: '#F7C948' }} />
+                                            <Award size={20} style={{ color: '#ffcc00' }} />
                                             <div>
                                                 <p className="info-label">Hackathon</p>
                                                 <p className="info-value">{selectedTeam.hackathon}</p>
@@ -452,7 +452,7 @@ function EnhancedAdminDashboard() {
                                         </div>
 
                                         <div className="modal-info-item">
-                                            <Calendar size={20} style={{ color: '#E53935' }} />
+                                            <Calendar size={20} style={{ color: '#ffcc00' }} />
                                             <div>
                                                 <p className="info-label">Date</p>
                                                 <p className="info-value">{selectedTeam.date}</p>
@@ -549,8 +549,8 @@ function EnhancedAdminDashboard() {
                                     />
                                     <defs>
                                         <linearGradient id="mentorGradient" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#F7C948" />
-                                            <stop offset="100%" stopColor="#E53935" />
+                                            <stop offset="0%" stopColor="#ffcc00" />
+                                            <stop offset="100%" stopColor="#ffcc00" />
                                         </linearGradient>
                                     </defs>
                                     <Bar dataKey="approvalRate" fill="url(#mentorGradient)" radius={[0, 8, 8, 0]} />

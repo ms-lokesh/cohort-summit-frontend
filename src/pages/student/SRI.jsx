@@ -145,7 +145,7 @@ export const SRI = () => {
                 <motion.span
                   className={`sri-character-count ${isNearLimit ? 'sri-character-count--warning' : ''}`}
                   animate={isNearLimit ? {
-                    color: ['#F7C948', '#E53935'],
+                    color: ['#ffcc00', '#ffcc00'],
                   } : {}}
                   transition={{ duration: 1, repeat: Infinity }}
                 >
@@ -235,8 +235,8 @@ export const SRI = () => {
 
                 <defs>
                   <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#F7C948" />
-                    <stop offset="100%" stopColor="#E53935" />
+                    <stop offset="0%" stopColor="#ffcc00" />
+                    <stop offset="100%" stopColor="#ffcc00" />
                   </linearGradient>
                 </defs>
               </svg>

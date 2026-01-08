@@ -134,8 +134,8 @@ const StudentProfiles = () => {
     };
 
     const pillarColors = {
-        CLT: '#F7C948',
-        SRI: '#E53935',
+        CLT: '#ffcc00',
+        SRI: '#ffcc00',
         CFC: '#42A5F5',
         IIPC: '#66BB6A',
         SCD: '#AB47BC'
@@ -245,7 +245,7 @@ const StudentProfiles = () => {
                                     <div className="xp-management-section">
                                         <div className="xp-display">
                                             <div className="xp-icon">
-                                                <Award size={32} color="#F7C948" />
+                                                <Award size={32} color="#ffcc00" />
                                             </div>
                                             <div>
                                                 <h3 className="xp-value">{selectedStudent.xp} XP</h3>

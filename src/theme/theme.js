@@ -3,9 +3,9 @@
 
 export const colors = {
   // Primary Colors
-  yellow: '#F7C948',
+  yellow: '#ffcc00',
   black: '#000000',
-  red: '#E53935',
+  red: '#ffcc00',
   white: '#FFFFFF',
   
   // Greys
@@ -26,7 +26,7 @@ export const colors = {
   neon: {
     yellow: '#FFE566',
     yellowGlow: 'rgba(247, 201, 72, 0.6)',
-    red: '#FF5252',
+    red: '#ffcc00',
     redGlow: 'rgba(229, 57, 53, 0.5)',
     blue: '#42A5F5',
     blueGlow: 'rgba(66, 165, 245, 0.5)',
@@ -38,10 +38,10 @@ export const colors = {
   
   // Gradients
   gradients: {
-    yellowRed: 'linear-gradient(135deg, #F7C948 0%, #E53935 100%)',
-    yellowRedHorizontal: 'linear-gradient(90deg, #F7C948 0%, #E53935 100%)',
-    yellowRedVertical: 'linear-gradient(180deg, #F7C948 0%, #E53935 100%)',
-    neonYellow: 'linear-gradient(135deg, #FFE566 0%, #F7C948 100%)',
+    yellowRed: 'linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%)',
+    yellowRedHorizontal: 'linear-gradient(90deg, #ffcc00 0%, #ffcc00 100%)',
+    yellowRedVertical: 'linear-gradient(180deg, #ffcc00 0%, #ffcc00 100%)',
+    neonYellow: 'linear-gradient(135deg, #FFE566 0%, #ffcc00 100%)',
     darkOverlay: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%)',
     glassLight: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
     glassDark: 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 100%)',

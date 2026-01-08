@@ -32,7 +32,7 @@
 .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -80,12 +80,12 @@
 }
 
 .filter-select:hover {
-    border-color: #F7C948;
+    border-color: #ffcc00;
 }
 
 .filter-select:focus {
     outline: none;
-    border-color: #F7C948;
+    border-color: #ffcc00;
 }
 
 .submissions-grid {
@@ -172,7 +172,7 @@
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     background: rgba(247, 201, 72, 0.15);
-    color: #F7C948;
+    color: #ffcc00;
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.875rem;
@@ -265,7 +265,7 @@
     padding: 1rem;
     background: var(--profile-bg-hover);
     border-radius: 8px;
-    border-left: 3px solid #F7C948;
+    border-left: 3px solid #ffcc00;
     font-style: italic;
 }
 
@@ -298,7 +298,7 @@
 
 .comment-box textarea:focus {
     outline: none;
-    border-color: #F7C948;
+    border-color: #ffcc00;
 }
 
 .review-actions {

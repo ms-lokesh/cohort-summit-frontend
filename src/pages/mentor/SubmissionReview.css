@@ -37,7 +37,7 @@
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #F7C948, #FFA726);
+    background: linear-gradient(135deg, #ffcc00, #FFA726);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -223,7 +223,7 @@
     left: 0;
     width: 3px;
     height: 100%;
-    background: var(--chip-color, #F7C948);
+    background: var(--chip-color, #ffcc00);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -245,7 +245,7 @@
 }
 
 .pillar-chip svg {
-    color: var(--chip-color, #F7C948);
+    color: var(--chip-color, #ffcc00);
     flex-shrink: 0;
 }
 
@@ -293,7 +293,7 @@
     font-size: 2rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
-    background: linear-gradient(135deg, #F7C948, #E53935);
+    background: linear-gradient(135deg, #ffcc00, #ffcc00);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -613,7 +613,7 @@
 }
 
 .meta-item a {
-    color: #F7C948;
+    color: #ffcc00;
     text-decoration: none;
     transition: opacity 0.3s;
 }
@@ -1164,7 +1164,7 @@
 }
 
 .toggle-switch input:checked + .toggle-slider {
-    background: linear-gradient(135deg, #F7C948, #FFA726);
+    background: linear-gradient(135deg, #ffcc00, #FFA726);
 }
 
 .toggle-switch input:checked + .toggle-slider::before {
@@ -1199,12 +1199,12 @@
 }
 
 .score-input-wrapper:focus-within {
-    border-color: #F7C948;
+    border-color: #ffcc00;
     box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.1);
 }
 
 .score-icon {
-    color: #F7C948;
+    color: #ffcc00;
     flex-shrink: 0;
 }
 
@@ -1247,7 +1247,7 @@
     background: rgba(247, 201, 72, 0.1);
     border: 1px solid rgba(247, 201, 72, 0.3);
     border-radius: 8px;
-    color: #F7C948;
+    color: #ffcc00;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1255,7 +1255,7 @@
 
 .score-preset-btn:hover:not(:disabled) {
     background: rgba(247, 201, 72, 0.2);
-    border-color: #F7C948;
+    border-color: #ffcc00;
     transform: translateY(-2px);
 }
 

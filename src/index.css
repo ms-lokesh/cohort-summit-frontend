@@ -4,8 +4,8 @@
 /* CSS Custom Properties - Updated via ThemeContext */
 :root {
   /* Colors - Light Theme Defaults */
-  --color-primary: #F7C948;
-  --color-secondary: #E53935;
+  --color-primary: #ffcc00;
+  --color-secondary: #ffcc00;
   --color-background: #FFFFFF;
   --color-surface: #F4F4F4;
   --color-text-primary: #000000;
@@ -59,7 +59,7 @@
   /* Aliases for components */
   --text-primary: #FFFFFF;
   --text-secondary: #BDBDBD;
-  --primary-color: #F7C948;
+  --primary-color: #ffcc00;
   --glass-border: rgba(255, 255, 255, 0.08);
 }
 
@@ -67,7 +67,7 @@
 [data-theme='light'] {
   --text-primary: #000000;
   --text-secondary: #616161;
-  --primary-color: #F7C948;
+  --primary-color: #ffcc00;
   --glass-border: rgba(0, 0, 0, 0.1);
 }
 

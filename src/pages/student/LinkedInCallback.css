@@ -64,7 +64,7 @@
 }
 
 .linkedin-icon-error {
-  color: #E53935;
+  color: #ffcc00;
 }
 
 .profile-preview {
@@ -121,7 +121,7 @@
 }
 
 .error-message {
-  color: #E53935 !important;
+  color: #ffcc00 !important;
   font-weight: 500;
   margin: 1rem 0;
 }

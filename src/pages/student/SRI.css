@@ -19,7 +19,7 @@
   font-size: 3rem;
   font-weight: 800;
   margin: 0 0 1rem 0;
-  background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -120,7 +120,7 @@
 
 .sri-input:focus {
   outline: none;
-  border-color: #F7C948;
+  border-color: #ffcc00;
   box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.1);
 }
 
@@ -208,7 +208,7 @@
 }
 
 .sri-image-remove:hover {
-  background: #E53935;
+  background: #ffcc00;
   transform: scale(1.1);
 }
 
@@ -235,7 +235,7 @@
 }
 
 .sri-add-photo:hover {
-  border-color: #F7C948;
+  border-color: #ffcc00;
   background: rgba(247, 201, 72, 0.2);
 }
 
@@ -248,7 +248,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: #F7C948;
+  color: #ffcc00;
   font-family: 'Manrope', sans-serif;
   font-weight: 600;
   font-size: 0.875rem;
@@ -274,7 +274,7 @@
 }
 
 .sri-character-count--warning {
-  color: #E53935;
+  color: #ffcc00;
 }
 
 .sri-textarea {
@@ -304,7 +304,7 @@
 
 .sri-textarea:focus {
   outline: none;
-  border-color: #F7C948;
+  border-color: #ffcc00;
   box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.1);
 }
 
@@ -385,7 +385,7 @@
   font-family: 'Sora', sans-serif;
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -428,7 +428,7 @@
 }
 
 .sri-stat svg {
-  color: #F7C948;
+  color: #ffcc00;
   flex-shrink: 0;
 }
 
@@ -510,7 +510,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
   border: 3px solid;
 }
 
@@ -562,7 +562,7 @@
 .sri-timeline-type {
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
-  background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
   color: #000000;
   font-weight: 600;
 }
@@ -571,7 +571,7 @@
   font-family: 'Manrope', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #F7C948;
+  color: #ffcc00;
 }
 
 /* Responsive */

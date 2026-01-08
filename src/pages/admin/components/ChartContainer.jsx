@@ -43,8 +43,8 @@ export const PillarCompletionChart = ({ data, delay }) => {
     const isDark = theme === 'dark';
 
     const colors = {
-        CLT: '#F7C948',
-        SRI: '#E53935',
+        CLT: '#ffcc00',
+        SRI: '#ffcc00',
         CFC: '#42A5F5',
         IIPC: '#66BB6A',
         SCD: '#AB47BC'
@@ -185,7 +185,7 @@ export const XPDistributionChart = ({ data, delay }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
-    const COLORS = ['#F7C948', '#E53935', '#42A5F5', '#66BB6A', '#AB47BC'];
+    const COLORS = ['#ffcc00', '#ffcc00', '#42A5F5', '#66BB6A', '#AB47BC'];
 
     return (
         <ChartContainer

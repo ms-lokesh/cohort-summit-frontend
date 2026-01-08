@@ -91,7 +91,7 @@
     font-size: 1.25rem;
     font-weight: 700;
     margin: 0;
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -154,7 +154,7 @@
 
 .admin-sidebar-link--active {
     background: var(--sidebar-active);
-    color: #F7C948;
+    color: #ffcc00;
     font-weight: 600;
 }
 
@@ -182,7 +182,7 @@
     transform: translateY(-50%);
     width: 4px;
     height: 60%;
-    background: linear-gradient(180deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(180deg, #ffcc00 0%, #ffcc00 100%);
     border-radius: 0 4px 4px 0;
 }
 

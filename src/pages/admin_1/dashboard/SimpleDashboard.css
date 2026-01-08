@@ -44,7 +44,7 @@
 .admin-bg-gradient-1 {
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, #F7C948 0%, #E53935 50%, transparent 70%);
+    background: radial-gradient(circle, #ffcc00 0%, #ffcc00 50%, transparent 70%);
     top: -100px;
     right: -100px;
 }
@@ -52,7 +52,7 @@
 .admin-bg-gradient-2 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, #E53935 0%, #F7C948 50%, transparent 70%);
+    background: radial-gradient(circle, #ffcc00 0%, #ffcc00 50%, transparent 70%);
     bottom: -50px;
     left: -50px;
 }
@@ -95,7 +95,7 @@
 }
 
 .admin-title-gradient {
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -112,7 +112,7 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #F7C948, #E53935);
+    background: linear-gradient(135deg, #ffcc00, #ffcc00);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(247, 201, 72, 0.3);
     display: flex;
@@ -522,7 +522,7 @@
     bottom: 0;
     border-radius: 12px;
     padding: 2px;
-    background: linear-gradient(135deg, #F7C948, #E53935);
+    background: linear-gradient(135deg, #ffcc00, #ffcc00);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -626,8 +626,8 @@
 }
 
 .admin-action-btn.primary {
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
-    border: 2px solid #F7C948;
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
+    border: 2px solid #ffcc00;
     box-shadow: 0 4px 15px rgba(247, 201, 72, 0.4);
 }
 
@@ -734,7 +734,7 @@
     font-size: 1.5rem;
     font-weight: 600;
     margin: 0 0 0.5rem 0;
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -886,12 +886,12 @@
 }
 
 .like-btn:hover {
-    color: #E53935;
+    color: #ffcc00;
     transform: scale(1.1);
 }
 
 .like-btn.liked {
-    color: #E53935;
+    color: #ffcc00;
 }
 
 .likes-count {
@@ -941,7 +941,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #E53935;
+    color: #ffcc00;
     transition: all 0.2s ease;
     z-index: 10;
 }
@@ -979,7 +979,7 @@
     font-size: 1.75rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1014,15 +1014,15 @@
 
 .modal-like-btn:hover {
     background: rgba(229, 57, 53, 0.1);
-    border-color: #E53935;
-    color: #E53935;
+    border-color: #ffcc00;
+    color: #ffcc00;
     transform: scale(1.1);
 }
 
 .modal-like-btn.liked {
     background: rgba(229, 57, 53, 0.2);
-    border-color: #E53935;
-    color: #E53935;
+    border-color: #ffcc00;
+    color: #ffcc00;
 }
 
 .modal-likes-count {
@@ -1095,7 +1095,7 @@
 }
 
 .section-title svg {
-    color: #F7C948;
+    color: #ffcc00;
 }
 
 .project-description {
@@ -1171,7 +1171,7 @@
 }
 
 .score-header svg {
-    color: #F7C948;
+    color: #ffcc00;
 }
 
 .score-display {
@@ -1184,7 +1184,7 @@
 .score-number {
     font-size: 3rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

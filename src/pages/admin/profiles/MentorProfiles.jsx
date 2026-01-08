@@ -118,7 +118,7 @@ const MentorProfiles = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                     >
-                        <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #F7C948 0%, #E53935 100%)' }}>
+                        <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%)' }}>
                             <CheckCircle size={28} />
                         </div>
                         <div className="stat-content">
@@ -261,7 +261,7 @@ const MentorProfiles = () => {
                                         <div className="mentor-performance-grid">
                                             <div className="performance-stat-item">
                                                 <div className="perf-stat-icon" style={{ backgroundColor: 'rgba(247, 201, 72, 0.2)' }}>
-                                                    <Users size={24} style={{ color: '#F7C948' }} />
+                                                    <Users size={24} style={{ color: '#ffcc00' }} />
                                                 </div>
                                                 <div className="perf-stat-info">
                                                     <span className="perf-stat-value">{selectedMentor.studentsHandled}</span>
@@ -271,7 +271,7 @@ const MentorProfiles = () => {
 
                                             <div className="performance-stat-item">
                                                 <div className="perf-stat-icon" style={{ backgroundColor: 'rgba(229, 57, 53, 0.2)' }}>
-                                                    <CheckCircle size={24} style={{ color: '#E53935' }} />
+                                                    <CheckCircle size={24} style={{ color: '#ffcc00' }} />
                                                 </div>
                                                 <div className="perf-stat-info">
                                                     <span className="perf-stat-value">{selectedMentor.verificationsCompleted}</span>

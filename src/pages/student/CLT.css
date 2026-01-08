@@ -19,7 +19,7 @@
   font-size: 3rem;
   font-weight: 800;
   margin: 0 0 1rem 0;
-  background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -81,7 +81,7 @@
 }
 
 .clt-step--active .clt-step-icon {
-  background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
   color: #000000;
   border-color: transparent;
 }
@@ -116,7 +116,7 @@
 }
 
 .clt-step--active .clt-step-label {
-  color: #F7C948;
+  color: #ffcc00;
 }
 
 .clt-step-connector {
@@ -139,7 +139,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(90deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(90deg, #ffcc00 0%, #ffcc00 100%);
 }
 
 /* Form Card */
@@ -221,7 +221,7 @@
 
 .clt-textarea:focus {
   outline: none;
-  border-color: #F7C948;
+  border-color: #ffcc00;
 }
 
 /* Upload Zone */
@@ -245,7 +245,7 @@
 }
 
 .clt-upload-zone--dragging {
-  border-color: #F7C948;
+  border-color: #ffcc00;
   background: rgba(247, 201, 72, 0.1);
 }
 
@@ -263,7 +263,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem;
-  color: #F7C948;
+  color: #ffcc00;
 }
 
 .clt-upload-title {
@@ -330,7 +330,7 @@
 }
 
 .clt-file-card:hover {
-  border-color: #F7C948;
+  border-color: #ffcc00;
 }
 
 .clt-file-icon {
@@ -341,7 +341,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
   color: #000000;
 }
 
@@ -398,7 +398,7 @@
 }
 
 .clt-file-remove:hover {
-  background: #E53935;
+  background: #ffcc00;
   color: #FFFFFF;
 }
 
@@ -414,7 +414,7 @@
   margin: 0 0 0.5rem 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #F7C948;
+  color: #ffcc00;
 }
 
 .clt-review-value {

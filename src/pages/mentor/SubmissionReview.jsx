@@ -15,9 +15,9 @@ import StudentMonthlyReport from './StudentMonthlyReport';
 import './SubmissionReview.css';
 
 const PILLARS = [
-    { id: 'all', label: 'All Pillars', icon: Filter, color: '#F7C948' },
-    { id: 'clt', label: 'CLT', icon: Lightbulb, color: '#F7C948' },
-    { id: 'sri', label: 'SRI', icon: Heart, color: '#E53935' },
+    { id: 'all', label: 'All Pillars', icon: Filter, color: '#ffcc00' },
+    { id: 'clt', label: 'CLT', icon: Lightbulb, color: '#ffcc00' },
+    { id: 'sri', label: 'SRI', icon: Heart, color: '#ffcc00' },
     { id: 'cfc', label: 'CFC', icon: Trophy, color: '#FFC107' },
     { id: 'iipc', label: 'IIPC', icon: Linkedin, color: '#0A66C2' },
     { id: 'scd', label: 'SCD', icon: Code, color: '#FF5722' },

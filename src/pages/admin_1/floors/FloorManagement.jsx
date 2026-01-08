@@ -30,7 +30,7 @@ const FloorManagement = () => {
             mentors: ['Thulasi'],
             students: 22,
             performance: 92,
-            color: '#F7C948'
+            color: '#ffcc00'
         },
         {
             id: 4,

@@ -72,7 +72,7 @@
 
 /* Primary Variant */
 .btn--primary {
-  background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
   color: #000000;
   border: 2px solid rgba(247, 201, 72, 0.4);
 }
@@ -98,24 +98,24 @@
 
 .btn--secondary:hover:not(:disabled) {
   background: rgba(247, 201, 72, 0.1);
-  border-color: #F7C948;
+  border-color: #ffcc00;
 }
 
 /* Outline Variant */
 [data-theme='light'] .btn--outline {
   background: transparent;
   color: #000000;
-  border: 2px solid #F7C948;
+  border: 2px solid #ffcc00;
 }
 
 [data-theme='dark'] .btn--outline {
   background: transparent;
   color: #FFFFFF;
-  border: 2px solid #F7C948;
+  border: 2px solid #ffcc00;
 }
 
 .btn--outline:hover:not(:disabled) {
-  background: #F7C948;
+  background: #ffcc00;
   color: #000000;
 }
 
@@ -137,7 +137,7 @@
 }
 
 .btn--glass:hover:not(:disabled) {
-  border-color: #F7C948;
+  border-color: #ffcc00;
 }
 
 /* Success Variant */
@@ -155,7 +155,7 @@
 
 /* Danger Variant */
 .btn--danger {
-  background: linear-gradient(135deg, #E53935 0%, #EF5350 100%);
+  background: linear-gradient(135deg, #ffcc00 0%, #EF5350 100%);
   color: #FFFFFF;
   border: 2px solid rgba(229, 57, 53, 0.5);
 }

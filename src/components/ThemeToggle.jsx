@@ -18,7 +18,7 @@ export const ThemeToggle = ({ className = '' }) => {
       <motion.div
         className="theme-toggle-track"
         animate={{
-          backgroundColor: isDark ? '#212121' : '#F7C948',
+          backgroundColor: isDark ? '#212121' : '#ffcc00',
         }}
       >
         <motion.div

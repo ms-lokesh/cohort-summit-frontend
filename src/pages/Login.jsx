@@ -11,10 +11,10 @@ import WingsIcon from '../components/WingsIcon';
 import './Login.css';
 
 const ROLES = [
-    { id: 'STUDENT', label: 'Student', icon: GraduationCap, color: '#F7C948', description: 'Access student dashboard' },
+    { id: 'STUDENT', label: 'Student', icon: GraduationCap, color: '#ffcc00', description: 'Access student dashboard' },
     { id: 'MENTOR', label: 'Mentor', icon: Users, color: '#42A5F5', description: 'Guide and support students' },
     { id: 'FLOOR_WING', label: 'Floor Wing', icon: WingsIcon, color: '#66BB6A', description: 'Manage floor operations' },
-    { id: 'ADMIN', label: 'Admin', icon: Crown, color: '#E53935', description: 'Full system access' },
+    { id: 'ADMIN', label: 'Admin', icon: Crown, color: '#ffcc00', description: 'Full system access' },
 ];
 //vishnu
 const Login = () => {

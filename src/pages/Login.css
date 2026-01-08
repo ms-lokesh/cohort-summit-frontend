@@ -34,7 +34,7 @@
 .login-gradient-orb--1 {
     width: 400px;
     height: 400px;
-    background: linear-gradient(135deg, #F7C948, #FFE566);
+    background: linear-gradient(135deg, #ffcc00, #FFE566);
     top: -100px;
     left: -100px;
 }
@@ -42,7 +42,7 @@
 .login-gradient-orb--2 {
     width: 500px;
     height: 500px;
-    background: linear-gradient(135deg, #E53935, #FF5252);
+    background: linear-gradient(135deg, #ffcc00, #ffcc00);
     bottom: -150px;
     right: -150px;
 }
@@ -89,7 +89,7 @@
     width: 96px;
     height: 96px;
     border-radius: 24px;
-    background: linear-gradient(135deg, #F7C948, #E53935);
+    background: linear-gradient(135deg, #ffcc00, #ffcc00);
     color: white;
     box-shadow: 0 8px 32px rgba(247, 201, 72, 0.3);
     cursor: pointer;
@@ -104,7 +104,7 @@
 .login-title {
     font-size: 3.5rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #F7C948, #E53935);
+    background: linear-gradient(135deg, #ffcc00, #ffcc00);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -140,7 +140,7 @@
 
 .login-feature:hover {
     transform: translateX(8px);
-    border-color: #F7C948;
+    border-color: #ffcc00;
 }
 
 .login-feature-icon {
@@ -150,7 +150,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #F7C948, #E53935);
+    background: linear-gradient(135deg, #ffcc00, #ffcc00);
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(247, 201, 72, 0.3);
 }
@@ -305,7 +305,7 @@
 }
 
 .login-password-toggle:hover {
-    color: #F7C948;
+    color: #ffcc00;
     background: var(--glass-bg);
 }
 
@@ -321,7 +321,7 @@
 }
 
 .login-error-item {
-    color: #E53935;
+    color: #ffcc00;
     font-size: 0.875rem;
     display: flex;
     align-items: center;
@@ -354,18 +354,18 @@
     width: 18px;
     height: 18px;
     cursor: pointer;
-    accent-color: #F7C948;
+    accent-color: #ffcc00;
 }
 
 .login-forgot {
-    color: #F7C948;
+    color: #ffcc00;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.2s ease;
 }
 
 .login-forgot:hover {
-    color: #E53935;
+    color: #ffcc00;
     text-decoration: underline;
 }
 
@@ -423,7 +423,7 @@
 }
 
 .login-social-button:hover {
-    border-color: #F7C948;
+    border-color: #ffcc00;
     background: var(--glass-bg-hover);
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -454,7 +454,7 @@
 .login-toggle-mode {
     background: none;
     border: none;
-    color: #F7C948;
+    color: #ffcc00;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex;
@@ -465,7 +465,7 @@
 }
 
 .login-toggle-mode:hover {
-    color: #E53935;
+    color: #ffcc00;
     gap: 0.5rem;
 }
 
@@ -586,7 +586,7 @@
 .login-toggle-mode:focus,
 .login-forgot:focus,
 .login-password-toggle:focus {
-    outline: 2px solid #F7C948;
+    outline: 2px solid #ffcc00;
     outline-offset: 2px;
     border-radius: 8px;
 }
@@ -609,7 +609,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #F7C948, #FFE566);
+    background: linear-gradient(135deg, #ffcc00, #FFE566);
     border-radius: 50%;
     color: #1A1A1A;
 }
@@ -630,6 +630,6 @@
 
 .contact-admin-cta {
     font-weight: 600;
-    color: #F7C948 !important;
+    color: #ffcc00 !important;
     margin-top: 1.5rem !important;
 }

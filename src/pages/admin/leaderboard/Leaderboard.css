@@ -29,7 +29,7 @@
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -72,7 +72,7 @@
     bottom: 0;
     border-radius: 12px;
     padding: 2px;
-    background: linear-gradient(135deg, #F7C948, #E53935);
+    background: linear-gradient(135deg, #ffcc00, #ffcc00);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -131,7 +131,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #F7C948 0%, #E53935 100%);
+    background: linear-gradient(135deg, #ffcc00 0%, #ffcc00 100%);
     display: flex;
     align-items: center;
     justify-content: center;

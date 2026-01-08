@@ -253,7 +253,7 @@ export const SCD = () => {
                     {/* Gradient Definition */}
                     <defs>
                       <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#F7C948" />
+                        <stop offset="0%" stopColor="#ffcc00" />
                         <stop offset="50%" stopColor="#FFD966" />
                         <stop offset="100%" stopColor="#FFA726" />
                       </linearGradient>

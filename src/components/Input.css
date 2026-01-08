@@ -68,7 +68,7 @@
 }
 
 .input-field:focus {
-  border-color: #F7C948;
+  border-color: #ffcc00;
   box-shadow: none;
   background: transparent !important;
 }
@@ -165,12 +165,12 @@
 }
 
 .input-container--focused .input-icon {
-  color: #F7C948;
+  color: #ffcc00;
 }
 
 /* Error State */
 .input-container--error .input-field {
-  border-color: #E53935;
+  border-color: #ffcc00;
 }
 
 .input-container--error .input-field:focus {
@@ -181,6 +181,6 @@
   display: block;
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: #E53935;
+  color: #ffcc00;
   font-family: 'Inter', sans-serif;
 }

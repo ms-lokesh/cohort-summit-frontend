@@ -43,7 +43,7 @@ export const Input = ({
               top: isFocused || hasValue ? '-0.75rem' : '50%',
               left: (isFocused || hasValue) ? '0.75rem' : (icon ? '3.25rem' : '1rem'),
               fontSize: isFocused || hasValue ? '0.75rem' : '1rem',
-              color: error ? '#E53935' : isFocused ? '#F7C948' : 'inherit',
+              color: error ? '#ffcc00' : isFocused ? '#ffcc00' : 'inherit',
             }}
             transition={{ duration: 0.2 }}
           >
