@@ -20,21 +20,25 @@ const GamificationCard = () => {
       setError(null);
     } catch (err) {
       console.error('Failed to fetch gamification data:', err);
-      if (err.response?.status === 401) {
-        setError('Please log in to view your progress');
-      } else if (err.response?.status === 404) {
-        setError('No active season found');
-      } else {
-        setError(err.response?.data?.detail || 'Failed to load data');
-      }
+      // Set default data if API fails
+      setData({
+        current_season: null,
+        current_episode: null,
+        episode_progress: 0,
+        season_score: 0,
+        legacy_score: 0,
+        vault_wallet: 0,
+        scd_streak: 0,
+        leaderboard_position: '-',
+        equipped_title: null
+      });
+      setError(null);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) return null;
-  if (error) return null;
-  if (!data) return null;
 
   const { 
     current_season, 

@@ -18,12 +18,18 @@ const BatchStatsCard = () => {
       setStats(response.data);
     } catch (err) {
       console.error('Error fetching batch stats:', err);
+      // Set default stats if API fails
+      setStats({
+        average_progress: 0,
+        total_students: 0,
+        top_performers: 0
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading || !stats) return null;
+  if (loading) return null;
 
   return (
     <motion.div
