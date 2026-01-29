@@ -20,6 +20,14 @@ from .notification_views import NotificationViewSet
 from .views_import import import_dummy_users
 from .views_mentors import setup_mentors
 from .views_floorwings import setup_floorwings
+from .mentor_assignment_views import (
+    get_mentor_students,
+    get_available_students,
+    assign_student_to_self,
+    admin_get_all_assignments,
+    admin_reassign_student,
+    get_floor_mentors
+)
 
 app_name = 'profiles'
 
@@ -54,6 +62,16 @@ urlpatterns = [
     
     # Setup floor wings endpoint (admin only)
     path('admin/setup-floorwings/', setup_floorwings, name='admin-setup-floorwings'),
+    
+    # Mentor assignment routes (mentors can assign students to themselves)
+    path('mentor/my-students/', get_mentor_students, name='mentor-my-students'),
+    path('mentor/available-students/', get_available_students, name='mentor-available-students'),
+    path('mentor/assign-student/', assign_student_to_self, name='mentor-assign-student'),
+    path('mentor/floor-mentors/', get_floor_mentors, name='get-floor-mentors'),
+    
+    # Admin mentor assignment routes (admins can modify all assignments)
+    path('admin/assignments/', admin_get_all_assignments, name='admin-all-assignments'),
+    path('admin/reassign-student/', admin_reassign_student, name='admin-reassign-student'),
     
     # Announcement routes (via router)
     path('', include(router.urls)),
