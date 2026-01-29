@@ -42,6 +42,121 @@ def is_mentor(user):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def get_mentor_dashboard(request):
+    """
+    Get mentor dashboard overview with recent submissions and stats
+    Shows recent submissions from all assigned students across all pillars
+    """
+    if not is_mentor(request.user):
+        return Response(
+            {"error": "You don't have permission to access this resource"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    # Get mentor's assigned students
+    assigned_students = request.user.mentored_students.all().values_list('user_id', flat=True)
+    
+    if not assigned_students:
+        return Response({
+            'recent_submissions': [],
+            'stats': {
+                'total_students': 0,
+                'pending_reviews': 0,
+                'approved_today': 0,
+                'total_submissions': 0
+            }
+        })
+    
+    # Get recent submissions (last 20) from all pillars
+    recent_submissions = []
+    
+    # Helper to add submission with common format
+    def add_submission(sub, pillar_type, model_type, title_getter):
+        return {
+            'id': f"{pillar_type}_{model_type}_{sub.id}",
+            'dbId': sub.id,
+            'modelType': model_type,
+            'pillar': pillar_type,
+            'title': title_getter(sub),
+            'student': {
+                'id': sub.user.id,
+                'name': sub.user.get_full_name() or sub.user.username,
+                'email': sub.user.email,
+            },
+            'status': sub.status,
+            'submitted_at': sub.submitted_at or sub.created_at,
+            'created_at': sub.created_at,
+        }
+    
+    # Get submissions from each pillar (only assigned students)
+    hackathons = HackathonSubmission.objects.filter(user_id__in=assigned_students).select_related('user')
+    for sub in hackathons:
+        recent_submissions.append(add_submission(sub, 'cfc', 'hackathon', lambda s: s.hackathon_name))
+    
+    bmc_videos = BMCVideoSubmission.objects.filter(user_id__in=assigned_students).select_related('user')
+    for sub in bmc_videos:
+        recent_submissions.append(add_submission(sub, 'cfc', 'bmc', lambda s: "BMC Video Submission"))
+    
+    internships = InternshipSubmission.objects.filter(user_id__in=assigned_students).select_related('user')
+    for sub in internships:
+        recent_submissions.append(add_submission(sub, 'cfc', 'internship', lambda s: f"Internship at {s.company}"))
+    
+    genai = GenAIProjectSubmission.objects.filter(user_id__in=assigned_students).select_related('user')
+    for sub in genai:
+        recent_submissions.append(add_submission(sub, 'cfc', 'genai', lambda s: "GenAI Project"))
+    
+    clt = CLTSubmission.objects.filter(user_id__in=assigned_students).select_related('user')
+    for sub in clt:
+        recent_submissions.append(add_submission(sub, 'clt', 'clt', lambda s: s.title))
+    
+    linkedin = LinkedInPostVerification.objects.filter(user_id__in=assigned_students).select_related('user')
+    for sub in linkedin:
+        recent_submissions.append(add_submission(sub, 'iipc', 'linkedin', lambda s: "LinkedIn Post"))
+    
+    # Sort by submission date (most recent first) and limit to 20
+    recent_submissions.sort(key=lambda x: x['submitted_at'], reverse=True)
+    recent_submissions = recent_submissions[:20]
+    
+    # Calculate stats
+    today = timezone.now().date()
+    pending_statuses = ['draft', 'submitted', 'under_review', 'pending']
+    
+    total_submissions = (
+        hackathons.count() + bmc_videos.count() + internships.count() + 
+        genai.count() + clt.count() + linkedin.count()
+    )
+    
+    pending_reviews = (
+        hackathons.filter(status__in=pending_statuses).count() +
+        bmc_videos.filter(status__in=pending_statuses).count() +
+        internships.filter(status__in=pending_statuses).count() +
+        genai.filter(status__in=pending_statuses).count() +
+        clt.filter(status__in=pending_statuses).count() +
+        linkedin.filter(status__in=pending_statuses).count()
+    )
+    
+    approved_today = (
+        hackathons.filter(status='approved', reviewed_at__date=today).count() +
+        bmc_videos.filter(status='approved', reviewed_at__date=today).count() +
+        internships.filter(status='approved', reviewed_at__date=today).count() +
+        genai.filter(status='approved', reviewed_at__date=today).count() +
+        clt.filter(status='approved', reviewed_at__date=today).count() +
+        linkedin.filter(status='verified', verified_at__date=today).count()
+    )
+    
+    return Response({
+        'recent_submissions': recent_submissions,
+        'stats': {
+            'total_students': len(assigned_students),
+            'pending_reviews': pending_reviews,
+            'approved_today': approved_today,
+            'total_submissions': total_submissions
+        }
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_pillar_submissions(request, pillar):
     """
     Get all submissions for a specific pillar for mentor review

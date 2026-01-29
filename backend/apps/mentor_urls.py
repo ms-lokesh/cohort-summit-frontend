@@ -8,6 +8,9 @@ from apps import mentor_views
 app_name = 'mentor'
 
 urlpatterns = [
+    # Mentor dashboard overview
+    path('dashboard/', mentor_views.get_mentor_dashboard, name='mentor-dashboard'),
+    
     # Mentor students list
     path('students/', mentor_views.get_mentor_students, name='mentor-students'),
     
