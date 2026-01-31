@@ -67,7 +67,7 @@
 }
 
 .kenken-title svg {
-    color: #ffcc00;
+    color: #F7C948;
 }
 
 .kenken-close {
@@ -108,7 +108,7 @@
 }
 
 .kenken-stat svg {
-    color: #ffcc00;
+    color: #F7C948;
 }
 
 .kenken-stat--streak {
@@ -116,7 +116,7 @@
 }
 
 .kenken-stat--streak svg {
-    color: #ffcc00;
+    color: #E53935;
 }
 
 .kenken-hint-btn {
@@ -293,7 +293,7 @@
 .kenken-num-btn--clear {
     grid-column: span 2;
     background: rgba(229, 57, 53, 0.1);
-    color: #ffcc00;
+    color: #E53935;
 }
 
 .kenken-num-btn--clear:hover {
@@ -372,12 +372,12 @@
 .kenken-error {
     padding: 0.75rem 1rem;
     background: rgba(229, 57, 53, 0.1);
-    border-left: 4px solid #ffcc00;
+    border-left: 4px solid #E53935;
     border-radius: 8px;
     margin-bottom: 0.5rem;
     font-family: 'Inter', sans-serif;
     font-size: 0.875rem;
-    color: #ffcc00;
+    color: #E53935;
 }
 
 /* Success */
@@ -390,7 +390,7 @@
 }
 
 .kenken-success svg {
-    color: #ffcc00;
+    color: #F7C948;
     margin-bottom: 1rem;
 }
 
@@ -431,7 +431,7 @@
 }
 
 .kenken-btn--primary {
-    background: linear-gradient(135deg, #ffcc00, #ffcc00);
+    background: linear-gradient(135deg, #F7C948, #E53935);
     color: #000000;
 }
 
