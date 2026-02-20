@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Code, Flame, Trophy, TrendingUp, Target, Award, 
   CheckCircle, Clock, XCircle, RefreshCw,
-  Activity, Zap
+  Activity, Zap, Edit, Eye, CheckCircle2
 } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
@@ -18,15 +18,28 @@ import './SCD.css';
 export const SCD = () => {
   const [leetcodeUsername, setLeetcodeUsername] = useState('');
   const [profileData, setProfileData] = useState(null);
+  const [allProfiles, setAllProfiles] = useState([]);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [autoSynced, setAutoSynced] = useState(false);
+  const [showProfiles, setShowProfiles] = useState(true);
 
   // Load existing profile and auto-sync on mount
   useEffect(() => {
     loadProfileAndAutoSync();
   }, []);
+
+  // Get status badge configuration
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      draft: { label: 'Draft', color: '#6b7280', icon: Edit, bg: 'rgba(107, 114, 128, 0.1)' },
+      pending: { label: 'Pending Review', color: '#fbbf24', icon: Clock, bg: 'rgba(251, 191, 36, 0.1)' },
+      approved: { label: 'Approved', color: '#10b981', icon: CheckCircle2, bg: 'rgba(16, 185, 129, 0.1)' },
+      rejected: { label: 'Rejected', color: '#ef4444', icon: XCircle, bg: 'rgba(239, 68, 68, 0.1)' },
+    };
+    return statusConfig[status] || statusConfig.draft;
+  };
 
   const loadProfileAndAutoSync = async () => {
     try {
@@ -34,9 +47,10 @@ export const SCD = () => {
       // Get user profile to check for saved leetcode_id
       const userProfile = await getUserProfile();
       
-      // Load existing SCD profile
+      // Load existing SCD profiles (all of them)
       const profiles = await getLeetCodeProfiles();
       if (profiles && profiles.length > 0) {
+        setAllProfiles(profiles);
         const latest = profiles[0];
         setProfileData(latest);
         setLeetcodeUsername(latest.leetcode_username || userProfile.leetcode_id || '');
@@ -85,6 +99,13 @@ export const SCD = () => {
     try {
       const response = await syncLeetCodeProfile(leetcodeUsername.trim());
       setProfileData(response.profile);
+      
+      // Reload all profiles to update the list
+      const profiles = await getLeetCodeProfiles();
+      if (profiles && profiles.length > 0) {
+        setAllProfiles(profiles);
+      }
+      
       setSuccess(response.warnings ? 
         `Profile synced with warnings: ${response.warnings.join(', ')}` : 
         'Profile synced successfully! Your stats have been updated.');
@@ -156,6 +177,185 @@ export const SCD = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Recent Submissions/Profiles Section */}
+      {showProfiles && allProfiles && allProfiles.length > 1 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ marginBottom: '2rem' }}
+        >
+          <GlassCard variant="medium">
+            <div style={{ padding: '1.5rem' }}>
+              <h2 style={{ 
+                fontSize: '1.5rem', 
+                fontWeight: '600', 
+                marginBottom: '1.5rem',
+                color: 'var(--text-primary)'
+              }}>
+                Your LeetCode Profile Submissions
+              </h2>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {allProfiles.slice(0, 5).map((profile, index) => {
+                  const statusConfig = getStatusBadge(profile.status);
+                  const StatusIcon = statusConfig.icon;
+                  const isRecent = index === 0;
+
+                  return (
+                    <motion.div
+                      key={profile.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      style={{
+                        padding: '1.25rem',
+                        background: isRecent ? 
+                          'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))' : 
+                          'rgba(255, 255, 255, 0.03)',
+                        border: isRecent ? 
+                          '2px solid rgba(99, 102, 241, 0.3)' : 
+                          '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        position: 'relative'
+                      }}
+                    >
+                      {isRecent && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '-10px',
+                          right: '1rem',
+                          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                          color: '#fff',
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                        }}>
+                          🏆 Most Recent
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                        <div style={{ flex: 1 }}>
+                          <h3 style={{ 
+                            fontSize: '1.1rem', 
+                            fontWeight: '600', 
+                            color: 'var(--text-primary)',
+                            marginBottom: '0.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                          }}>
+                            <Code size={20} />
+                            {profile.leetcode_username}
+                          </h3>
+                          
+                          <div style={{ 
+                            display: 'flex',
+                            gap: '1.5rem',
+                            fontSize: '0.9rem',
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.5rem'
+                          }}>
+                            <span>✅ {profile.total_solved} solved</span>
+                            <span>🔥 {profile.streak} day streak</span>
+                            {profile.monthly_problems_count > 0 && (
+                              <span>📅 {profile.monthly_problems_count} this month</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          padding: '0.5rem 1rem',
+                          background: statusConfig.bg,
+                          borderRadius: '8px',
+                          border: `1px solid ${statusConfig.color}40`,
+                          marginLeft: '1rem'
+                        }}>
+                          <StatusIcon size={16} style={{ color: statusConfig.color }} />
+                          <span style={{ 
+                            fontSize: '0.85rem', 
+                            fontWeight: '600',
+                            color: statusConfig.color
+                          }}>
+                            {statusConfig.label}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={{ 
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '0.75rem',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.05)'
+                      }}>
+                        <div style={{ textAlign: 'center', padding: '0.5rem', background: 'rgba(74, 222, 128, 0.1)', borderRadius: '8px' }}>
+                          <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#4ade80' }}>{profile.easy_solved}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Easy</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '0.5rem', background: 'rgba(251, 191, 36, 0.1)', borderRadius: '8px' }}>
+                          <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#fbbf24' }}>{profile.medium_solved}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Medium</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '0.5rem', background: 'rgba(248, 113, 113, 0.1)', borderRadius: '8px' }}>
+                          <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#f87171' }}>{profile.hard_solved}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Hard</div>
+                        </div>
+                      </div>
+
+                      <div style={{ 
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginTop: '0.75rem',
+                        fontSize: '0.8rem',
+                        color: 'var(--text-secondary)'
+                      }}>
+                        <span>Synced: {new Date(profile.last_synced).toLocaleString()}</span>
+                        {profile.submitted_at && (
+                          <span>Submitted: {new Date(profile.submitted_at).toLocaleString()}</span>
+                        )}
+                      </div>
+
+                      {profile.review_comments && (
+                        <div style={{
+                          marginTop: '0.75rem',
+                          padding: '0.75rem',
+                          background: 'rgba(59, 130, 246, 0.05)',
+                          borderLeft: '3px solid #3b82f6',
+                          borderRadius: '4px'
+                        }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#3b82f6', marginBottom: '0.25rem' }}>
+                            Mentor's Feedback:
+                          </div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            {profile.review_comments}
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {allProfiles.length > 5 && (
+                <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    Showing 5 of {allProfiles.length} submissions
+                  </span>
+                </div>
+              )}
+            </div>
+          </GlassCard>
+        </motion.div>
+      )}
 
       <div className="scd-layout">
         {/* Main Content */}

@@ -149,10 +149,9 @@ class LeaderboardEntrySerializer(serializers.ModelSerializer):
                   'season_score', 'rank_title', 'equipped_title', 'created_at']
     
     def get_student_name(self, obj):
-        profile = getattr(obj.student, 'profile', None)
-        if profile:
-            return profile.full_name or obj.student.username
-        return obj.student.username
+        # Use first_name and last_name from User model
+        full_name = f"{obj.student.first_name} {obj.student.last_name}".strip()
+        return full_name or obj.student.username
     
     def get_equipped_title(self, obj):
         user_title = UserTitle.objects.filter(student=obj.student, is_equipped=True).first()
@@ -204,10 +203,9 @@ class PercentileBracketSerializer(serializers.ModelSerializer):
                   'season_name', 'percentile', 'season_score', 'created_at']
     
     def get_student_name(self, obj):
-        profile = getattr(obj.student, 'profile', None)
-        if profile:
-            return profile.full_name or obj.student.username
-        return obj.student.username
+        # Use first_name and last_name from User model
+        full_name = f"{obj.student.first_name} {obj.student.last_name}".strip()
+        return full_name or obj.student.username
 
 
 class StudentDashboardSerializer(serializers.Serializer):

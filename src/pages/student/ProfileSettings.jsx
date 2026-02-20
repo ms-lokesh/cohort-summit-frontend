@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Code, Github, Linkedin, Save, Loader2 } from 'lucide-react';
+import { User, Code, Github, Linkedin, Save, Loader2, Camera } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
-import { getUserProfile, updateUserProfile } from '../../services/profile';
+import { getUserProfile, updateUserProfile, uploadAvatar } from '../../services/profile';
 import { useAuth } from '../../context/AuthContext';
 import authService from '../../services/auth';
 import './ProfileSettings.css';
@@ -13,8 +13,11 @@ export const ProfileSettings = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [avatarError, setAvatarError] = useState('');
+  const fileInputRef = useRef(null);
   
   const [profileData, setProfileData] = useState({
     username: '',
@@ -24,6 +27,7 @@ export const ProfileSettings = () => {
     leetcode_id: '',
     github_id: '',
     linkedin_id: '',
+    avatar_url: '',
   });
 
   useEffect(() => {
@@ -42,6 +46,7 @@ export const ProfileSettings = () => {
         leetcode_id: data.leetcode_id || '',
         github_id: data.github_id || '',
         linkedin_id: data.linkedin_id || '',
+        avatar_url: data.avatar_url || '',
       });
       setError('');
     } catch (err) {
@@ -55,6 +60,23 @@ export const ProfileSettings = () => {
       setError(errorMsg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarError('');
+    setUploading(true);
+    try {
+      const result = await uploadAvatar(file);
+      setProfileData(prev => ({ ...prev, avatar_url: result.avatar_url }));
+    } catch (err) {
+      setAvatarError(err.response?.data?.error || 'Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+      // Reset input so same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -123,6 +145,49 @@ export const ProfileSettings = () => {
 
         <GlassCard className="profile-settings-card">
           <form onSubmit={handleSubmit}>
+            {/* Avatar Upload */}
+            <div className="profile-settings-section profile-avatar-section">
+              <div
+                className="profile-avatar-container"
+                onClick={() => !uploading && fileInputRef.current?.click()}
+                title="Click to change profile picture"
+              >
+                {profileData.avatar_url ? (
+                  <img
+                    src={profileData.avatar_url}
+                    alt="Profile"
+                    className="profile-avatar-img"
+                  />
+                ) : (
+                  <div className="profile-avatar-initials">
+                    {profileData.first_name
+                      ? profileData.first_name.substring(0, 2).toUpperCase()
+                      : profileData.username.substring(0, 2).toUpperCase()}
+                  </div>
+                )}
+                <div className="profile-avatar-overlay">
+                  {uploading ? (
+                    <Loader2 className="profile-avatar-spinner" />
+                  ) : (
+                    <Camera size={22} />
+                  )}
+                </div>
+              </div>
+              <p className="profile-avatar-hint">
+                {uploading ? 'Uploading...' : 'Click to upload photo'}
+              </p>
+              {avatarError && (
+                <p className="profile-avatar-error">{avatarError}</p>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleAvatarChange}
+                style={{ display: 'none' }}
+              />
+            </div>
+
             {/* User Information */}
             <div className="profile-settings-section">
               <div className="profile-settings-section-header">

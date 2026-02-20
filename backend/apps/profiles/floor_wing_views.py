@@ -315,3 +315,163 @@ class FloorWingAssignStudentView(APIView):
             return Response({
                 'error': 'User not found'
             }, status=status.HTTP_404_NOT_FOUND)
+
+
+class FloorWingAddStudentView(APIView):
+    """Add a new student to the floor and optionally assign to a mentor"""
+    permission_classes = [IsAuthenticated, IsFloorWing]
+    
+    def post(self, request):
+        floor_wing_profile = request.user.profile
+        campus = floor_wing_profile.campus
+        floor = floor_wing_profile.floor
+        
+        # Extract student data from request
+        username = request.data.get('username')
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        password = request.data.get('password', 'student@123')  # Default password
+        mentor_id = request.data.get('mentor_id')  # Optional
+        
+        # Validation
+        if not username or not email:
+            return Response({
+                'error': 'Username and email are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user already exists
+        if User.objects.filter(username=username).exists():
+            return Response({
+                'error': 'Username already exists'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if User.objects.filter(email=email).exists():
+            return Response({
+                'error': 'Email already exists'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Create user
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                first_name=first_name or username,
+                last_name=last_name or '',
+                password=password
+            )
+            
+            # Create/update profile
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.role = 'STUDENT'
+            profile.campus = campus
+            profile.floor = floor
+            
+            # Assign mentor if provided and validate
+            if mentor_id:
+                try:
+                    mentor = User.objects.get(id=mentor_id)
+                    if (mentor.profile.role == 'MENTOR' and 
+                        mentor.profile.campus == campus and 
+                        mentor.profile.floor == floor):
+                        profile.assigned_mentor = mentor
+                    else:
+                        # Mentor not valid for this floor, skip assignment
+                        pass
+                except User.DoesNotExist:
+                    # Invalid mentor ID, skip assignment
+                    pass
+            
+            profile.save()
+            
+            return Response({
+                'success': True,
+                'message': 'Student created successfully',
+                'student': {
+                    'id': user.id,
+                    'username': user.username,
+                    'name': f"{user.first_name} {user.last_name}",
+                    'email': user.email,
+                    'campus': campus,
+                    'floor': floor,
+                    'assigned_mentor_id': profile.assigned_mentor.id if profile.assigned_mentor else None,
+                    'assigned_mentor_name': f"{profile.assigned_mentor.first_name} {profile.assigned_mentor.last_name}" if profile.assigned_mentor else None
+                }
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response({
+                'error': f'Failed to create student: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class FloorWingAddMentorView(APIView):
+    """Add a new mentor to the floor"""
+    permission_classes = [IsAuthenticated, IsFloorWing]
+    
+    def post(self, request):
+        floor_wing_profile = request.user.profile
+        campus = floor_wing_profile.campus
+        floor = floor_wing_profile.floor
+        
+        # Extract mentor data from request
+        username = request.data.get('username')
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        password = request.data.get('password', 'mentor@123')  # Default password
+        
+        # Validation
+        if not username or not email:
+            return Response({
+                'error': 'Username and email are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user already exists
+        if User.objects.filter(username=username).exists():
+            return Response({
+                'error': 'Username already exists'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if User.objects.filter(email=email).exists():
+            return Response({
+                'error': 'Email already exists'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Create user
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                first_name=first_name or username,
+                last_name=last_name or '',
+                password=password,
+                is_staff=True  # Mentors need staff access
+            )
+            
+            # Create/update profile
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.role = 'MENTOR'
+            profile.campus = campus
+            profile.floor = floor
+            profile.save()
+            
+            return Response({
+                'success': True,
+                'message': 'Mentor created successfully',
+                'mentor': {
+                    'id': user.id,
+                    'username': user.username,
+                    'name': f"{user.first_name} {user.last_name}",
+                    'email': user.email,
+                    'campus': campus,
+                    'floor': floor,
+                    'assigned_students_count': 0
+                }
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response({
+                'error': f'Failed to create mentor: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

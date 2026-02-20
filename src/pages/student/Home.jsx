@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import {
   Lightbulb, Heart, Trophy, Linkedin, Code, Gamepad2,
   User, Mail, Phone, Users, Bell, Clock,
-  CheckCircle, XCircle, AlertCircle, FileText, Settings, Loader2, Calendar, Megaphone, ShoppingBag
+  CheckCircle, XCircle, AlertCircle, FileText, Settings, Loader2, Calendar, Megaphone, ShoppingBag, Award
 } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
@@ -87,6 +87,7 @@ export const HomePage = () => {
   const [userCredits, setUserCredits] = useState(0);
   const [loadingStore, setLoadingStore] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [fullLeaderboardData, setFullLeaderboardData] = useState(null);
   const [seasonActive, setSeasonActive] = useState(false);
 
   useEffect(() => {
@@ -284,9 +285,12 @@ export const HomePage = () => {
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await gamificationAPI.getCurrentSeasonLeaderboard();
-      // Get top 3 performers only
-      const top3 = response.data.slice(0, 3);
+      // Get full leaderboard data for floor-wide rankings
+      const fullResponse = await gamificationAPI.getFullLeaderboard();
+      setFullLeaderboardData(fullResponse.data);
+      
+      // Get top 3 for podium display
+      const top3 = fullResponse.data.leaderboard?.slice(0, 3) || [];
       setLeaderboard(top3);
       setSeasonActive(true);
     } catch (err) {
@@ -940,10 +944,10 @@ export const HomePage = () => {
                           <div className="podium-avatar">
                             <User size={42} />
                           </div>
-                          <h3>{leaderboard[1].student_name}</h3>
+                          <h3>{leaderboard[1].student_first_name}</h3>
                           <p className="podium-title">Elite Performer</p>
                           <div className="podium-score">
-                            <span className="score-value">{leaderboard[1].total_score}</span>
+                            <span className="score-value">{leaderboard[1].season_score}</span>
                             <span className="score-label">pts</span>
                           </div>
                         </div>
@@ -966,10 +970,10 @@ export const HomePage = () => {
                           <div className="podium-avatar champion-avatar">
                             <User size={52} />
                           </div>
-                          <h3>{leaderboard[0].student_name}</h3>
+                          <h3>{leaderboard[0].student_first_name}</h3>
                           <p className="podium-title champion-title">Champion</p>
                           <div className="podium-score champion-score">
-                            <span className="score-value">{leaderboard[0].total_score}</span>
+                            <span className="score-value">{leaderboard[0].season_score}</span>
                             <span className="score-label">pts</span>
                           </div>
                         </div>
@@ -991,10 +995,10 @@ export const HomePage = () => {
                           <div className="podium-avatar">
                             <User size={42} />
                           </div>
-                          <h3>{leaderboard[2].student_name}</h3>
+                          <h3>{leaderboard[2].student_first_name}</h3>
                           <p className="podium-title">Elite Performer</p>
                           <div className="podium-score">
-                            <span className="score-value">{leaderboard[2].total_score}</span>
+                            <span className="score-value">{leaderboard[2].season_score}</span>
                             <span className="score-label">pts</span>
                           </div>
                         </div>
@@ -1006,6 +1010,152 @@ export const HomePage = () => {
               </div>
             </GlassCard>
           </motion.div>
+
+          {/* Full Floor Leaderboard */}
+          {fullLeaderboardData && (fullLeaderboardData.top_ranks?.length > 3 || fullLeaderboardData.percentiles?.length > 0) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <GlassCard>
+                <div className="full-leaderboard-card">
+                  <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Trophy size={20} /> Full Floor Leaderboard
+                  </h2>
+                  
+                  {/* All Ranked Students */}
+                  {fullLeaderboardData.top_ranks?.length > 0 && (
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <div className="leaderboard-table">
+                        <div className="leaderboard-header" style={{ 
+                          display: 'grid', 
+                          gridTemplateColumns: '60px 1fr 100px 150px',
+                          padding: '0.75rem 1rem',
+                          fontWeight: '600',
+                          fontSize: '0.9rem',
+                          opacity: 0.7,
+                          borderBottom: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                          <span>Rank</span>
+                          <span>Student</span>
+                          <span>Score</span>
+                          <span>Title</span>
+                        </div>
+                        {fullLeaderboardData.top_ranks.map((entry) => (
+                          <div 
+                            key={entry.id} 
+                            className="leaderboard-row"
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '60px 1fr 100px 150px',
+                              padding: '1rem',
+                              alignItems: 'center',
+                              borderBottom: '1px solid rgba(255,255,255,0.05)',
+                              transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <div style={{ 
+                              fontWeight: '700', 
+                              fontSize: '1.1rem',
+                              color: entry.rank === 1 ? '#FFD700' : entry.rank === 2 ? '#C0C0C0' : entry.rank === 3 ? '#CD7F32' : 'inherit'
+                            }}>
+                              #{entry.rank}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: '600' }}>{entry.student_name}</div>
+                              <div style={{ fontSize: '0.85rem', opacity: 0.6 }}>@{entry.student_username}</div>
+                            </div>
+                            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>
+                              {entry.season_score}
+                            </div>
+                            <div style={{ 
+                              fontSize: '0.85rem',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '4px',
+                              background: 'rgba(99, 102, 241, 0.2)',
+                              color: '#818CF8',
+                              fontWeight: '500'
+                            }}>
+                              {entry.rank_title}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Percentile Students */}
+                  {fullLeaderboardData.percentiles?.length > 0 && (
+                    <div>
+                      <h3 style={{ 
+                        fontSize: '1rem', 
+                        marginBottom: '1rem',
+                        opacity: 0.8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <Award size={18} /> Students by Percentile
+                      </h3>
+                      <div className="percentile-table">
+                        <div className="leaderboard-header" style={{ 
+                          display: 'grid', 
+                          gridTemplateColumns: '120px 1fr 100px',
+                          padding: '0.75rem 1rem',
+                          fontWeight: '600',
+                          fontSize: '0.9rem',
+                          opacity: 0.7,
+                          borderBottom: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                          <span>Percentile</span>
+                          <span>Student</span>
+                          <span>Score</span>
+                        </div>
+                        {fullLeaderboardData.percentiles.map((entry, index) => (
+                          <div 
+                            key={index} 
+                            className="percentile-row"
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '120px 1fr 100px',
+                              padding: '1rem',
+                              alignItems: 'center',
+                              borderBottom: '1px solid rgba(255,255,255,0.05)',
+                              transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <div style={{ 
+                              fontSize: '0.9rem',
+                              padding: '0.3rem 0.6rem',
+                              borderRadius: '4px',
+                              background: 'rgba(34, 197, 94, 0.2)',
+                              color: '#4ADE80',
+                              fontWeight: '600',
+                              width: 'fit-content'
+                            }}>
+                              {entry.percentile}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: '600' }}>{entry.student_name}</div>
+                              <div style={{ fontSize: '0.85rem', opacity: 0.6 }}>@{entry.student_username}</div>
+                            </div>
+                            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>
+                              {entry.season_score}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </GlassCard>
+            </motion.div>
+          )}
 
           {/* Mentor Notifications */}
           <motion.div

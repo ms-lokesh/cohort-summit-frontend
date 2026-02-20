@@ -148,3 +148,23 @@ export const getSubmissionType = (pillar, submission) => {
     
     return typeMap[pillar] || pillar;
 };
+
+/**
+ * Get a student's LeetCode profile details
+ * @param {number} studentId - Student's user ID
+ * @returns {Promise<object>} Student's LeetCode profile data
+ */
+export const getStudentLeetCodeProfile = async (studentId) => {
+    const url = `${API_BASE_URL}/mentor/student/${studentId}/leetcode-profile/`;
+    
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        });
+        return await handleResponse(response);
+    } catch (error) {
+        console.error('Error fetching student LeetCode profile:', error);
+        throw error;
+    }
+};

@@ -45,4 +45,7 @@ urlpatterns = [
     # Student Monthly Reports (Mentor View)
     path('student/<int:student_id>/monthly-report/', mentor_views.get_student_monthly_report, name='student-monthly-report'),
     path('student/<int:student_id>/available-months/', mentor_views.get_student_available_months, name='student-available-months'),
+    
+    # Student LeetCode Profile (Mentor View)
+    path('student/<int:student_id>/leetcode-profile/', mentor_views.get_student_leetcode_profile, name='student-leetcode-profile'),
 ]

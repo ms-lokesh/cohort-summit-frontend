@@ -218,6 +218,32 @@ export const handleLinkedInCallback = async (code, state) => {
   return response.data;
 };
 
+// ==================== IIPC Monthly Submission ====================
+
+/** Get or create current month's draft submission */
+export const getMonthlySubmission = async () => {
+  const response = await iipcAxios.get('/monthly/current_month/', getAuthHeaders());
+  return response.data;
+};
+
+/** Save URLs to draft (PATCH) */
+export const saveMonthlySubmission = async (data) => {
+  const response = await iipcAxios.patch('/monthly/current_month/', data, getAuthHeaders());
+  return response.data;
+};
+
+/** Submit current month's draft for mentor review */
+export const submitMonthlySubmission = async (id) => {
+  const response = await iipcAxios.post(`/monthly/${id}/submit/`, {}, getAuthHeaders());
+  return response.data;
+};
+
+/** Get all past monthly submissions */
+export const getMonthlyHistory = async () => {
+  const response = await iipcAxios.get('/monthly/history/', getAuthHeaders());
+  return response.data;
+};
+
 export default {
   // Post methods
   getLinkedInPosts,
@@ -240,4 +266,10 @@ export default {
   // OAuth methods
   getLinkedInAuthUrl,
   handleLinkedInCallback,
+
+  // Monthly submission
+  getMonthlySubmission,
+  saveMonthlySubmission,
+  submitMonthlySubmission,
+  getMonthlyHistory,
 };

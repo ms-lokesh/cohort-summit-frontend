@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Lightbulb, Heart, Trophy, Linkedin, Code, Grid, CheckCircle, Clock, XCircle, FileText, ExternalLink, Image, Link as LinkIcon, Eye, Search, Filter, X, ThumbsUp, ThumbsDown, RotateCcw, MessageSquare, Calendar, User, Mail, Phone } from 'lucide-react';
-import { getPillarSubmissions, getPillarStats, reviewSubmission, getSubmissionType } from '../../services/mentorApi';
+import { Lightbulb, Heart, Trophy, Linkedin, Code, Grid, CheckCircle, Clock, XCircle, FileText, ExternalLink, Image, Link as LinkIcon, Eye, Search, Filter, X, ThumbsUp, ThumbsDown, RotateCcw, MessageSquare, Calendar, User, Mail, Phone, Target, Zap, Flame, TrendingUp, Activity } from 'lucide-react';
+import { getPillarSubmissions, getPillarStats, reviewSubmission, getSubmissionType, getStudentLeetCodeProfile } from '../../services/mentorApi';
+import { motion, AnimatePresence } from 'framer-motion';
 import './PillarReview.css';
 
 const PILLARS = [
@@ -48,10 +49,16 @@ function PillarReview() {
     const [error, setError] = useState(null);
 
     // Filter states
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('pending'); // Default to showing only pending
     const [searchQuery, setSearchQuery] = useState('');
     const [sortOrder, setSortOrder] = useState('latest');
     const [yearFilter, setYearFilter] = useState('all');
+
+    // LeetCode profile modal states
+    const [showLeetCodeModal, setShowLeetCodeModal] = useState(false);
+    const [leetcodeData, setLeetcodeData] = useState(null);
+    const [leetcodeLoading, setLeetcodeLoading] = useState(false);
+    const [leetcodeError, setLeetcodeError] = useState(null);
 
     // Fetch submissions and stats from API
     useEffect(() => {
@@ -110,11 +117,28 @@ function PillarReview() {
 
     // STRICT filtering - only show submissions that match the active pillar
     // Even though API filters, this ensures no stale state leaks through
+    // Also filter out already reviewed submissions (approved/rejected) by default
     const filteredSubmissions = useMemo(() => {
         if (!Array.isArray(submissions)) return [];
-        if (activePillar === 'all') return submissions;
-        return submissions.filter(sub => sub.pillar === activePillar);
-    }, [submissions, activePillar]);
+        
+        let filtered = submissions;
+        
+        // Filter by pillar
+        if (activePillar !== 'all') {
+            filtered = filtered.filter(sub => sub.pillar === activePillar);
+        }
+        
+        // Filter by status - if "all" or "pending", show only submissions needing review
+        if (statusFilter === 'all' || statusFilter === 'pending') {
+            const needsReviewStatuses = ['pending', 'submitted', 'under_review', 'draft', 'resubmit'];
+            filtered = filtered.filter(sub => needsReviewStatuses.includes(sub.status));
+        } else {
+            // If specific status selected (approved/rejected), show those
+            filtered = filtered.filter(sub => sub.status === statusFilter);
+        }
+        
+        return filtered;
+    }, [submissions, activePillar, statusFilter]);
 
     // Animated counts
     const animatedTotal = useCountUp(stats.total);
@@ -174,10 +198,10 @@ function PillarReview() {
                 comment: mentorComment || 'Approved by mentor'
             });
 
-            // Refresh submissions
-            const filters = { status: statusFilter, search: searchQuery, year: yearFilter, sort: sortOrder };
-            const submissionsData = await getPillarSubmissions(activePillar, filters);
-            setSubmissions(submissionsData.submissions || []);
+            // Remove the approved submission from the local state immediately
+            setSubmissions(prevSubmissions => 
+                prevSubmissions.filter(sub => sub.id !== selectedSubmission.id)
+            );
 
             // Refresh stats
             const statsData = await getPillarStats(activePillar);
@@ -215,10 +239,10 @@ function PillarReview() {
                 comment: mentorComment
             });
 
-            // Refresh submissions
-            const filters = { status: statusFilter, search: searchQuery, year: yearFilter, sort: sortOrder };
-            const submissionsData = await getPillarSubmissions(activePillar, filters);
-            setSubmissions(submissionsData.submissions || []);
+            // Remove the rejected submission from the local state immediately
+            setSubmissions(prevSubmissions => 
+                prevSubmissions.filter(sub => sub.id !== selectedSubmission.id)
+            );
 
             // Refresh stats
             const statsData = await getPillarStats(activePillar);
@@ -241,6 +265,28 @@ function PillarReview() {
         } else {
             alert('Please provide feedback for resubmission');
         }
+    };
+
+    const handleViewLeetCode = async (studentId) => {
+        setLeetcodeLoading(true);
+        setLeetcodeError(null);
+        setShowLeetCodeModal(true);
+        
+        try {
+            const data = await getStudentLeetCodeProfile(studentId);
+            setLeetcodeData(data);
+        } catch (error) {
+            console.error('Error fetching LeetCode profile:', error);
+            setLeetcodeError(error.message || 'Failed to load LeetCode profile');
+        } finally {
+            setLeetcodeLoading(false);
+        }
+    };
+
+    const closeLeetCodeModal = () => {
+        setShowLeetCodeModal(false);
+        setLeetcodeData(null);
+        setLeetcodeError(null);
     };
 
     const getStatusConfig = (status) => {
@@ -417,10 +463,10 @@ function PillarReview() {
                             onChange={(e) => setStatusFilter(e.target.value)}
                             className="filter-select"
                         >
-                            <option value="all">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
+                            <option value="all">All Pending</option>
+                            <option value="pending">Pending Review</option>
+                            <option value="approved">Approved (History)</option>
+                            <option value="rejected">Rejected (History)</option>
                         </select>
                     </div>
 
@@ -582,13 +628,25 @@ function PillarReview() {
                                                 )}
                                             </div>
                                         </div>
-                                        <button
-                                            className="review-button"
-                                            onClick={() => handleReviewClick(submission)}
-                                        >
-                                            <Eye size={16} />
-                                            Review
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            {submission.pillar === 'scd' && (
+                                                <button
+                                                    className="leetcode-button"
+                                                    onClick={() => handleViewLeetCode(submission.student.id)}
+                                                    title="View LeetCode Streaks"
+                                                >
+                                                    <Flame size={16} />
+                                                    View Streaks
+                                                </button>
+                                            )}
+                                            <button
+                                                className="review-button"
+                                                onClick={() => handleReviewClick(submission)}
+                                            >
+                                                <Eye size={16} />
+                                                Review
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -805,6 +863,342 @@ function PillarReview() {
                     </div>
                 </div>
             )}
+
+            {/* LeetCode Profile Modal */}
+            <AnimatePresence>
+                {showLeetCodeModal && (
+                    <div className="drawer-portal">
+                        <motion.div 
+                            className="drawer-overlay" 
+                            onClick={closeLeetCodeModal}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        />
+                        <motion.div 
+                            className="leetcode-modal"
+                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 50 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            style={{
+                                position: 'fixed',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                width: '90%',
+                                maxWidth: '900px',
+                                maxHeight: '90vh',
+                                background: 'rgba(0, 0, 0, 0.95)',
+                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                borderRadius: '20px',
+                                padding: '2rem',
+                                zIndex: 10000,
+                                overflowY: 'auto',
+                                boxShadow: '0 20px 60px rgba(139, 92, 246, 0.3)'
+                            }}
+                        >
+                            <button
+                                onClick={closeLeetCodeModal}
+                                style={{
+                                    position: 'absolute',
+                                    top: '1rem',
+                                    right: '1rem',
+                                    background: 'rgba(255, 255, 255, 0.1)',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    borderRadius: '50%',
+                                    width: '40px',
+                                    height: '40px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    color: '#fff',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                <X size={20} />
+                            </button>
+
+                            <h2 style={{
+                                fontSize: '1.8rem',
+                                fontWeight: '700',
+                                marginBottom: '1.5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                color: '#fff'
+                            }}>
+                                <Code size={28} style={{ color: '#8b5cf6' }} />
+                                LeetCode Profile
+                            </h2>
+
+                            {leetcodeLoading ? (
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'center', 
+                                    alignItems: 'center', 
+                                    minHeight: '300px',
+                                    fontSize: '1.2rem',
+                                    color: 'var(--text-secondary)'
+                                }}>
+                                    Loading profile...
+                                </div>
+                            ) : leetcodeError ? (
+                                <div style={{
+                                    padding: '2rem',
+                                    textAlign: 'center',
+                                    color: '#ef4444',
+                                    fontSize: '1.1rem'
+                                }}>
+                                    {leetcodeError}
+                                </div>
+                            ) : leetcodeData ? (
+                                <div>
+                                    {/* Student Info */}
+                                    <div style={{
+                                        padding: '1.5rem',
+                                        background: 'rgba(139, 92, 246, 0.1)',
+                                        border: '1px solid rgba(139, 92, 246, 0.3)',
+                                        borderRadius: '12px',
+                                        marginBottom: '1.5rem'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            <div style={{ fontSize: '2.5rem' }}>{leetcodeData.student?.avatar || '👤'}</div>
+                                            <div>
+                                                <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#fff', marginBottom: '0.25rem' }}>
+                                                    {leetcodeData.student?.name}
+                                                </h3>
+                                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0 }}>
+                                                    {leetcodeData.student?.year} • {leetcodeData.student?.department}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Username & Status */}
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '1rem',
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        borderRadius: '12px',
+                                        marginBottom: '1.5rem'
+                                    }}>
+                                        <div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                                                LeetCode Username
+                                            </div>
+                                            <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#fff' }}>
+                                                {leetcodeData.leetcode_username}
+                                            </div>
+                                        </div>
+                                        <div style={{
+                                            padding: '0.5rem 1rem',
+                                            background: leetcodeData.status === 'approved' ? 'rgba(16, 185, 129, 0.1)' :
+                                                       leetcodeData.status === 'rejected' ? 'rgba(239, 68, 68, 0.1)' :
+                                                       'rgba(251, 191, 36, 0.1)',
+                                            border: `1px solid ${
+                                                leetcodeData.status === 'approved' ? '#10b981' :
+                                                leetcodeData.status === 'rejected' ? '#ef4444' :
+                                                '#fbbf24'
+                                            }`,
+                                            borderRadius: '8px',
+                                            color: leetcodeData.status === 'approved' ? '#10b981' :
+                                                   leetcodeData.status === 'rejected' ? '#ef4444' :
+                                                   '#fbbf24',
+                                            fontSize: '0.85rem',
+                                            fontWeight: '600'
+                                        }}>
+                                            {leetcodeData.status?.toUpperCase()}
+                                        </div>
+                                    </div>
+
+                                    {/* Circular Progress & Stats */}
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '1fr 1fr',
+                                        gap: '1.5rem',
+                                        marginBottom: '1.5rem'
+                                    }}>
+                                        {/* Total Problems Circle */}
+                                        <div style={{
+                                            padding: '2rem',
+                                            background: 'rgba(255, 255, 255, 0.03)',
+                                            borderRadius: '12px',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}>
+                                            <svg width="160" height="160" style={{ transform: 'rotate(-90deg)' }}>
+                                                <circle
+                                                    cx="80"
+                                                    cy="80"
+                                                    r="70"
+                                                    fill="none"
+                                                    stroke="rgba(139, 92, 246, 0.1)"
+                                                    strokeWidth="12"
+                                                />
+                                                <circle
+                                                    cx="80"
+                                                    cy="80"
+                                                    r="70"
+                                                    fill="none"
+                                                    stroke="url(#gradient)"
+                                                    strokeWidth="12"
+                                                    strokeLinecap="round"
+                                                    strokeDasharray={`${2 * Math.PI * 70}`}
+                                                    strokeDashoffset={`${2 * Math.PI * 70 * (1 - leetcodeData.total_solved / 3773)}`}
+                                                    style={{ transition: 'stroke-dashoffset 1s ease' }}
+                                                />
+                                                <defs>
+                                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                        <stop offset="0%" stopColor="#8b5cf6" />
+                                                        <stop offset="100%" stopColor="#6366f1" />
+                                                    </linearGradient>
+                                                </defs>
+                                            </svg>
+                                            <div style={{
+                                                position: 'absolute',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#8b5cf6' }}>
+                                                    {leetcodeData.total_solved}
+                                                </div>
+                                                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                                    Problems Solved
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Streak & Monthly Info */}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                            <div style={{
+                                                padding: '1.5rem',
+                                                background: 'rgba(255, 107, 53, 0.1)',
+                                                border: '1px solid rgba(255, 107, 53, 0.3)',
+                                                borderRadius: '12px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <Flame size={32} style={{ color: '#ff6b35', marginBottom: '0.5rem' }} />
+                                                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#ff6b35' }}>
+                                                    {leetcodeData.streak} 🔥
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                    Day Streak
+                                                </div>
+                                            </div>
+
+                                            <div style={{
+                                                padding: '1.5rem',
+                                                background: 'rgba(251, 191, 36, 0.1)',
+                                                border: '1px solid rgba(251, 191, 36, 0.3)',
+                                                borderRadius: '12px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <Target size={32} style={{ color: '#fbbf24', marginBottom: '0.5rem' }} />
+                                                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#fbbf24' }}>
+                                                    {leetcodeData.monthly_problems_count}/10
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                    This Month
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Difficulty Breakdown */}
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(3, 1fr)',
+                                        gap: '1rem',
+                                        marginBottom: '1.5rem'
+                                    }}>
+                                        <div style={{
+                                            padding: '1.5rem',
+                                            background: 'rgba(74, 222, 128, 0.1)',
+                                            border: '1px solid rgba(74, 222, 128, 0.3)',
+                                            borderRadius: '12px',
+                                            textAlign: 'center'
+                                        }}>
+                                            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#4ade80', marginBottom: '0.5rem' }}>
+                                                {leetcodeData.easy_solved}
+                                            </div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                Easy
+                                            </div>
+                                        </div>
+
+                                        <div style={{
+                                            padding: '1.5rem',
+                                            background: 'rgba(251, 191, 36, 0.1)',
+                                            border: '1px solid rgba(251, 191, 36, 0.3)',
+                                            borderRadius: '12px',
+                                            textAlign: 'center'
+                                        }}>
+                                            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#fbbf24', marginBottom: '0.5rem' }}>
+                                                {leetcodeData.medium_solved}
+                                            </div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                Medium
+                                            </div>
+                                        </div>
+
+                                        <div style={{
+                                            padding: '1.5rem',
+                                            background: 'rgba(248, 113, 113, 0.1)',
+                                            border: '1px solid rgba(248, 113, 113, 0.3)',
+                                            borderRadius: '12px',
+                                            textAlign: 'center'
+                                        }}>
+                                            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#f87171', marginBottom: '0.5rem' }}>
+                                                {leetcodeData.hard_solved}
+                                            </div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                Hard
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Last Synced Info */}
+                                    <div style={{
+                                        padding: '1rem',
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        borderRadius: '8px',
+                                        fontSize: '0.85rem',
+                                        color: 'var(--text-secondary)',
+                                        textAlign: 'center'
+                                    }}>
+                                        Last synced: {new Date(leetcodeData.last_synced).toLocaleString()}
+                                    </div>
+
+                                    {leetcodeData.review_comments && (
+                                        <div style={{
+                                            marginTop: '1rem',
+                                            padding: '1rem',
+                                            background: 'rgba(59, 130, 246, 0.1)',
+                                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                                            borderRadius: '8px'
+                                        }}>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#3b82f6', marginBottom: '0.5rem' }}>
+                                                Mentor's Feedback:
+                                            </div>
+                                            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                                {leetcodeData.review_comments}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : null}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

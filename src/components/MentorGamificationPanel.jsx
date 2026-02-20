@@ -6,10 +6,13 @@ import './MentorGamificationPanel.css';
 const MentorGamificationPanel = () => {
   const [loading, setLoading] = useState(true);
   const [leaderboardData, setLeaderboardData] = useState(null);
+  const [menteeLeaderboardData, setMenteeLeaderboardData] = useState(null);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('floor'); // 'floor' or 'mentees'
 
   useEffect(() => {
     fetchLeaderboardData();
+    fetchMenteeLeaderboardData();
   }, []);
 
   const fetchLeaderboardData = async () => {
@@ -19,10 +22,20 @@ const MentorGamificationPanel = () => {
       setLeaderboardData(response.data);
       setError(null);
     } catch (err) {
-      console.error('Failed to fetch leaderboard data:', err);
-      setError(err.response?.data?.detail || 'Failed to load leaderboard');
+      console.error('Failed to fetch floor leaderboard data:', err);
+      setError(err.response?.data?.detail || 'Failed to load floor leaderboard');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMenteeLeaderboardData = async () => {
+    try {
+      const response = await gamificationAPI.getMenteeLeaderboard();
+      setMenteeLeaderboardData(response.data);
+    } catch (err) {
+      console.error('Failed to fetch mentee leaderboard data:', err);
+      // Don't set error state here as floor leaderboard might still work
     }
   };
 
@@ -44,7 +57,17 @@ const MentorGamificationPanel = () => {
 
   if (!leaderboardData) return null;
 
-  const { top_ranks, percentiles, total_students } = leaderboardData;
+  // Use data based on active tab
+  const currentData = activeTab === 'floor' ? leaderboardData : menteeLeaderboardData;
+  if (!currentData) return null;
+
+  // Handle both old and new data structure
+  const leaderboard = currentData.leaderboard || [];
+  const total_students = currentData.total_students || 0;
+  
+  // For backwards compatibility with old structure
+  const top_ranks = currentData.top_ranks || leaderboard.filter(entry => entry.rank <= 3);
+  const percentiles = currentData.percentiles || leaderboard.filter(entry => entry.rank > 3);
 
   const getRankIcon = (rank) => {
     switch(rank) {
@@ -66,6 +89,53 @@ const MentorGamificationPanel = () => {
 
   return (
     <div className="mentor-gamification-panel">
+      {/* Tab Switcher */}
+      <div className="leaderboard-tabs" style={{
+        display: 'flex',
+        gap: '1rem',
+        marginBottom: '1.5rem',
+        borderBottom: '2px solid rgba(255,255,255,0.1)',
+        paddingBottom: '0.5rem'
+      }}>
+        <button
+          onClick={() => setActiveTab('floor')}
+          style={{
+            background: activeTab === 'floor' ? 'rgba(99, 102, 241, 0.3)' : 'transparent',
+            border: 'none',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '8px 8px 0 0',
+            color: activeTab === 'floor' ? '#818CF8' : 'rgba(255,255,255,0.6)',
+            fontWeight: '600',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            borderBottom: activeTab === 'floor' ? '3px solid #818CF8' : 'none',
+          }}
+        >
+          <Trophy size={18} style={{ verticalAlign: 'middle', marginRight: '0.5rem' }} />
+          Floor Leaderboard
+        </button>
+        <button
+          onClick={() => setActiveTab('mentees')}
+          style={{
+            background: activeTab === 'mentees' ? 'rgba(99, 102, 241, 0.3)' : 'transparent',
+            border: 'none',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '8px 8px 0 0',
+            color: activeTab === 'mentees' ? '#818CF8' : 'rgba(255,255,255,0.6)',
+            fontWeight: '600',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            borderBottom: activeTab === 'mentees' ? '3px solid #818CF8' : 'none',
+          }}
+          disabled={!menteeLeaderboardData}
+        >
+          <Users size={18} style={{ verticalAlign: 'middle', marginRight: '0.5rem' }} />
+          My Mentees
+        </button>
+      </div>
+
       {/* Header Stats */}
       <div className="gamification-header">
         <div className="header-stat">
@@ -109,7 +179,7 @@ const MentorGamificationPanel = () => {
             </div>
             {top_ranks.map((entry) => (
               <div 
-                key={entry.id} 
+                key={entry.student_id || entry.id} 
                 className={`leaderboard-item ${getRankClass(entry.rank)}`}
               >
                 <div className="rank-cell">
@@ -118,10 +188,10 @@ const MentorGamificationPanel = () => {
                 </div>
                 <div className="student-cell">
                   <div className="student-avatar">
-                    {entry.student_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'ST'}
+                    {entry.student_first_name?.substring(0, 2).toUpperCase() || entry.student_username?.substring(0, 2).toUpperCase() || 'ST'}
                   </div>
                   <div className="student-info">
-                    <span className="student-name">{entry.student_name}</span>
+                    <span className="student-name">{entry.student_first_name || entry.student_name || entry.student_username}</span>
                     <span className="student-username">@{entry.student_username}</span>
                   </div>
                 </div>
@@ -130,7 +200,7 @@ const MentorGamificationPanel = () => {
                   <span className="score-max">/1500</span>
                 </div>
                 <div className="title-cell">
-                  <span className="rank-title">{entry.rank_title}</span>
+                  <span className="rank-title">{entry.rank_title || 'Ranked'}</span>
                 </div>
               </div>
             ))}
@@ -149,20 +219,20 @@ const MentorGamificationPanel = () => {
                 <span>Percentile</span>
                 <span>Student</span>
                 <span>Score</span>
-                <span>Status</span>
+                <span>Breakdown</span>
               </div>
-              {percentiles.map((entry, index) => (
-                <div key={index} className="leaderboard-item percentile-item">
+              {percentiles.map((entry) => (
+                <div key={entry.student_id || entry.id} className="leaderboard-item percentile-item">
                   <div className="percentile-cell">
                     <Award size={18} className="percentile-icon" />
-                    <span className="percentile-value">{entry.percentile}</span>
+                    <span className="percentile-value">{entry.percentile || entry.get_percentile_display}</span>
                   </div>
                   <div className="student-cell">
                     <div className="student-avatar">
-                      {entry.student_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'ST'}
+                      {entry.student_first_name?.substring(0, 2).toUpperCase() || entry.student_username?.substring(0, 2).toUpperCase() || 'ST'}
                     </div>
                     <div className="student-info">
-                      <span className="student-name">{entry.student_name}</span>
+                      <span className="student-name">{entry.student_first_name || entry.student_name || entry.student_username}</span>
                       <span className="student-username">@{entry.student_username}</span>
                     </div>
                   </div>
@@ -171,7 +241,9 @@ const MentorGamificationPanel = () => {
                     <span className="score-max">/1500</span>
                   </div>
                   <div className="status-cell">
-                    <span className="status-badge">Completed</span>
+                    <span className="status-badge" style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                      CLT:{entry.clt_score} SCD:{entry.scd_score} CFC:{entry.cfc_score}
+                    </span>
                   </div>
                 </div>
               ))}

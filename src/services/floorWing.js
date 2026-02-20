@@ -35,6 +35,22 @@ const floorWingService = {
     });
     return response.data;
   },
+
+  /**
+   * Add a new student to the floor
+   */
+  addStudent: async (studentData) => {
+    const response = await api.post('/profiles/floor-wing/add-student/', studentData);
+    return response.data;
+  },
+
+  /**
+   * Add a new mentor to the floor
+   */
+  addMentor: async (mentorData) => {
+    const response = await api.post('/profiles/floor-wing/add-mentor/', mentorData);
+    return response.data;
+  },
 };
 
 export default floorWingService;

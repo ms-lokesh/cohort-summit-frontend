@@ -15,7 +15,10 @@ import {
     MentorsView,
     AnnouncementsView,
     StudentDetailDrawer,
-    AnnouncementModal
+    AnnouncementModal,
+    AddStudentModal,
+    AddMentorModal,
+    GamificationManagementView
 } from './FloorWingComponents';
 import './FloorWingDashboard.css';
 
@@ -45,6 +48,8 @@ function FloorWingDashboard() {
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [assignmentMode, setAssignmentMode] = useState(false);
     const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+    const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+    const [showAddMentorModal, setShowAddMentorModal] = useState(false);
     const [studentFilter, setStudentFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStudents, setSelectedStudents] = useState([]);
@@ -128,6 +133,32 @@ function FloorWingDashboard() {
         } catch (error) {
             console.error('Failed to bulk assign:', error);
             alert('Failed to assign students');
+        }
+    };
+
+    const handleAddStudent = async (studentData) => {
+        try {
+            await floorWingService.addStudent(studentData);
+            setShowAddStudentModal(false);
+            await loadStudents(studentFilter);
+            await loadDashboard();
+            alert('Student added successfully!');
+        } catch (error) {
+            console.error('Failed to add student:', error);
+            const errorMsg = error.response?.data?.error || error.message;
+            throw new Error(errorMsg);
+        }
+    };
+
+    const handleAddMentor = async () => {
+        try {
+            setShowAddMentorModal(false);
+            await loadMentors();
+            await loadDashboard();
+            alert('Mentor added successfully!');
+        } catch (error) {
+            console.error('Failed to add mentor:', error);
+            alert('Failed to add mentor');
         }
     };
 
@@ -255,6 +286,15 @@ function FloorWingDashboard() {
                     {announcements.length > 0 && (
                         <span className="tab-badge">{announcements.length}</span>
                     )}
+                </motion.button>
+                <motion.button
+                    className={`tab ${activeView === 'gamification' ? 'active' : ''}`}
+                    onClick={() => setActiveView('gamification')}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                >
+                    <Award size={18} />
+                    Gamification
                 </motion.button>
             </div>
 
@@ -394,11 +434,15 @@ function FloorWingDashboard() {
                         onAssign={handleAssignStudent}
                         onBulkAssign={handleBulkAssign}
                         onStudentClick={setSelectedStudent}
+                        onAddStudent={() => setShowAddStudentModal(true)}
                     />
                 )}
 
                 {activeView === 'mentors' && (
-                    <MentorsView mentors={mentors} />
+                    <MentorsView 
+                        mentors={mentors}
+                        onAddMentor={() => setShowAddMentorModal(true)}
+                    />
                 )}
 
                 {activeView === 'announcements' && (
@@ -407,6 +451,10 @@ function FloorWingDashboard() {
                         onRefresh={loadAnnouncements}
                         onCreate={() => setShowAnnouncementModal(true)}
                     />
+                )}
+
+                {activeView === 'gamification' && (
+                    <GamificationManagementView />
                 )}
             </AnimatePresence>
 
@@ -430,6 +478,28 @@ function FloorWingDashboard() {
                         onChange={setAnnouncementForm}
                         onSubmit={handleCreateAnnouncement}
                         onClose={() => setShowAnnouncementModal(false)}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Add Student Modal */}
+            <AnimatePresence>
+                {showAddStudentModal && (
+                    <AddStudentModal
+                        mentors={mentors}
+                        onSubmit={handleAddStudent}
+                        onClose={() => setShowAddStudentModal(false)}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Add Mentor Modal */}
+            <AnimatePresence>
+                {showAddMentorModal && (
+                    <AddMentorModal
+                        isOpen={showAddMentorModal}
+                        onClose={() => setShowAddMentorModal(false)}
+                        onSuccess={handleAddMentor}
                     />
                 )}
             </AnimatePresence>

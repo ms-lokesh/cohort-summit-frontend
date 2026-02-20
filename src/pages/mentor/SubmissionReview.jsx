@@ -25,10 +25,10 @@ const PILLARS = [
 ];
 
 const STATUS_OPTIONS = [
-    { value: 'all', label: 'All Status', color: '#757575' },
-    { value: 'pending', label: 'Pending', color: '#FF9800' },
-    { value: 'approved', label: 'Approved', color: '#4CAF50' },
-    { value: 'rejected', label: 'Rejected', color: '#f44336' },
+    { value: 'all', label: 'All Pending', color: '#757575' }, // Changed label to clarify
+    { value: 'pending', label: 'Pending Review', color: '#FF9800' },
+    { value: 'approved', label: 'Approved (History)', color: '#4CAF50' },
+    { value: 'rejected', label: 'Rejected (History)', color: '#f44336' },
     { value: 'resubmit', label: 'Needs Resubmission', color: '#FFC107' },
 ];
 
@@ -138,10 +138,24 @@ function SubmissionReview({ selectedStudent }) {
     console.log('  - selectedStudent:', selectedStudent?.name);
     console.log('  - displaySubmissions:', displaySubmissions);
 
-    // Filter submissions
+    // Filter submissions - Only show submissions that need review (not approved/rejected)
     const filteredSubmissions = displaySubmissions.filter(submission => {
+        // First filter: Only show pending/submitted/under_review submissions (exclude approved/rejected)
+        const needsReviewStatuses = ['pending', 'submitted', 'under_review', 'draft', 'resubmit'];
+        const needsReview = needsReviewStatuses.includes(submission.status);
+        
+        // If status filter is set to 'pending', show only those needing review
+        // If status filter is 'all', still only show those needing review
+        let statusMatch;
+        if (selectedStatus === 'all') {
+            statusMatch = needsReview; // Only show pending/submitted/under_review
+        } else if (selectedStatus === 'pending') {
+            statusMatch = needsReview; // Show all that need review
+        } else {
+            statusMatch = submission.status === selectedStatus;
+        }
+        
         const pillarMatch = selectedPillar === 'all' || submission.pillar === selectedPillar;
-        const statusMatch = selectedStatus === 'all' || submission.status === selectedStatus;
         const searchMatch = searchQuery === '' ||
             submission.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             submission.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -292,12 +306,19 @@ function SubmissionReview({ selectedStudent }) {
             console.log('✅ Submissions refreshed!');
             console.log('New submissions count:', submissions.length);
             
+            // Remove the approved/rejected submission from the local state immediately
+            setSubmissions(prevSubmissions => 
+                prevSubmissions.filter(sub => sub.id !== submission.id)
+            );
+            
             // Close modal after short delay
             setTimeout(() => {
                 setSelectedSubmission(null);
                 setReviewComment('');
                 setReviewStatus(null);
                 setReviewMessage('');
+                setGamificationScore(0);
+                setShowScoreInput(false);
             }, 2000);
         } catch (error) {
             console.error('Review error:', error);

@@ -83,11 +83,19 @@ const Login = () => {
                 console.log('Login form - attempting login with:', formData.email);
                 
                 // Use email as username for login
-                await login(formData.email, formData.password, selectedRole);
+                const loggedInUser = await login(formData.email, formData.password, selectedRole);
 
-                // Navigate to role-based home path
-                const homePath = getHomePath();
-                navigate(homePath);
+                // Navigate to role-based home path using the returned user data
+                const ROLE_HOME_PATHS = {
+                    STUDENT: '/',
+                    MENTOR: '/mentor-dashboard',
+                    FLOOR_WING: '/floorwing-dashboard',
+                    ADMIN: '/admin/campus-select'
+                };
+
+                const homePath = ROLE_HOME_PATHS[loggedInUser.role] || '/';
+                console.log('Navigating to:', homePath, 'for role:', loggedInUser.role);
+                navigate(homePath, { replace: true });
             } catch (error) {
                 console.error('Login error:', error);
                 console.error('Error response:', error.response?.data);

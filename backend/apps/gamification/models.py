@@ -221,6 +221,52 @@ class LegacyScore(models.Model):
     def __str__(self):
         return f"{self.student.username} - Legacy: {self.total_legacy_points}"
 
+    def recalculate_from_season_scores(self):
+        """Recalculate legacy score from all existing season scores"""
+        # Get ALL season scores for this student (not just completed ones)
+        # Legacy score should reflect current progress across all seasons
+        season_scores = SeasonScore.objects.filter(
+            student=self.student
+        ).order_by('season__season_number')
+        
+        if not season_scores.exists():
+            # No seasons yet
+            return
+        
+        # Reset values
+        self.total_legacy_points = 0
+        self.ascension_bonus_total = 0
+        self.seasons_completed = 0
+        self.highest_season_score = 0
+        self.last_season_score = 0
+        
+        # Iterate through all seasons in order
+        for season_score in season_scores:
+            current_score = season_score.total_score
+            
+            # Only count if there's actual progress
+            if current_score == 0:
+                continue
+            
+            # Check for Ascension Bonus (current > previous)
+            if self.last_season_score > 0 and current_score > self.last_season_score:
+                self.ascension_bonus_total += 5
+                self.total_legacy_points += 5
+            
+            # Add season score
+            self.total_legacy_points += current_score
+            
+            # Count completed or in-progress seasons
+            if season_score.season_completed or current_score > 0:
+                self.seasons_completed += 1
+            
+            # Update tracking
+            if current_score > self.highest_season_score:
+                self.highest_season_score = current_score
+            self.last_season_score = current_score
+        
+        self.save()
+
     def add_season_score(self, season_score_obj):
         """Add season score and check for Ascension Bonus"""
         current_score = season_score_obj.total_score

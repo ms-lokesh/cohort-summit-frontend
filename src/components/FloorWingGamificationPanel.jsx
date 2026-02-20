@@ -44,7 +44,11 @@ const FloorWingGamificationPanel = () => {
 
   if (!leaderboardData) return null;
 
-  const { top_ranks, percentiles, total_students } = leaderboardData;
+  // Handle new API structure: { leaderboard, total_students, season }
+  const leaderboard = leaderboardData.leaderboard || [];
+  const total_students = leaderboardData.total_students || 0;
+  const top_ranks = leaderboard.filter(entry => entry.rank <= 3);
+  const percentiles = leaderboard.filter(entry => entry.rank > 3);
 
   const getRankIcon = (rank) => {
     switch(rank) {
@@ -79,14 +83,14 @@ const FloorWingGamificationPanel = () => {
           <Trophy size={20} />
           <div className="stat-content">
             <span className="stat-label">Ranked</span>
-            <span className="stat-value">{top_ranks.length}</span>
+            <span className="stat-value">{leaderboard.length}</span>
           </div>
         </div>
         <div className="header-stat">
           <TrendingUp size={20} />
           <div className="stat-content">
-            <span className="stat-label">In Progress</span>
-            <span className="stat-value">{percentiles.length}</span>
+            <span className="stat-label">Top 3</span>
+            <span className="stat-value">{top_ranks.length}</span>
           </div>
         </div>
       </div>
@@ -109,7 +113,7 @@ const FloorWingGamificationPanel = () => {
             </div>
             {top_ranks.map((entry) => (
               <div 
-                key={entry.id} 
+                key={entry.student_id} 
                 className={`leaderboard-item ${getRankClass(entry.rank)}`}
               >
                 <div className="rank-cell">
@@ -118,10 +122,10 @@ const FloorWingGamificationPanel = () => {
                 </div>
                 <div className="student-cell">
                   <div className="student-avatar">
-                    {entry.student_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'ST'}
+                    {entry.student_first_name?.substring(0, 2).toUpperCase() || entry.student_username?.substring(0, 2).toUpperCase() || 'ST'}
                   </div>
                   <div className="student-info">
-                    <span className="student-name">{entry.student_name}</span>
+                    <span className="student-name">{entry.student_first_name || entry.student_username}</span>
                     <span className="student-username">@{entry.student_username}</span>
                   </div>
                 </div>
@@ -130,7 +134,7 @@ const FloorWingGamificationPanel = () => {
                   <span className="score-max">/1500</span>
                 </div>
                 <div className="title-cell">
-                  <span className="rank-title">{entry.rank_title}</span>
+                  <span className="rank-title">{entry.rank_title || 'Ranked'}</span>
                 </div>
               </div>
             ))}
@@ -151,18 +155,18 @@ const FloorWingGamificationPanel = () => {
                 <span>Score</span>
                 <span>Status</span>
               </div>
-              {percentiles.map((entry, index) => (
-                <div key={index} className="leaderboard-item percentile-item">
+              {percentiles.map((entry) => (
+                <div key={entry.student_id} className="leaderboard-item percentile-item">
                   <div className="percentile-cell">
                     <Award size={18} className="percentile-icon" />
-                    <span className="percentile-value">{entry.percentile}</span>
+                    <span className="percentile-value">{entry.percentile || `#${entry.rank}`}</span>
                   </div>
                   <div className="student-cell">
                     <div className="student-avatar">
-                      {entry.student_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'ST'}
+                      {entry.student_first_name?.substring(0, 2).toUpperCase() || entry.student_username?.substring(0, 2).toUpperCase() || 'ST'}
                     </div>
                     <div className="student-info">
-                      <span className="student-name">{entry.student_name}</span>
+                      <span className="student-name">{entry.student_first_name || entry.student_username}</span>
                       <span className="student-username">@{entry.student_username}</span>
                     </div>
                   </div>
@@ -171,7 +175,9 @@ const FloorWingGamificationPanel = () => {
                     <span className="score-max">/1500</span>
                   </div>
                   <div className="status-cell">
-                    <span className="status-badge">Completed</span>
+                    <span className="status-badge" style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                      CLT:{entry.clt_score} SCD:{entry.scd_score} CFC:{entry.cfc_score}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -179,7 +185,7 @@ const FloorWingGamificationPanel = () => {
           </div>
         )}
 
-        {top_ranks.length === 0 && percentiles.length === 0 && (
+        {leaderboard.length === 0 && (
           <div className="empty-state">
             <Trophy size={48} />
             <p>No students have completed the season yet</p>

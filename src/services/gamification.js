@@ -30,7 +30,9 @@ const gamificationAPI = {
   
   // Leaderboard
   getCurrentLeaderboard: () => api.get('/gamification/leaderboard/current_season/'),
+  getCurrentSeasonLeaderboard: () => api.get('/gamification/leaderboard/current_season/'),
   getFullLeaderboard: () => api.get('/gamification/leaderboard/full_leaderboard/'),
+  getMenteeLeaderboard: () => api.get('/gamification/leaderboard/mentee_leaderboard/'),
   getMyPosition: () => api.get('/gamification/leaderboard/my_position/'),
   
   // Titles

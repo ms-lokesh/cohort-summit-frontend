@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, CheckCircle, Clock, XCircle, Lightbulb, Heart, Trophy, Linkedin, Code, Search, MessageCircle, Send, X as CloseIcon, RefreshCw } from 'lucide-react';
+import { Users, CheckCircle, Clock, XCircle, Lightbulb, Heart, Trophy, Linkedin, Code, Search, MessageCircle, Send, X as CloseIcon, RefreshCw, Flame, Target, Zap, TrendingUp, Activity } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
 import MentorGamificationPanel from '../../components/MentorGamificationPanel';
 import messageService from '../../services/messageService';
 import { getMentorStudents } from '../../services/mentor';
+import { getStudentLeetCodeProfile } from '../../services/mentorApi';
 import SubmissionReview from './SubmissionReview';
 import './MentorDashboard.css';
 
@@ -19,6 +20,12 @@ function MentorDashboard() {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    
+    // LeetCode modal states
+    const [showLeetCodeModal, setShowLeetCodeModal] = useState(false);
+    const [leetcodeData, setLeetcodeData] = useState(null);
+    const [leetcodeLoading, setLeetcodeLoading] = useState(false);
+    const [leetcodeError, setLeetcodeError] = useState(null);
 
     // Fetch students on mount
     useEffect(() => {
@@ -38,6 +45,29 @@ function MentorDashboard() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleViewLeetCode = async (studentId, e) => {
+        e.stopPropagation(); // Prevent student card selection
+        setLeetcodeLoading(true);
+        setLeetcodeError(null);
+        setShowLeetCodeModal(true);
+        
+        try {
+            const data = await getStudentLeetCodeProfile(studentId);
+            setLeetcodeData(data);
+        } catch (error) {
+            console.error('Error fetching LeetCode profile:', error);
+            setLeetcodeError(error.message || 'Failed to load LeetCode profile');
+        } finally {
+            setLeetcodeLoading(false);
+        }
+    };
+
+    const closeLeetCodeModal = () => {
+        setShowLeetCodeModal(false);
+        setLeetcodeData(null);
+        setLeetcodeError(null);
     };
 
     const formatLastSubmission = (timestamp) => {
@@ -163,6 +193,16 @@ function MentorDashboard() {
                                             <h3 className="student-name">{student.name || 'Unknown Student'}</h3>
                                             <p className="student-roll">{student.rollNo || student.roll_no || 'N/A'}</p>
                                             <p className="student-email">{student.email || 'No email'}</p>
+                                        </div>
+                                        <div className="student-actions">
+                                            <button
+                                                className="leetcode-mini-button"
+                                                onClick={(e) => handleViewLeetCode(student.id, e)}
+                                                title="View LeetCode Profile"
+                                            >
+                                                <Flame size={16} />
+                                                LeetCode
+                                            </button>
                                         </div>
                                         <div className="student-status-summary">
                                             {student.submissions && Object.values(student.submissions).filter(s => s.status === 'pending').length > 0 && (
@@ -311,6 +351,222 @@ function MentorDashboard() {
                                     <Send size={16} />
                                     <span>Send</span>
                                 </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* LeetCode Profile Modal */}
+            <AnimatePresence>
+                {showLeetCodeModal && (
+                    <motion.div
+                        className="modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={closeLeetCodeModal}
+                    >
+                        <motion.div
+                            className="leetcode-modal"
+                            initial={{ scale: 0.9, opacity: 0, y: 50 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 50 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="chat-modal-header">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <Code size={28} style={{ color: '#8b5cf6' }} />
+                                    <div>
+                                        <h3>LeetCode Profile</h3>
+                                        {leetcodeData && <p>{leetcodeData.student?.name}</p>}
+                                    </div>
+                                </div>
+                                <button className="close-button" onClick={closeLeetCodeModal}>
+                                    <CloseIcon size={20} />
+                                </button>
+                            </div>
+
+                            <div className="chat-modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                                {leetcodeLoading ? (
+                                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                                        <RefreshCw size={48} className="spinning" style={{ marginBottom: '1rem' }} />
+                                        <p>Loading LeetCode profile...</p>
+                                    </div>
+                                ) : leetcodeError ? (
+                                    <div style={{ textAlign: 'center', padding: '2rem', color: '#ef4444' }}>
+                                        <p>{leetcodeError}</p>
+                                    </div>
+                                ) : leetcodeData ? (
+                                    <div>
+                                        {/* Username & Status */}
+                                        <div style={{
+                                            padding: '1rem',
+                                            background: 'rgba(139, 92, 246, 0.1)',
+                                            border: '1px solid rgba(139, 92, 246, 0.3)',
+                                            borderRadius: '12px',
+                                            marginBottom: '1.5rem'
+                                        }}>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                                                LeetCode Username
+                                            </div>
+                                            <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#fff' }}>
+                                                {leetcodeData.leetcode_username}
+                                            </div>
+                                        </div>
+
+                                        {/* Monthly Stats Card - Highlighted */}
+                                        <div style={{
+                                            padding: '1.5rem',
+                                            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15))',
+                                            border: '2px solid rgba(251, 191, 36, 0.4)',
+                                            borderRadius: '12px',
+                                            marginBottom: '1.5rem'
+                                        }}>
+                                            <h3 style={{
+                                                fontSize: '1.2rem',
+                                                fontWeight: '700',
+                                                color: '#fbbf24',
+                                                marginBottom: '1rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.5rem'
+                                            }}>
+                                                <Target size={24} />
+                                                {leetcodeData.current_month} Stats
+                                            </h3>
+                                            
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
+                                                <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px' }}>
+                                                    <div style={{ fontSize: '2rem', fontWeight: '700', color: '#fbbf24' }}>
+                                                        {leetcodeData.monthly_stats?.total || 0}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                        Total Solved
+                                                    </div>
+                                                </div>
+                                                <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px' }}>
+                                                    <div style={{ fontSize: '2rem', fontWeight: '700', color: '#8b5cf6' }}>
+                                                        {leetcodeData.monthly_stats?.days_active || 0}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                        Active Days
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                                                <div style={{ textAlign: 'center', padding: '0.75rem', background: 'rgba(74, 222, 128, 0.15)', border: '1px solid rgba(74, 222, 128, 0.3)', borderRadius: '8px' }}>
+                                                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#4ade80' }}>
+                                                        {leetcodeData.monthly_stats?.easy || 0}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Easy</div>
+                                                </div>
+                                                <div style={{ textAlign: 'center', padding: '0.75rem', background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: '8px' }}>
+                                                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fbbf24' }}>
+                                                        {leetcodeData.monthly_stats?.medium || 0}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Medium</div>
+                                                </div>
+                                                <div style={{ textAlign: 'center', padding: '0.75rem', background: 'rgba(248, 113, 113, 0.15)', border: '1px solid rgba(248, 113, 113, 0.3)', borderRadius: '8px' }}>
+                                                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#f87171' }}>
+                                                        {leetcodeData.monthly_stats?.hard || 0}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Hard</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Overall Stats */}
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text-primary)' }}>
+                                            Overall Statistics
+                                        </h3>
+
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                                            <div style={{
+                                                padding: '1.5rem',
+                                                background: 'rgba(255, 107, 53, 0.1)',
+                                                border: '1px solid rgba(255, 107, 53, 0.3)',
+                                                borderRadius: '12px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <Flame size={32} style={{ color: '#ff6b35', marginBottom: '0.5rem' }} />
+                                                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#ff6b35' }}>
+                                                    {leetcodeData.streak} 🔥
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Day Streak</div>
+                                            </div>
+
+                                            <div style={{
+                                                padding: '1.5rem',
+                                                background: 'rgba(139, 92, 246, 0.1)',
+                                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                                borderRadius: '12px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <TrendingUp size={32} style={{ color: '#8b5cf6', marginBottom: '0.5rem' }} />
+                                                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#8b5cf6' }}>
+                                                    {leetcodeData.total_solved}
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Total Solved</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Difficulty Breakdown */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                                            <div style={{
+                                                padding: '1.5rem',
+                                                background: 'rgba(74, 222, 128, 0.1)',
+                                                border: '1px solid rgba(74, 222, 128, 0.3)',
+                                                borderRadius: '12px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#4ade80', marginBottom: '0.5rem' }}>
+                                                    {leetcodeData.easy_solved}
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Easy</div>
+                                            </div>
+
+                                            <div style={{
+                                                padding: '1.5rem',
+                                                background: 'rgba(251, 191, 36, 0.1)',
+                                                border: '1px solid rgba(251, 191, 36, 0.3)',
+                                                borderRadius: '12px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#fbbf24', marginBottom: '0.5rem' }}>
+                                                    {leetcodeData.medium_solved}
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Medium</div>
+                                            </div>
+
+                                            <div style={{
+                                                padding: '1.5rem',
+                                                background: 'rgba(248, 113, 113, 0.1)',
+                                                border: '1px solid rgba(248, 113, 113, 0.3)',
+                                                borderRadius: '12px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#f87171', marginBottom: '0.5rem' }}>
+                                                    {leetcodeData.hard_solved}
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Hard</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Last Synced */}
+                                        <div style={{
+                                            padding: '1rem',
+                                            background: 'rgba(255, 255, 255, 0.03)',
+                                            borderRadius: '8px',
+                                            fontSize: '0.85rem',
+                                            color: 'var(--text-secondary)',
+                                            textAlign: 'center'
+                                        }}>
+                                            Last synced: {new Date(leetcodeData.last_synced).toLocaleString()}
+                                        </div>
+                                    </div>
+                                ) : null}
                             </div>
                         </motion.div>
                     </motion.div>

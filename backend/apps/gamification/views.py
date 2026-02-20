@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 from .models import (
     Season, Episode, EpisodeProgress, SeasonScore, LegacyScore,
@@ -135,6 +138,10 @@ class LegacyScoreViewSet(viewsets.ReadOnlyModelViewSet):
     def my_score(self, request):
         """Get authenticated user's legacy score"""
         score, created = LegacyScore.objects.get_or_create(student=request.user)
+        
+        # Recalculate from season scores to ensure accuracy
+        score.recalculate_from_season_scores()
+        
         serializer = self.get_serializer(score)
         return Response(serializer.data)
 
@@ -216,38 +223,89 @@ class LeaderboardViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=False, methods=['get'])
     def current_season(self, request):
-        """Get current season's top 3 (for students)"""
+        """Get current season's top 3 with real-time scores (for students)"""
         current_season = Season.objects.filter(is_active=True).first()
         if not current_season:
             return Response({'detail': 'No active season'}, status=status.HTTP_404_NOT_FOUND)
         
-        top_3 = LeaderboardEntry.objects.filter(season=current_season).order_by('rank')
-        serializer = self.get_serializer(top_3, many=True)
-        return Response(serializer.data)
+        # Get top 3 from real-time scores
+        top_3 = SeasonScore.objects.filter(
+            season=current_season
+        ).select_related('student').order_by('-total_score', 'student__username')[:3]
+        
+        leaderboard_data = []
+        rank_titles = {1: 'Season Champion', 2: 'Elite Runner', 3: 'Elite Runner'}
+        
+        for rank, score in enumerate(top_3, start=1):
+            leaderboard_data.append({
+                'rank': rank,
+                'student_id': score.student.id,
+                'student_username': score.student.username,
+                'student_first_name': score.student.first_name or score.student.username,
+                'season_score': score.total_score,
+                'rank_title': rank_titles.get(rank, 'Elite Runner')
+            })
+        
+        return Response(leaderboard_data)
     
     @action(detail=False, methods=['get'])
     def full_leaderboard(self, request):
-        """Get full leaderboard (for mentors and floor wings)"""
+        """Get full leaderboard with real-time scores (for mentors and floor wings)"""
         current_season = Season.objects.filter(is_active=True).first()
         if not current_season:
             return Response({'detail': 'No active season'}, status=status.HTTP_404_NOT_FOUND)
         
-        # Get all leaderboard entries for current season
-        all_entries = LeaderboardEntry.objects.filter(season=current_season).order_by('rank')
+        # Get all season scores ordered by total_score (real-time)
+        all_scores = SeasonScore.objects.filter(
+            season=current_season
+        ).select_related('student').order_by('-total_score', 'student__username')
         
-        # Get all percentile brackets
-        percentiles = PercentileBracket.objects.filter(season=current_season).order_by('-season_score')
-        
-        leaderboard_data = self.get_serializer(all_entries, many=True).data
-        
-        # Add percentile data
-        from .serializers import PercentileBracketSerializer
-        percentile_data = PercentileBracketSerializer(percentiles, many=True).data
+        # Build leaderboard with ranks
+        leaderboard_data = []
+        for rank, score in enumerate(all_scores, start=1):
+            # Determine rank title and percentile
+            if rank == 1:
+                rank_title = 'Season Champion'
+                percentile = None
+            elif rank == 2 or rank == 3:
+                rank_title = 'Elite Runner'
+                percentile = None
+            else:
+                rank_title = None
+                # Calculate percentile
+                percentile_value = (rank / all_scores.count()) * 100
+                if percentile_value <= 10:
+                    percentile = 'Top 10%'
+                elif percentile_value <= 25:
+                    percentile = 'Top 25%'
+                elif percentile_value <= 50:
+                    percentile = 'Top 50%'
+                else:
+                    percentile = 'Below 50%'
+            
+            leaderboard_data.append({
+                'rank': rank,
+                'student_id': score.student.id,
+                'student_username': score.student.username,
+                'student_first_name': score.student.first_name or score.student.username,
+                'season_score': score.total_score,
+                'clt_score': score.clt_score,
+                'scd_score': score.scd_score,
+                'cfc_score': score.cfc_score,
+                'iipc_score': score.iipc_score,
+                'outcome_score': score.outcome_score,
+                'rank_title': rank_title,
+                'percentile': percentile
+            })
         
         return Response({
-            'top_ranks': leaderboard_data,
-            'percentiles': percentile_data,
-            'total_students': len(leaderboard_data) + len(percentile_data)
+            'leaderboard': leaderboard_data,
+            'total_students': all_scores.count(),
+            'season': {
+                'id': current_season.id,
+                'name': current_season.name,
+                'is_active': current_season.is_active
+            }
         })
     
     @action(detail=False, methods=['get'])
@@ -288,6 +346,90 @@ class LeaderboardViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({
             'position_type': 'not_completed',
             'message': 'Complete all 4 episodes to be ranked'
+        })
+    
+    @action(detail=False, methods=['get'])
+    def mentee_leaderboard(self, request):
+        """Get real-time leaderboard for mentor's mentees only"""
+        current_season = Season.objects.filter(is_active=True).first()
+        if not current_season:
+            return Response({'detail': 'No active season'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if user is a mentor
+        try:
+            user_profile = request.user.profile
+            if user_profile.role != 'MENTOR':
+                return Response({'detail': 'Only mentors can access this endpoint'}, status=status.HTTP_403_FORBIDDEN)
+        except:
+            return Response({'detail': 'Profile not found'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Get mentor's students (mentees)
+        mentee_users = User.objects.filter(profile__assigned_mentor=request.user)
+        
+        if not mentee_users.exists():
+            return Response({
+                'leaderboard': [],
+                'total_students': 0,
+                'season': {
+                    'id': current_season.id,
+                    'name': current_season.name,
+                    'is_active': current_season.is_active
+                },
+                'message': 'No mentees assigned'
+            })
+        
+        # Get all season scores for mentees (real-time)
+        mentee_scores = SeasonScore.objects.filter(
+            season=current_season,
+            student__in=mentee_users
+        ).select_related('student').order_by('-total_score', 'student__username')
+        
+        # Build leaderboard with ranks
+        leaderboard_data = []
+        for rank, score in enumerate(mentee_scores, start=1):
+            # Determine rank title and percentile
+            if rank == 1:
+                rank_title = 'Top Mentee'
+                percentile = None
+            elif rank == 2 or rank == 3:
+                rank_title = 'Elite Performer'
+                percentile = None
+            else:
+                rank_title = None
+                # Calculate percentile
+                percentile_value = (rank / mentee_scores.count()) * 100
+                if percentile_value <= 10:
+                    percentile = 'Top 10%'
+                elif percentile_value <= 25:
+                    percentile = 'Top 25%'
+                elif percentile_value <= 50:
+                    percentile = 'Top 50%'
+                else:
+                    percentile = 'Below 50%'
+            
+            leaderboard_data.append({
+                'rank': rank,
+                'student_id': score.student.id,
+                'student_username': score.student.username,
+                'student_first_name': score.student.first_name or score.student.username,
+                'season_score': score.total_score,
+                'clt_score': score.clt_score,
+                'scd_score': score.scd_score,
+                'cfc_score': score.cfc_score,
+                'iipc_score': score.iipc_score,
+                'outcome_score': score.outcome_score,
+                'rank_title': rank_title,
+                'percentile': percentile
+            })
+        
+        return Response({
+            'leaderboard': leaderboard_data,
+            'total_students': mentee_scores.count(),
+            'season': {
+                'id': current_season.id,
+                'name': current_season.name,
+                'is_active': current_season.is_active
+            }
         })
 
 
@@ -353,6 +495,14 @@ class DashboardViewSet(viewsets.ViewSet):
     Complete gamification dashboard for students
     """
     permission_classes = [IsAuthenticated]
+    
+    def list(self, request):
+        """Base list method required for router registration"""
+        return Response({
+            'endpoints': [
+                '/api/gamification/dashboard/student_overview/'
+            ]
+        })
     
     @action(detail=False, methods=['get'])
     def student_overview(self, request):
@@ -424,6 +574,15 @@ class ProgressNotificationViewSet(viewsets.ViewSet):
     ViewSet for progress notifications and batch statistics
     """
     permission_classes = [IsAuthenticated]
+    
+    def list(self, request):
+        """Base list method required for router registration"""
+        return Response({
+            'endpoints': [
+                '/api/gamification/progress-notifications/batch_stats/',
+                '/api/gamification/progress-notifications/my_comparison/'
+            ]
+        })
     
     @action(detail=False, methods=['get'])
     def batch_stats(self, request):

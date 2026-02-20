@@ -64,7 +64,10 @@ class UserProfile(models.Model):
     leetcode_id = models.CharField(max_length=100, blank=True, null=True, help_text="LeetCode username")
     github_id = models.CharField(max_length=100, blank=True, null=True, help_text="GitHub username")
     linkedin_id = models.CharField(max_length=100, blank=True, null=True, help_text="LinkedIn profile URL or ID")
-    
+
+    # Avatar
+    avatar_url = models.CharField(max_length=500, blank=True, null=True, help_text="Profile picture URL (Supabase Storage)")
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

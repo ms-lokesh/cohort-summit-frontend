@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Image as ImageIcon, Clock, XCircle, CheckCircle2, Edit, Eye } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -11,6 +11,7 @@ import './CLT.css';
 
 export const CLT = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [editingSubmissionId, setEditingSubmissionId] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,12 +25,56 @@ export const CLT = () => {
   const [submissions, setSubmissions] = useState([]);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
+  const [showSubmissions, setShowSubmissions] = useState(true);
 
   const steps = [
     { id: 1, label: 'Course Details', icon: FileText },
     { id: 2, label: 'Learning Evidence', icon: ImageIcon },
     { id: 3, label: 'Review & Submit', icon: CheckCircle },
   ];
+
+  // Get status badge configuration
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      draft: { label: 'Draft', color: '#6b7280', icon: Edit, bg: 'rgba(107, 114, 128, 0.1)' },
+      submitted: { label: 'Pending Review', color: '#fbbf24', icon: Clock, bg: 'rgba(251, 191, 36, 0.1)' },
+      under_review: { label: 'Under Review', color: '#3b82f6', icon: Eye, bg: 'rgba(59, 130, 246, 0.1)' },
+      approved: { label: 'Approved', color: '#10b981', icon: CheckCircle2, bg: 'rgba(16, 185, 129, 0.1)' },
+      rejected: { label: 'Rejected', color: '#ef4444', icon: XCircle, bg: 'rgba(239, 68, 68, 0.1)' },
+    };
+    return statusConfig[status] || statusConfig.draft;
+  };
+
+  // Load submission for editing
+  const handleEditSubmission = (submission) => {
+    setEditingSubmissionId(submission.id);
+    setFormData({
+      title: submission.title,
+      description: submission.description,
+      platform: submission.platform,
+      completionDate: submission.completion_date,
+      duration: submission.duration?.toString() || '',
+      driveLink: submission.drive_link || '',
+    });
+    setCurrentStep(1);
+    setShowSubmissions(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingSubmissionId(null);
+    setFormData({
+      title: '',
+      description: '',
+      platform: '',
+      completionDate: '',
+      duration: '',
+      driveLink: '',
+    });
+    setCurrentStep(1);
+    setShowSubmissions(true);
+  };
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -103,7 +148,8 @@ export const CLT = () => {
         description: formData.description,
         platform: formData.platform,
         completionDate: formData.completionDate,
-        driveLink: formData.driveLink
+        driveLink: formData.driveLink,
+        editingId: editingSubmissionId
       });
 
       // Validate drive link is present
@@ -122,7 +168,7 @@ export const CLT = () => {
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
-      // Create submission with drive link
+      // Prepare submission data
       const submissionData = {
         title: formData.title,
         description: formData.description,
@@ -131,9 +177,19 @@ export const CLT = () => {
         drive_link: formData.driveLink,
       };
 
-      console.log('Calling createSubmission API...');
-      const createdSubmission = await cltService.createSubmission(submissionData);
-      console.log('Submission created:', createdSubmission);
+      let createdSubmission;
+      
+      if (editingSubmissionId) {
+        // Update existing submission
+        console.log('Updating submission...', editingSubmissionId);
+        createdSubmission = await cltService.updateSubmission(editingSubmissionId, submissionData);
+        console.log('Submission updated:', createdSubmission);
+      } else {
+        // Create new submission
+        console.log('Creating new submission...');
+        createdSubmission = await cltService.createSubmission(submissionData);
+        console.log('Submission created:', createdSubmission);
+      }
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -147,7 +203,9 @@ export const CLT = () => {
           await cltService.submitForReview(createdSubmission.id);
           console.log('Submitted successfully!');
 
-          alert('Submission successful! Your submission is now under review.');
+          alert(editingSubmissionId ? 
+            'Submission updated and sent for review!' : 
+            'Submission successful! Your submission is now under review.');
 
           // Reset form
           setFormData({
@@ -160,6 +218,8 @@ export const CLT = () => {
           setCurrentStep(1);
           setUploadProgress(0);
           setIsSubmitting(false);
+          setEditingSubmissionId(null);
+          setShowSubmissions(true);
 
           // Reload data
           loadSubmissions();
@@ -168,10 +228,12 @@ export const CLT = () => {
           console.error('Submit for review failed:', submitErr);
           console.error('Error response:', submitErr.response?.data);
 
-          // Even if submit fails, the draft was created
+          // Even if submit fails, the draft was created/updated
           const errorMsg = submitErr.response?.data?.error || submitErr.message || 'Could not submit for review';
           alert(`Draft saved but could not submit: ${errorMsg}\nYou can submit it later from your submissions list.`);
           setIsSubmitting(false);
+          setEditingSubmissionId(null);
+          setShowSubmissions(true);
           loadSubmissions();
           loadStats();
         }
@@ -221,6 +283,221 @@ export const CLT = () => {
           Document your creative projects and learning journey
         </p>
       </motion.div>
+
+      {/* Recent Submissions Section */}
+      {showSubmissions && submissions && submissions.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ marginBottom: '2rem' }}
+        >
+          <GlassCard variant="medium">
+            <div style={{ padding: '1.5rem' }}>
+              <h2 style={{ 
+                fontSize: '1.5rem', 
+                fontWeight: '600', 
+                marginBottom: '1.5rem',
+                color: 'var(--text-primary)'
+              }}>
+                Your Submissions
+              </h2>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {submissions.slice(0, 5).map((submission, index) => {
+                  const statusConfig = getStatusBadge(submission.status);
+                  const StatusIcon = statusConfig.icon;
+                  const isRecent = index === 0;
+                  const canEdit = submission.status === 'draft' || submission.status === 'rejected';
+
+                  return (
+                    <motion.div
+                      key={submission.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      style={{
+                        padding: '1.25rem',
+                        background: isRecent ? 
+                          'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))' : 
+                          'rgba(255, 255, 255, 0.03)',
+                        border: isRecent ? 
+                          '2px solid rgba(99, 102, 241, 0.3)' : 
+                          '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        position: 'relative'
+                      }}
+                    >
+                      {isRecent && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '-10px',
+                          right: '1rem',
+                          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                          color: '#fff',
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                        }}>
+                          🏆 Most Recent
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                        <div style={{ flex: 1 }}>
+                          <h3 style={{ 
+                            fontSize: '1.1rem', 
+                            fontWeight: '600', 
+                            color: 'var(--text-primary)',
+                            marginBottom: '0.5rem'
+                          }}>
+                            {submission.title}
+                          </h3>
+                          <p style={{ 
+                            fontSize: '0.9rem', 
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.5rem',
+                            lineHeight: '1.4'
+                          }}>
+                            {submission.description.length > 120 ? 
+                              `${submission.description.substring(0, 120)}...` : 
+                              submission.description}
+                          </p>
+                        </div>
+
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          padding: '0.5rem 1rem',
+                          background: statusConfig.bg,
+                          borderRadius: '8px',
+                          border: `1px solid ${statusConfig.color}40`,
+                          marginLeft: '1rem'
+                        }}>
+                          <StatusIcon size={16} style={{ color: statusConfig.color }} />
+                          <span style={{ 
+                            fontSize: '0.85rem', 
+                            fontWeight: '600',
+                            color: statusConfig.color
+                          }}>
+                            {statusConfig.label}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.05)'
+                      }}>
+                        <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                          <span>📚 {submission.platform}</span>
+                          <span>📅 {new Date(submission.completion_date).toLocaleDateString()}</span>
+                          {submission.duration && <span>⏱️ {submission.duration}h</span>}
+                        </div>
+
+                        {canEdit && (
+                          <Button
+                            variant="outline"
+                            onClick={() => handleEditSubmission(submission)}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              fontSize: '0.85rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem'
+                            }}
+                          >
+                            <Edit size={14} />
+                            Edit
+                          </Button>
+                        )}
+                      </div>
+
+                      {submission.reviewer_comments && (
+                        <div style={{
+                          marginTop: '0.75rem',
+                          padding: '0.75rem',
+                          background: 'rgba(59, 130, 246, 0.05)',
+                          borderLeft: '3px solid #3b82f6',
+                          borderRadius: '4px'
+                        }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#3b82f6', marginBottom: '0.25rem' }}>
+                            Mentor's Feedback:
+                          </div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            {submission.reviewer_comments}
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {submissions.length > 5 && (
+                <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    Showing 5 of {submissions.length} submissions
+                  </span>
+                </div>
+              )}
+            </div>
+          </GlassCard>
+        </motion.div>
+      )}
+
+      {/* New Submission Button */}
+      {showSubmissions && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{ marginBottom: '2rem', textAlign: 'center' }}
+        >
+          <Button
+            variant="primary"
+            withGlow
+            onClick={() => setShowSubmissions(false)}
+            style={{ padding: '1rem 2rem', fontSize: '1rem' }}
+          >
+            + New Submission
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Submission Form */}
+      {!showSubmissions && (
+        <>
+          {editingSubmissionId && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                padding: '1rem',
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '8px',
+                marginBottom: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <span style={{ color: '#3b82f6', fontWeight: '600' }}>
+                ✏️ Editing Submission
+              </span>
+              <Button variant="outline" onClick={handleCancelEdit} style={{ padding: '0.5rem 1rem' }}>
+                Cancel Edit
+              </Button>
+            </motion.div>
+          )}
+
+          )}
 
       {/* Step Indicators */}
       <div className="clt-steps">
@@ -491,6 +768,8 @@ export const CLT = () => {
           )}
         </AnimatePresence>
       </GlassCard>
+        </>
+      )}
     </div>
   );
 };

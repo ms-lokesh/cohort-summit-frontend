@@ -1178,10 +1178,10 @@ def mark_announcement_read(request, announcement_id):
             {'error': 'Announcement not found'},
             status=status.HTTP_404_NOT_FOUND
         )
-    except StudentProfile.DoesNotExist:
+    except Exception as e:
         return Response(
-            {'error': 'Student profile not found'},
-            status=status.HTTP_404_NOT_FOUND
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -1263,7 +1263,7 @@ def get_student_monthly_report(request, student_id):
         
         # Calculate SCD stats
         scd_profile = LeetCodeProfile.objects.filter(user=student).first()
-        scd_completed = 1 if (scd_profile and scd_profile.problems_solved >= 10) else 0
+        scd_completed = 1 if (scd_profile and scd_profile.monthly_problems_count >= 10) else 0
         
         report_data = {
             'month': month,
@@ -1304,6 +1304,14 @@ def get_student_monthly_report(request, student_id):
         return Response(
             {'error': 'Student not found'},
             status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        import traceback
+        print(f"Error in get_student_monthly_report: {str(e)}")
+        print(traceback.format_exc())
+        return Response(
+            {'error': f'Internal server error: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -1361,3 +1369,92 @@ def get_student_available_months(request, student_id):
             {'error': 'Student not found'},
             status=status.HTTP_404_NOT_FOUND
         )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_student_leetcode_profile(request, student_id):
+    """Get a student's LeetCode profile details for mentor review with monthly breakdown"""
+    
+    # Check if user is mentor
+    if not is_mentor(request.user):
+        return Response(
+            {"error": "You don't have permission to access this resource"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    try:
+        from datetime import datetime
+        from collections import defaultdict
+        
+        student = User.objects.get(id=student_id)
+        
+        # Get the most recent LeetCode profile for this student
+        leetcode_profile = LeetCodeProfile.objects.filter(user=student).order_by('-last_synced').first()
+        
+        if not leetcode_profile:
+            return Response(
+                {'error': 'No LeetCode profile found for this student'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Serialize the profile data
+        serializer = LeetCodeProfileSerializer(leetcode_profile)
+        profile_data = serializer.data
+        
+        # Calculate monthly breakdown from submission_calendar
+        submission_calendar = leetcode_profile.submission_calendar or {}
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+        
+        monthly_stats = {
+            'total': 0,
+            'easy': 0,
+            'medium': 0,
+            'hard': 0,
+            'days_active': 0
+        }
+        
+        # Parse submission calendar and count problems for current month
+        for timestamp_str, count in submission_calendar.items():
+            try:
+                timestamp = int(timestamp_str)
+                date = datetime.fromtimestamp(timestamp)
+                
+                if date.month == current_month and date.year == current_year:
+                    monthly_stats['total'] += count
+                    monthly_stats['days_active'] += 1
+            except (ValueError, OSError):
+                continue
+        
+        # Estimate difficulty breakdown based on overall ratio
+        if leetcode_profile.total_solved > 0:
+            easy_ratio = leetcode_profile.easy_solved / leetcode_profile.total_solved
+            medium_ratio = leetcode_profile.medium_solved / leetcode_profile.total_solved
+            hard_ratio = leetcode_profile.hard_solved / leetcode_profile.total_solved
+            
+            monthly_stats['easy'] = int(monthly_stats['total'] * easy_ratio)
+            monthly_stats['medium'] = int(monthly_stats['total'] * medium_ratio)
+            monthly_stats['hard'] = monthly_stats['total'] - monthly_stats['easy'] - monthly_stats['medium']
+        
+        # Add monthly stats to profile data
+        profile_data['monthly_stats'] = monthly_stats
+        profile_data['current_month'] = datetime.now().strftime('%B %Y')
+        
+        # Add student information
+        profile_data['student'] = {
+            'id': student.id,
+            'name': student.get_full_name() or student.username,
+            'avatar': getattr(student.profile, 'avatar', '👤') if hasattr(student, 'profile') else '👤',
+            'year': getattr(student.profile, 'year', 'N/A') if hasattr(student, 'profile') else 'N/A',
+            'department': getattr(student.profile, 'department', 'N/A') if hasattr(student, 'profile') else 'N/A',
+        }
+        
+        return Response(profile_data)
+        
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'Student not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+

@@ -1,30 +1,115 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { Camera, Plus, Calendar, Clock, Heart, Users } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 import Button from '../../components/Button';
+import sriService from '../../services/sri';
 import './SRI.css';
 
 export const SRI = () => {
-  const [selectedImages, setSelectedImages] = useState('');
-  const [reflection, setReflection] = useState('');
+  // Form state
   const [activityTitle, setActivityTitle] = useState('');
-  const [activityDate, setActivityDate] = useState('');
+  const [description, setDescription] = useState('');
+  const [driveLink, setDriveLink] = useState('');
+  
+  // API data state
+  const [pastActivities, setPastActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Mock data for quota and timeline
-  const monthlyQuota = 4;
-  const completedActivities = 2;
-  const quotaPercentage = (completedActivities / monthlyQuota) * 100;
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const pastActivities = [
-    { id: 1, title: 'Beach Cleanup Drive', date: '2025-11-15', hours: 4, type: 'Environment' },
-    { id: 2, title: 'Old Age Home Visit', date: '2025-11-28', hours: 3, type: 'Community' },
-  ];
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const submissionsData = await sriService.getMySubmissions();
+      // Show all submissions, sorted by most recent first
+      setPastActivities(submissionsData.slice(0, 20));
+    } catch (error) {
+      console.error('Error fetching SRI data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const characterLimit = 500;
-  const characterCount = reflection.length;
-  const isNearLimit = characterCount > characterLimit * 0.8;
+  const handleSaveDraft = async () => {
+    if (!activityTitle || !description || !driveLink) {
+      alert('Please fill in all fields (Title, Description, Drive Link)');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await sriService.createSubmission({
+        activity_title: activityTitle,
+        activity_type: 'community',
+        activity_date: new Date().toISOString().split('T')[0],
+        activity_hours: 1,
+        people_helped: null,
+        description: description,
+        personal_reflection: description,
+        photo_drive_link: driveLink,
+        status: 'draft'
+      });
+      
+      alert('Activity saved as draft!');
+      resetForm();
+      fetchData();
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      alert('Failed to save draft. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!activityTitle || !description || !driveLink) {
+      alert('Please fill in all fields (Title, Description, Drive Link)');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await sriService.createSubmission({
+        activity_title: activityTitle,
+        activity_type: 'community',
+        activity_date: new Date().toISOString().split('T')[0],
+        activity_hours: 1,
+        people_helped: null,
+        description: description,
+        personal_reflection: description,
+        photo_drive_link: driveLink,
+        status: 'submitted'
+      });
+      
+      alert('Activity submitted successfully!');
+      resetForm();
+      fetchData();
+    } catch (error) {
+      console.error('Error submitting activity:', error);
+      alert('Failed to submit activity. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setActivityTitle('');
+    setDescription('');
+    setDriveLink('');
+  };
+
+  if (loading) {
+    return (
+      <div className="sri-container">
+        <div className="sri-loading">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="sri-container">
@@ -37,7 +122,7 @@ export const SRI = () => {
       >
         <h1 className="sri-title">Social Responsibility Initiatives</h1>
         <p className="sri-subtitle">
-          Make a difference in your community through meaningful social service
+          Submit your social service activities and track their approval status
         </p>
       </motion.div>
 
@@ -45,7 +130,7 @@ export const SRI = () => {
         {/* Main Content */}
         <div className="sri-main">
           <GlassCard variant="medium" className="sri-form-card">
-            <h2 className="sri-form-title">Log New Activity</h2>
+            <h2 className="sri-form-title">Create Submission</h2>
 
             {/* Activity Title */}
             <div className="sri-input-group">
@@ -59,83 +144,38 @@ export const SRI = () => {
               />
             </div>
 
-            {/* Activity Date */}
+            {/* Description */}
             <div className="sri-input-group">
-              <label className="sri-label">Activity Date</label>
-              <div className="sri-input-with-icon">
-                <Calendar className="sri-input-icon" size={20} />
-                <input
-                  type="date"
-                  className="sri-input sri-input--with-icon"
-                  placeholder="Select activity date"
-                  value={activityDate}
-                  onChange={(e) => setActivityDate(e.target.value)}
-                />
-              </div>
+              <label className="sri-label">Description</label>
+              <textarea
+                className="sri-textarea"
+                rows="4"
+                placeholder="Describe your social responsibility activity..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
             </div>
 
             {/* Drive Link */}
             <div className="sri-input-group">
-              <label className="sri-label">Activity Photos</label>
+              <label className="sri-label">Drive Link</label>
               <input
                 type="text"
                 className="sri-input"
-                placeholder="Add photo drive link"
-                value={selectedImages}
-                onChange={(e) => setSelectedImages(e.target.value)}
-              />
-            </div>
-
-            {/* Reflection */}
-            <div className="sri-reflection-section">
-              <div className="sri-reflection-header">
-                <label className="sri-label">Personal Reflection</label>
-                <motion.span
-                  className={`sri-character-count ${isNearLimit ? 'sri-character-count--warning' : ''}`}
-                  animate={isNearLimit ? {
-                    color: ['#ffcc00', '#ffcc00'],
-                  } : {}}
-                  transition={{ duration: 1, repeat: Infinity }}
-                >
-                  {characterCount}/{characterLimit}
-                </motion.span>
-              </div>
-              <textarea
-                className="sri-textarea"
-                rows="6"
-                placeholder="Share your experience, what you learned, and how this activity impacted you..."
-                value={reflection}
-                onChange={(e) => {
-                  if (e.target.value.length <= characterLimit) {
-                    setReflection(e.target.value);
-                  }
-                }}
+                placeholder="Add drive link to photos/documents"
+                value={driveLink}
+                onChange={(e) => setDriveLink(e.target.value)}
               />
             </div>
 
             <div className="sri-form-actions">
               <Button
-                variant="outline"
-                onClick={() => alert('Activity saved as draft!')}
-              >
-                Save as Draft
-              </Button>
-              <Button
                 variant="primary"
                 withGlow
-                onClick={() => {
-                  if (activityTitle && activityDate && selectedImages) {
-                    alert('Activity submitted successfully!');
-                    setActivityTitle('');
-                    setActivityDate('');
-                    setSelectedImages('');
-                    setReflection('');
-                  } else {
-                    alert('Please fill in all required fields');
-                  }
-                }}
+                onClick={handleSubmit}
+                disabled={submitting}
               >
-                Submit Activity
+                {submitting ? 'Submitting...' : 'Submit'}
               </Button>
             </div>
           </GlassCard>
@@ -143,124 +183,80 @@ export const SRI = () => {
 
         {/* Sidebar */}
         <div className="sri-sidebar">
-          {/* Monthly Quota Card */}
-          <GlassCard variant="heavy" className="sri-quota-card">
-            <h3 className="sri-quota-title">Monthly Progress</h3>
-
-            <div className="sri-quota-meter">
-              <svg viewBox="0 0 200 200" className="sri-circular-meter">
-                {/* Background Circle */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="90"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="12"
-                  className="sri-meter-bg"
-                />
-
-                {/* Animated Progress Circle */}
-                <motion.circle
-                  cx="100"
-                  cy="100"
-                  r="90"
-                  fill="none"
-                  stroke="url(#gradient)"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  strokeDasharray={`${2 * Math.PI * 90}`}
-                  initial={{ strokeDashoffset: 2 * Math.PI * 90 }}
-                  animate={{
-                    strokeDashoffset: 2 * Math.PI * 90 * (1 - quotaPercentage / 100),
-                  }}
-                  transition={{ duration: 1.5, ease: 'easeOut' }}
-                  style={{
-                    transform: 'rotate(-90deg)',
-                    transformOrigin: '100px 100px',
-                  }}
-                />
-
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#ffcc00" />
-                    <stop offset="100%" stopColor="#ffcc00" />
-                  </linearGradient>
-                </defs>
-              </svg>
-
-              <div className="sri-quota-center">
-                <motion.div
-                  className="sri-quota-number"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.5, type: 'spring' }}
-                >
-                  {completedActivities}/{monthlyQuota}
-                </motion.div>
-                <div className="sri-quota-label">Activities</div>
-              </div>
-            </div>
-
-            <div className="sri-quota-stats">
-              <div className="sri-stat">
-                <Clock size={20} />
-                <div>
-                  <div className="sri-stat-value">7 hours</div>
-                  <div className="sri-stat-label">This Month</div>
-                </div>
-              </div>
-              <div className="sri-stat">
-                <Users size={20} />
-                <div>
-                  <div className="sri-stat-value">150+</div>
-                  <div className="sri-stat-label">People Helped</div>
-                </div>
-              </div>
-            </div>
-          </GlassCard>
-
-          {/* Activity Timeline */}
+          {/* Recent Submissions */}
           <GlassCard variant="medium" className="sri-timeline-card">
-            <h3 className="sri-timeline-title">Activity History</h3>
+            <h3 className="sri-timeline-title">Recent Submissions</h3>
 
             <div className="sri-timeline">
-              {pastActivities.map((activity, index) => (
-                <motion.div
-                  key={activity.id}
-                  className="sri-timeline-item"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  <motion.div
-                    className="sri-timeline-node"
-                    animate={{
-                      boxShadow: [
-                        '0 0 10px rgba(247, 201, 72, 0.4)',
-                        '0 0 20px rgba(247, 201, 72, 0.8)',
-                        '0 0 10px rgba(247, 201, 72, 0.4)',
-                      ],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      delay: index * 0.3,
-                    }}
-                  />
-
-                  <div className="sri-timeline-content">
-                    <h4 className="sri-timeline-activity">{activity.title}</h4>
-                    <div className="sri-timeline-meta">
-                      <span className="sri-timeline-date">{activity.date}</span>
-                      <span className="sri-timeline-type">{activity.type}</span>
-                    </div>
-                    <div className="sri-timeline-hours">
-                      {activity.hours} hours
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+              {pastActivities.length === 0 ? (
+                <div className="sri-no-activities">
+                  <p>No submissions yet. Create your first submission!</p>
+                </div>
+              ) : (
+                pastActivities.map((activity, index) => {
+                  // Status badge styling
+                  const getStatusStyle = (status) => {
+                    const styles = {
+                      'draft': { bg: '#6b7280', text: 'Draft' },
+                      'submitted': { bg: '#3b82f6', text: 'Submitted' },
+                      'under_review': { bg: '#8b5cf6', text: 'Under Review' },
+                      'approved': { bg: '#10b981', text: 'Approved' },
+                      'rejected': { bg: '#ef4444', text: 'Rejected' }
+                    };
+                    return styles[status] || styles['draft'];
+                  };
+                  
+                  const statusStyle = getStatusStyle(activity.status);
+                  
+                  return (
+                    <motion.div
+                      key={activity.id}
+                      className="sri-timeline-item"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div className="sri-timeline-content">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                          <h4 className="sri-timeline-activity">{activity.activity_title}</h4>
+                          <span style={{
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            backgroundColor: statusStyle.bg,
+                            color: 'white',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            whiteSpace: 'nowrap',
+                            marginLeft: '8px'
+                          }}>
+                            {statusStyle.text}
+                          </span>
+                        </div>
+                        <div className="sri-timeline-meta">
+                          <span className="sri-timeline-date">{activity.activity_date}</span>
+                        </div>
+                        <div style={{ marginTop: '8px', fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', lineHeight: '1.4' }}>
+                          {activity.description && activity.description.length > 100 
+                            ? activity.description.substring(0, 100) + '...' 
+                            : activity.description}
+                        </div>
+                        {activity.reviewer_comments && (
+                          <div style={{ 
+                            marginTop: '8px', 
+                            padding: '8px', 
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)', 
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                            color: 'rgba(255, 255, 255, 0.8)'
+                          }}>
+                            <strong>Reviewer:</strong> {activity.reviewer_comments}
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
             </div>
           </GlassCard>
         </div>

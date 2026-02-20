@@ -38,8 +38,9 @@ function MentorHome() {
     const fetchLeaderboard = async () => {
         try {
             const response = await gamificationAPI.getCurrentSeasonLeaderboard();
-            // Get top 3 performers only
-            const top3 = response.data.slice(0, 3);
+            // Get top 3 performers only (handles both array and {leaderboard:[]} format)
+            const data = Array.isArray(response.data) ? response.data : (response.data.leaderboard || []);
+            const top3 = data.slice(0, 3);
             setLeaderboard(top3);
             setSeasonActive(true);
         } catch (err) {
@@ -499,10 +500,10 @@ function MentorHome() {
                                                     <div className="podium-avatar">
                                                         <User size={42} />
                                                     </div>
-                                                    <h3>{leaderboard[1].student_name}</h3>
+                                                    <h3>{leaderboard[1].student_first_name}</h3>
                                                     <p className="podium-title">Elite Performer</p>
                                                     <div className="podium-score">
-                                                        <span className="score-value">{leaderboard[1].total_score}</span>
+                                                        <span className="score-value">{leaderboard[1].season_score}</span>
                                                         <span className="score-label">pts</span>
                                                     </div>
                                                 </div>
@@ -525,10 +526,10 @@ function MentorHome() {
                                                     <div className="podium-avatar champion-avatar">
                                                         <User size={52} />
                                                     </div>
-                                                    <h3>{leaderboard[0].student_name}</h3>
+                                                    <h3>{leaderboard[0].student_first_name}</h3>
                                                     <p className="podium-title champion-title">Champion</p>
                                                     <div className="podium-score champion-score">
-                                                        <span className="score-value">{leaderboard[0].total_score}</span>
+                                                        <span className="score-value">{leaderboard[0].season_score}</span>
                                                         <span className="score-label">pts</span>
                                                     </div>
                                                 </div>
@@ -550,10 +551,10 @@ function MentorHome() {
                                                     <div className="podium-avatar">
                                                         <User size={42} />
                                                     </div>
-                                                    <h3>{leaderboard[2].student_name}</h3>
+                                                    <h3>{leaderboard[2].student_first_name}</h3>
                                                     <p className="podium-title">Elite Performer</p>
                                                     <div className="podium-score">
-                                                        <span className="score-value">{leaderboard[2].total_score}</span>
+                                                        <span className="score-value">{leaderboard[2].season_score}</span>
                                                         <span className="score-label">pts</span>
                                                     </div>
                                                 </div>

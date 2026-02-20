@@ -1,11 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserProfileView
+from .views import UserProfileView, AvatarUploadView
 from .floor_wing_views import (
     FloorWingDashboardView,
     FloorWingStudentsView,
     FloorWingMentorsView,
-    FloorWingAssignStudentView
+    FloorWingAssignStudentView,
+    FloorWingAddStudentView,
+    FloorWingAddMentorView
 )
 from .admin_views import (
     AdminCampusOverviewView,
@@ -40,12 +42,15 @@ router.register(r'notifications', NotificationViewSet, basename='notifications')
 
 urlpatterns = [
     path('me/', UserProfileView.as_view(), name='user-profile'),
+    path('me/avatar/', AvatarUploadView.as_view(), name='user-avatar-upload'),
     
     # Floor Wing routes
     path('floor-wing/dashboard/', FloorWingDashboardView.as_view(), name='floor-wing-dashboard'),
     path('floor-wing/students/', FloorWingStudentsView.as_view(), name='floor-wing-students'),
     path('floor-wing/mentors/', FloorWingMentorsView.as_view(), name='floor-wing-mentors'),
     path('floor-wing/assign-student/', FloorWingAssignStudentView.as_view(), name='floor-wing-assign-student'),
+    path('floor-wing/add-student/', FloorWingAddStudentView.as_view(), name='floor-wing-add-student'),
+    path('floor-wing/add-mentor/', FloorWingAddMentorView.as_view(), name='floor-wing-add-mentor'),
     
     # Admin routes
     path('admin/stats/', AdminStatsView.as_view(), name='admin-stats'),

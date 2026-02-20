@@ -50,6 +50,9 @@ class EpisodeService:
             
             progress.save()
             
+            # Update season score incrementally
+            SeasonScoringService.update_season_score(student, episode.season)
+            
             # Check if episode is now complete
             if progress.check_episode_completion():
                 progress.mark_completed()
@@ -84,6 +87,31 @@ class EpisodeService:
 
 class SeasonScoringService:
     """Handle season score calculation and finalization"""
+    
+    @staticmethod
+    @transaction.atomic
+    def update_season_score(student, season):
+        """
+        Update season score based on current progress
+        Can be called incrementally as tasks are completed
+        """
+        # Get or create season score
+        season_score, created = SeasonScore.objects.get_or_create(
+            student=student,
+            season=season
+        )
+        
+        # Calculate pillar scores
+        season_score.clt_score = SeasonScoringService._calculate_clt_score(student, season)
+        season_score.iipc_score = SeasonScoringService._calculate_iipc_score(student, season)
+        season_score.scd_score = SeasonScoringService._calculate_scd_score(student, season)
+        season_score.cfc_score = SeasonScoringService._calculate_cfc_score(student, season)
+        season_score.outcome_score = SeasonScoringService._calculate_outcome_score(student, season)
+        
+        season_score.calculate_total()
+        season_score.save()
+        
+        return season_score
     
     @staticmethod
     @transaction.atomic
@@ -148,9 +176,7 @@ class SeasonScoringService:
         
         approved_submissions = CLTSubmission.objects.filter(
             user=student,
-            status='approved',
-            created_at__gte=season.start_date,
-            created_at__lte=season.end_date
+            status='approved'
         ).count()
         
         if approved_submissions >= 1:
@@ -164,20 +190,26 @@ class SeasonScoringService:
         - LinkedIn Connect (100 points)
         - LinkedIn Post/Article (100 points)
         """
-        from apps.iipc.models import IIPCSubmission
+        from apps.iipc.models import LinkedInPostVerification, LinkedInConnectionVerification
         
         score = 0
         
-        # Check for IIPC submissions
-        submissions = IIPCSubmission.objects.filter(
+        # Check for LinkedIn posts
+        post_approved = LinkedInPostVerification.objects.filter(
             user=student,
-            status='approved',
-            created_at__gte=season.start_date,
-            created_at__lte=season.end_date
-        )
+            status='approved'
+        ).exists()
         
-        # Simple scoring: 100 points per approved submission (max 2)
-        score = min(submissions.count() * 100, 200)
+        # Check for LinkedIn connections
+        connection_approved = LinkedInConnectionVerification.objects.filter(
+            user=student,
+            status='approved'
+        ).exists()
+        
+        if post_approved:
+            score += 100
+        if connection_approved:
+            score += 100
         
         return score
     
@@ -197,21 +229,29 @@ class SeasonScoringService:
     def _calculate_cfc_score(student, season):
         """
         CFC: 800 points
+        - Hackathon Participation (200)
         - BMC Video (200)
         - GenAI Project (200)
-        - Hackathon Participation (200)
-        - Patent/Journal (200)
+        - Internship (200)
         """
-        from apps.cfc.models import CFCSubmission
+        from apps.cfc.models import HackathonSubmission, BMCVideoSubmission, GenAIProjectSubmission, InternshipSubmission
         
         score = 0
         
-        submissions = CFCSubmission.objects.filter(
-            user=student,
-            status='approved',
-            created_at__gte=season.start_date,
-            created_at__lte=season.end_date
-        )
+        # Check for each type of CFC submission
+        if HackathonSubmission.objects.filter(user=student, status='approved').exists():
+            score += 200
+        
+        if BMCVideoSubmission.objects.filter(user=student, status='approved').exists():
+            score += 200
+        
+        if GenAIProjectSubmission.objects.filter(user=student, status='approved').exists():
+            score += 200
+        
+        if InternshipSubmission.objects.filter(user=student, status='approved').exists():
+            score += 200
+        
+        return score
         
         # Award 200 points per submission, max 800
         score = min(submissions.count() * 200, 800)
@@ -287,6 +327,66 @@ class LeetCodeSyncService:
     """
     
     @staticmethod
+    def calculate_submission_streak(student):
+        """
+        Calculate daily submission streak based on consecutive days with submissions
+        Returns: (current_streak, longest_streak, total_days_active)
+        """
+        from apps.scd.models import LeetCodeSubmission, LeetCodeProfile
+        from datetime import timedelta, date
+        from django.db.models import Count
+        
+        # Get all submissions for this student
+        profiles = LeetCodeProfile.objects.filter(user=student)
+        if not profiles.exists():
+            return 0, 0, 0
+        
+        # Get all submission dates (distinct days)
+        submissions = LeetCodeSubmission.objects.filter(
+            profile__in=profiles,
+            status='Accepted'  # Only count accepted solutions
+        ).values('timestamp__date').annotate(
+            count=Count('id')
+        ).values_list('timestamp__date', flat=True).distinct().order_by('-timestamp__date')
+        
+        if not submissions:
+            return 0, 0, 0
+        
+        submission_dates = sorted(set(submissions), reverse=True)
+        total_days_active = len(submission_dates)
+        
+        # Calculate current streak (from today backwards)
+        today = timezone.now().date()
+        current_streak = 0
+        check_date = today
+        
+        for sub_date in submission_dates:
+            if sub_date == check_date or sub_date == check_date - timedelta(days=1):
+                current_streak += 1
+                check_date = sub_date - timedelta(days=1)
+            elif sub_date < check_date:
+                break
+        
+        # Calculate longest streak
+        longest_streak = 0
+        temp_streak = 1
+        
+        for i in range(len(submission_dates) - 1):
+            current_date = submission_dates[i]
+            next_date = submission_dates[i + 1]
+            
+            if (current_date - next_date).days == 1:
+                temp_streak += 1
+                longest_streak = max(longest_streak, temp_streak)
+            else:
+                longest_streak = max(longest_streak, temp_streak)
+                temp_streak = 1
+        
+        longest_streak = max(longest_streak, temp_streak)
+        
+        return current_streak, longest_streak, total_days_active
+    
+    @staticmethod
     def sync_student_streak(student, season):
         """
         Sync LeetCode streak for a student
@@ -297,7 +397,7 @@ class LeetCodeSyncService:
         # Get student's LeetCode username
         try:
             profile = student.profile
-            leetcode_username = getattr(profile, 'leetcode_username', None)
+            leetcode_username = getattr(profile, 'leetcode_id', None)
             if not leetcode_username:
                 return None, "No LeetCode username set"
         except:
@@ -309,6 +409,11 @@ class LeetCodeSyncService:
             season=season,
             defaults={'leetcode_username': leetcode_username}
         )
+        
+        # Update leetcode_username if it changed or was empty
+        if not streak.leetcode_username or streak.leetcode_username != leetcode_username:
+            streak.leetcode_username = leetcode_username
+            streak.save()
         
         # Call LeetCode GraphQL API
         url = "https://leetcode.com/graphql"
@@ -347,15 +452,12 @@ class LeetCodeSyncService:
                 user_data = data.get('data', {}).get('matchedUser', {})
                 
                 if user_data:
-                    calendar_data = user_data.get('userCalendar', {})
-                    current_streak = calendar_data.get('streak', 0)
-                    total_active = calendar_data.get('totalActiveDays', 0)
+                    # Calculate streak from actual submissions (not LeetCode's calendar)
+                    current_streak, longest_streak, total_active = LeetCodeSyncService.calculate_submission_streak(student)
                     
                     # Update streak record
                     streak.current_streak = current_streak
-                    if current_streak > streak.longest_streak:
-                        streak.longest_streak = current_streak
-                    
+                    streak.longest_streak = max(longest_streak, streak.longest_streak)
                     streak.total_days_active = total_active
                     streak.season_streak_days += 1  # Increment season days
                     streak.last_synced_at = timezone.now()

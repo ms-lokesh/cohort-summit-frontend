@@ -26,7 +26,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'username', 'email', 'first_name', 'last_name',
             'role', 'role_display', 'campus', 'campus_display', 'floor', 'floor_display',
-            'leetcode_id', 'github_id', 'linkedin_id',
+            'leetcode_id', 'github_id', 'linkedin_id', 'avatar_url',
             'assigned_mentor', 'students_count', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'user', 'created_at', 'updated_at']

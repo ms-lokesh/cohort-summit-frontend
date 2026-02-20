@@ -253,6 +253,38 @@
     align-items: flex-end;
 }
 
+.student-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.leetcode-mini-button {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, #ff6b35, #ff8b5a);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.leetcode-mini-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+}
+
+.leetcode-mini-button:active {
+    transform: translateY(0);
+}
+
 .pending-badge {
     padding: 0.35rem 0.85rem;
     background: rgba(255, 152, 0, 0.2);
@@ -580,6 +612,18 @@
     max-height: 90vh;
     overflow: auto;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.leetcode-modal {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3);
 }
 
 .chat-modal-header {

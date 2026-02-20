@@ -7,6 +7,7 @@ from .views import (
     UserTitleViewSet, DashboardViewSet, ProgressNotificationViewSet
 )
 from . import mentor_views
+from . import floorwing_views
 
 router = DefaultRouter()
 router.register(r'seasons', SeasonViewSet, basename='season')
@@ -29,4 +30,10 @@ urlpatterns = [
     path('mentor/approve-task/', mentor_views.approve_task, name='mentor-approve-task'),
     path('mentor/student-progress/<int:student_id>/', mentor_views.student_progress_detail, name='mentor-student-progress'),
     path('mentor/finalize-season/<int:student_id>/', mentor_views.finalize_student_season, name='mentor-finalize-season'),
+    
+    # Floor Wing-only endpoints
+    path('floorwing/seasons/', floorwing_views.manage_seasons, name='floorwing-seasons'),
+    path('floorwing/seasons/<int:season_id>/', floorwing_views.manage_season_detail, name='floorwing-season-detail'),
+    path('floorwing/seasons/<int:season_id>/episodes/', floorwing_views.manage_episodes, name='floorwing-episodes'),
+    path('floorwing/episodes/<int:episode_id>/', floorwing_views.manage_episode_detail, name='floorwing-episode-detail'),
 ]

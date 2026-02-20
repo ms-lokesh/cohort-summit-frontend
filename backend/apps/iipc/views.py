@@ -10,14 +10,17 @@ from .models import (
     LinkedInPostVerification,
     LinkedInConnectionVerification,
     ConnectionScreenshot,
-    VerifiedConnection
+    VerifiedConnection,
+    IIPCMonthlySubmission,
 )
 from .serializers import (
     LinkedInPostVerificationSerializer,
     LinkedInPostVerificationCreateSerializer,
     LinkedInConnectionVerificationSerializer,
     LinkedInConnectionVerificationCreateSerializer,
-    IIPCStatsSerializer
+    IIPCStatsSerializer,
+    IIPCMonthlySubmissionSerializer,
+    IIPCMonthlySubmissionUpdateSerializer,
 )
 from .linkedin_oauth import LinkedInOAuthService
 
@@ -296,3 +299,88 @@ class LinkedInConnectionVerificationViewSet(viewsets.ModelViewSet):
         
         serializer = IIPCStatsSerializer(stats)
         return Response(serializer.data)
+
+
+class IIPCMonthlySubmissionViewSet(viewsets.ModelViewSet):
+    """
+    One monthly submission per student — 4 post/article links + 4 connection links.
+    Mentor manually reviews and approves/rejects.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = IIPCMonthlySubmissionSerializer
+
+    def get_queryset(self):
+        return IIPCMonthlySubmission.objects.filter(user=self.request.user)
+
+    @action(detail=False, methods=['get', 'patch'])
+    def current_month(self, request):
+        """Get (or create) the current month's submission draft. PATCH to save URLs."""
+        now = timezone.now()
+        submission, _ = IIPCMonthlySubmission.objects.get_or_create(
+            user=request.user,
+            month=now.month,
+            year=now.year,
+            defaults={'status': 'draft'},
+        )
+
+        if request.method == 'PATCH':
+            if submission.status in ('pending', 'approved'):
+                return Response(
+                    {'error': 'Cannot edit a submission that is already submitted or approved.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            serializer = IIPCMonthlySubmissionUpdateSerializer(
+                submission, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            submission.refresh_from_db()
+
+        return Response(IIPCMonthlySubmissionSerializer(submission).data)
+
+    @action(detail=True, methods=['post'])
+    def submit(self, request, pk=None):
+        """Submit for mentor review. Requires all 4 posts and 4 connections."""
+        submission = self.get_object()
+
+        if submission.status == 'pending':
+            return Response(
+                {'error': 'Already submitted for review.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if submission.status == 'approved':
+            return Response(
+                {'error': 'This submission is already approved.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        posts = [u for u in [
+            submission.post_1_url, submission.post_2_url,
+            submission.post_3_url, submission.post_4_url,
+        ] if u]
+        connections = [u for u in [
+            submission.connection_1_url, submission.connection_2_url,
+            submission.connection_3_url, submission.connection_4_url,
+        ] if u]
+
+        if len(posts) < 4:
+            return Response(
+                {'error': f'Please add all 4 post/article links. You have {len(posts)}/4.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if len(connections) < 4:
+            return Response(
+                {'error': f'Please add all 4 connection links. You have {len(connections)}/4.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        submission.status = 'pending'
+        submission.submitted_at = timezone.now()
+        submission.save()
+        return Response(IIPCMonthlySubmissionSerializer(submission).data)
+
+    @action(detail=False, methods=['get'])
+    def history(self, request):
+        """All past monthly submissions for the current user."""
+        qs = IIPCMonthlySubmission.objects.filter(user=request.user)
+        return Response(IIPCMonthlySubmissionSerializer(qs, many=True).data)

@@ -54,7 +54,21 @@ export const updateUserProfile = async (data) => {
   return response.data;
 };
 
+/**
+ * Upload profile picture
+ * @param {File} file - Image file to upload
+ */
+export const uploadAvatar = async (file) => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  const response = await profileAxios.post('/me/avatar/', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};
+
 export default {
   getUserProfile,
   updateUserProfile,
+  uploadAvatar,
 };

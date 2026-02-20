@@ -9,7 +9,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 
-from .models import Season, Episode, EpisodeProgress
+from .models import Season, Episode, EpisodeProgress, SeasonScore
 from .services import EpisodeService, SeasonScoringService
 from .serializers import EpisodeProgressSerializer, SeasonScoreSerializer
 

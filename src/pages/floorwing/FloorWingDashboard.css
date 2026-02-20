@@ -897,6 +897,48 @@
     background: linear-gradient(135deg, #66BB6A, #42A5F5);
 }
 
+.add-student-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #FF9800, #FF5722);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.add-student-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(255, 152, 0, 0.5), 0 4px 12px rgba(255, 87, 34, 0.3);
+    background: linear-gradient(135deg, #FFA726, #FF6F43);
+}
+
+.add-mentor-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.add-mentor-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(156, 39, 176, 0.5), 0 4px 12px rgba(123, 31, 162, 0.3);
+    background: linear-gradient(135deg, #AB47BC, #8E24AA);
+}
+
 .assignment-mode-banner {
     display: flex;
     justify-content: space-between;
@@ -1072,6 +1114,18 @@
 .loading-container {
     text-align: center;
     padding: 4rem 2rem;
+    color: var(--text-primary);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-container p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
 }
 
 .loading-spinner {
@@ -1371,6 +1425,58 @@
     gap: 1rem;
 }
 
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #ef4444;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.help-text {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.25rem;
+}
+
+.required {
+    color: #ef4444;
+    margin-left: 0.25rem;
+}
+
+.add-student-modal {
+    width: min(700px, 90vw);
+}
+
+.add-student-modal .modal-header p {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin: 0.25rem 0 0 0;
+}
+
+.add-mentor-modal {
+    width: min(700px, 90vw);
+}
+
+.add-mentor-modal .modal-header h2 {
+    background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 .modal-actions {
     display: flex;
     gap: 1rem;
@@ -1459,3 +1565,164 @@
         padding: 0.4rem 0.6rem;
     }
 }
+
+/* ============================================
+   GAMIFICATION MANAGEMENT STYLES
+   ============================================ */
+.gamification-management {
+    width: 100%;
+}
+
+.seasons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.season-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.season-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 204, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.season-card.active {
+    border-color: rgba(76, 175, 80, 0.5);
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.season-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.season-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+}
+
+.season-number {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.active-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.season-dates {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.season-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.episodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.episode-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.episode-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(33, 150, 243, 0.3);
+    transform: translateY(-2px);
+}
+
+.episode-header {
+    margin-bottom: 0.75rem;
+}
+
+.episode-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+}
+
+.episode-name {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.episode-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0.75rem 0;
+}
+
+.episode-dates {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.episode-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-secondary);
+}
+
+.empty-state svg {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.empty-state p {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
