@@ -27,11 +27,13 @@ echo "👥 Creating default production users..."
 python manage.py create_production_users
 
 echo ""
+echo "========================================="
 echo "📚 Creating all 147 students with mentors..."
+echo "========================================="
 python manage.py create_all_students
 
 echo ""
-echo "�🔍 Checking user status..."
+echo "🔍 Checking user status..."
 python manage.py check_users
 
 echo ""

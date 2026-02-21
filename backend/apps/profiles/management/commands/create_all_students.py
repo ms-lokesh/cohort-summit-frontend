@@ -166,12 +166,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('========================================')
         self.stdout.write('📚 Creating all students from hardcoded data')
+        self.stdout.write(f'📊 Total student records to process: {len(STUDENTS_DATA)}')
         self.stdout.write('========================================\n')
         
         # Create mentors first
         mentor_users = {}
         mentors_to_create = ['GOPI KRISHNAN', 'RESHMA RAJ', 'TULSI KRISHNA']
         
+        self.stdout.write('Creating mentors...')
         for mentor_name in mentors_to_create:
             mentor_username = mentor_name.lower().replace(' ', '_')
             mentor_email = f'{mentor_username}@cohortsummit.com'
@@ -200,15 +202,20 @@ class Command(BaseCommand):
             mentor_users[mentor_name] = mentor_user
         
         self.stdout.write('\n' + '=' * 60)
-        self.stdout.write('Creating students...\n')
+        self.stdout.write('Creating students...')
+        self.stdout.write('=' * 60 + '\n')
         
         # Create students
         created_count = 0
         updated_count = 0
         error_count = 0
         
-        for username, email, first_name, second_name, mentor_name in STUDENTS_DATA:
+        for idx, (username, email, first_name, second_name, mentor_name) in enumerate(STUDENTS_DATA, 1):
             try:
+                # Progress indicator every 20 students
+                if idx % 20 == 0:
+                    self.stdout.write(f'Processing student {idx}/{len(STUDENTS_DATA)}...')
+                
                 # Parse name
                 full_name = f"{first_name} {second_name}".strip() if first_name or second_name else username
                 name_parts = full_name.split(' ', 1) if full_name else username.split(' ', 1)
@@ -248,7 +255,9 @@ class Command(BaseCommand):
                 
             except Exception as e:
                 error_count += 1
-                self.stdout.write(self.style.ERROR(f'❌ Error creating {username}: {e}'))
+                self.stdout.write(self.style.ERROR(f'❌ Error creating {username} ({email}): {str(e)[:100]}'))
+                import traceback
+                self.stdout.write(self.style.ERROR(f'Traceback: {traceback.format_exc()[:200]}'))
         
         # Summary
         self.stdout.write('\n' + '=' * 60)
