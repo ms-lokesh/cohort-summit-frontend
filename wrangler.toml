@@ -12,10 +12,19 @@ command = "npm install && npm run build"
 [build.environment]
 NODE_VERSION = "18"
 
-# Environment variables for frontend
-[vars]
-# Backend API URL (Render service)
-VITE_API_URL = "https://cohort-summit.onrender.com"
+# Cloudflare Pages Configuration
+# For Pages deployments, use: wrangler pages deploy dist --project-name=cohort-web
 
-# Production build
-NODE_ENV = "production"
+name = "cohort-web"
+compatibility_date = "2024-01-01"
+
+# Pages-specific configuration
+pages_build_output_dir = "dist"
+
+# Environment Variables
+# These will be available during build and runtime
+[vars]
+VITE_API_URL = "https://cohort-backend-api.onrender.com/api"
+VITE_APP_URL = "https://cohort.pages.dev"
+VITE_SUPABASE_URL = "https://yfoopcuwdyotlukbkoej.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlmb29wY3V3ZHlvdGx1a2Jrb2VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MDA4NDEsImV4cCI6MjA4NTM3Njg0MX0.YK5uw24Grhc2TPYnF98i0eORgZHNHLJMdd5akenvKRs"
