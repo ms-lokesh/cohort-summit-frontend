@@ -9,27 +9,28 @@ from apps.jwt_serializers import EmailTokenObtainPairSerializer
 from apps.users_views import UserProfileView
 from apps.setup_view import setup_database
 from apps.health_check_views import health_check, readiness_check, liveness_check
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
+# Temporarily disabled - Python 3.13 pkg_resources issue
+# from drf_yasg.views import get_schema_view
+# from drf_yasg import openapi
 
 
 # Custom Token View using email authentication
 class EmailTokenObtainPairView(BaseTokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer
 
-# Swagger/OpenAPI Schema
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Cohort Summit API",
-        default_version='v1',
-        description="API documentation for Cohort Summit Application",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@cohort.local"),
-        license=openapi.License(name="BSD License"),
-    ),
-    public=True,
-    permission_classes=[permissions.AllowAny],
-)
+# Swagger/OpenAPI Schema - Temporarily disabled
+# schema_view = get_schema_view(
+#     openapi.Info(
+#         title="Cohort Summit API",
+#         default_version='v1',
+#         description="API documentation for Cohort Summit Application",
+#         terms_of_service="https://www.google.com/policies/terms/",
+#         contact=openapi.Contact(email="contact@cohort.local"),
+#         license=openapi.License(name="BSD License"),
+#     ),
+#     public=True,
+#     permission_classes=[permissions.AllowAny],
+# )
 
 urlpatterns = [
     # Admin
@@ -44,9 +45,9 @@ urlpatterns = [
     # One-time database setup endpoint
     path('api/setup-database/', setup_database, name='setup_database'),
     
-    # API Documentation
-    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # API Documentation - Temporarily disabled due to Python 3.13 pkg_resources issue
+    # path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    # path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
     # JWT Authentication endpoints (with email support)
     path('api/auth/token/', EmailTokenObtainPairView.as_view(), name='token_obtain_pair'),

@@ -94,8 +94,8 @@ Root Directory: backend
 **Build Settings:**
 ```
 Runtime: Python 3
-Build Command: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
-Start Command: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+Build Command: pip install --upgrade pip setuptools wheel && pip install setuptools==69.5.1 && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+Start Command: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile - --error-logfile -
 ```
 
 **Instance Type:**
@@ -339,7 +339,39 @@ python setup_mentors.py
 
 ## 🔧 Troubleshooting Guide
 
-### Issue: ModuleNotFoundError: No module named 'pkg_resources'
+### ⚠️ CRITICAL: pkg_resources Error - Most Common Build Failure
+
+**Error:** `ModuleNotFoundError: No module named 'pkg_resources'` from `rest_framework_simplejwt` or `drf_yasg`
+
+**Root Cause:** Render may use Python 3.13 by default, which doesn't include pkg_resources. setuptools must be installed FIRST.
+
+**Solution (Choose ONE):**
+
+**Option 1: Update Build Command in Render Dashboard (RECOMMENDED)**
+1. Go to your service → **Settings**
+2. Find **Build Command** 
+3. Replace with:
+```bash
+pip install --upgrade pip setuptools wheel && pip install setuptools==69.5.1 && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+```
+4. Click **Save Changes** → Service will redeploy
+
+**Option 2: Force Python 3.12 (Alternative)**
+1. In Render dashboard → **Environment**
+2. Add/Update: `PYTHON_VERSION = 3.12`
+3. Use the standard build command:
+```bash
+pip install --upgrade pip && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+```
+
+**Option 3: Clear Build Cache**
+1. Go to your service → **Manual Deploy**
+2. Click **"Clear build cache & deploy"**
+3. This forces a clean rebuild with latest code
+
+**Latest code already includes these fixes** ✅
+
+### Issue: ModuleNotFoundError: No module named 'pkg_resources' (Old)
 
 **Error:** `ModuleNotFoundError: No module named 'pkg_resources'` from `rest_framework_simplejwt`
 

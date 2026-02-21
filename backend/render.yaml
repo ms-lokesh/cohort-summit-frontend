@@ -14,7 +14,8 @@ services:
     
     # Build Configuration
     buildCommand: |
-      pip install --upgrade pip
+      pip install --upgrade pip setuptools wheel
+      pip install setuptools==69.5.1
       pip install -r requirements.txt
       python manage.py collectstatic --no-input
       python manage.py migrate --no-input

@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'drf_yasg',
+    # 'drf_yasg',  # Temporarily disabled - Python 3.13 pkg_resources issue
     
     # Local apps (5 main modules)
     'apps.clt',

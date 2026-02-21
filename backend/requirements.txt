@@ -1,5 +1,7 @@
-# Python 3.13 compatibility - MUST BE FIRST
-setuptools>=69.0.0
+# Python 3.12/3.13 compatibility - CRITICAL: MUST BE INSTALLED FIRST
+setuptools==69.5.1
+wheel>=0.42.0
+pip>=24.0
 
 # Django Framework
 Django==4.2.7
@@ -44,5 +46,6 @@ django-ratelimit==4.1.0
 gunicorn==21.2.0
 whitenoise==6.6.0
 
-# API Documentation
-drf-yasg==1.21.7
+# API Documentation - Temporarily disabled due to Python 3.13 pkg_resources issue
+# drf-yasg==1.21.8
+# TODO: Re-enable after switching to Python 3.12 or finding compatible version
