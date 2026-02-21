@@ -31,7 +31,11 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS('✅ Admin created (username: admin, password: admin123)'))
             except IntegrityError as e:
                 self.stdout.write(self.style.WARNING(f'⚠️  Admin user creation failed: {e}'))
-        else: and not User.objects.filter(email='student@cohortsummit.com').exists():
+        else:
+            self.stdout.write(self.style.WARNING('⚠️  Admin user already exists'))
+
+        # Create Student User
+        if not User.objects.filter(username='student').exists() and not User.objects.filter(email='student@cohortsummit.com').exists():
             try:
                 student_user = User.objects.create_user(
                     username='student',
@@ -92,11 +96,7 @@ class Command(BaseCommand):
                 profile.save()
                 self.stdout.write(self.style.SUCCESS('✅ Floor Wing created (username: floorwing, password: floorwing123)'))
             except IntegrityError as e:
-                self.stdout.write(self.style.WARNING(f'⚠️  Floor Wing user creation failed: {e}
-            profile.campus = 'TECH'
-            profile.floor = 2
-            profile.save()
-            self.stdout.write(self.style.SUCCESS('✅ Floor Wing created (username: floorwing, password: floorwing123)'))
+                self.stdout.write(self.style.WARNING(f'⚠️  Floor Wing user creation failed: {e}'))
         else:
             self.stdout.write(self.style.WARNING('⚠️  Floor Wing user already exists'))
 
