@@ -89,6 +89,12 @@ class Command(BaseCommand):
         self.stdout.write('Creating/updating production users...')
         self.stdout.write('========================================\n')
         
+        # Remove all existing users
+        self.stdout.write('🧹 Removing all existing users from database...')
+        user_count = User.objects.all().count()
+        User.objects.all().delete()
+        self.stdout.write(self.style.WARNING(f'✅ Deleted {user_count} existing users\n'))
+        
         # Create/Update Admin User
         self.create_or_update_user(
             username='admin',
