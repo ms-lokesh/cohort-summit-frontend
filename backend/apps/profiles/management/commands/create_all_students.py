@@ -174,10 +174,13 @@ class Command(BaseCommand):
         
         for mentor_name in mentors_to_create:
             mentor_username = mentor_name.lower().replace(' ', '_')
+            mentor_email = f'{mentor_username}@cohortsummit.com'
+            
+            # Use email as username
             mentor_user, created = User.objects.get_or_create(
-                username=mentor_username,
+                email=mentor_email,
                 defaults={
-                    'email': f'{mentor_username}@cohortsummit.com',
+                    'username': mentor_email,
                     'first_name': mentor_name.split()[0],
                     'last_name': ' '.join(mentor_name.split()[1:]) if len(mentor_name.split()) > 1 else '',
                 }
@@ -185,7 +188,7 @@ class Command(BaseCommand):
             if created:
                 mentor_user.set_password('mentor123')
                 mentor_user.save()
-                self.stdout.write(f'✅ Created mentor: {mentor_name}')
+                self.stdout.write(f'✅ Created mentor: {mentor_name} (login: {mentor_email})')
             
             # Ensure mentor profile exists
             mentor_profile, _ = UserProfile.objects.get_or_create(user=mentor_user)
@@ -212,8 +215,8 @@ class Command(BaseCommand):
                 first = name_parts[0]
                 last = name_parts[1] if len(name_parts) > 1 else ''
                 
-                # Create login username
-                login_username = username.lower().replace(' ', '_')
+                # Use email as username for login
+                login_username = email
                 
                 # Check if user exists
                 existing_user = User.objects.filter(email=email).first()
