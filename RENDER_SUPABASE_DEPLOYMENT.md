@@ -339,12 +339,37 @@ python setup_mentors.py
 
 ## 🔧 Troubleshooting Guide
 
+### Issue: ModuleNotFoundError: No module named 'pkg_resources'
+
+**Error:** `ModuleNotFoundError: No module named 'pkg_resources'` from `rest_framework_simplejwt`
+
+**Solution:**
+1. Ensure `setuptools>=69.0.0` is at the TOP of `requirements.txt`
+2. Use Python 3.12 instead of 3.13 (better compatibility)
+3. Verify `runtime.txt` exists in backend directory with: `python-3.12.2`
+4. Redeploy after making these changes
+
+**Already Fixed in Latest Code ✅**
+
+### Issue: Management Command Not Found (e.g., `sync_supabase_mappings`)
+
+**Error:** `Unknown command: 'sync_supabase_mappings'`
+
+**Solution:**
+- Check your Start Command in Render dashboard
+- Remove any custom management commands that don't exist
+- Use the correct start command:
+```bash
+gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+```
+- Do NOT include migrations in start command (handle in build command instead)
+
 ### Issue: Build Failed - Dependencies Error
 
 **Solution:**
 1. Check `requirements.txt` has all dependencies
 2. Look at build logs for specific missing package
-3. Ensure Python version compatibility
+3. Ensure Python version compatibility (use 3.12, not 3.13)
 
 ### Issue: Database Connection Error
 
