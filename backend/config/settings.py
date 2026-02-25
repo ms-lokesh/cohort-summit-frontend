@@ -95,16 +95,34 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database - PostgreSQL (production) or SQLite (development)
 if os.getenv('DATABASE_URL'):
     # Production: Use PostgreSQL from DATABASE_URL (Render/Cloud provides this)
+    import socket
+    
     db_config = dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
         conn_max_age=600,
         conn_health_checks=True,
     )
-    # Add OPTIONS to handle IPv6 issues on Render with Supabase
+    
+    # Force IPv4 connection for Supabase on Render (IPv6 not supported)
+    # Resolve hostname to IPv4 address only
+    if 'HOST' in db_config and 'supabase.co' in db_config.get('HOST', ''):
+        try:
+            # Get IPv4 address only
+            ipv4_addr = socket.getaddrinfo(
+                db_config['HOST'], 
+                None, 
+                socket.AF_INET  # Force IPv4
+            )[0][4][0]
+            # Replace hostname with IPv4 address
+            db_config['HOST'] = ipv4_addr
+        except Exception as e:
+            print(f"Warning: Could not resolve IPv4 for {db_config['HOST']}: {e}")
+    
     db_config['OPTIONS'] = {
         'connect_timeout': 10,
         'options': '-c search_path=public',
     }
+    
     DATABASES = {
         'default': db_config
     }
