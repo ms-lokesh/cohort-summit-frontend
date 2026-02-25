@@ -44,13 +44,13 @@ update_env_var "CORS_ALLOWED_ORIGINS" "https://cohort-summit-frontend-dpe.pages.
 update_env_var "CSRF_TRUSTED_ORIGINS" "https://cohort-backend-api.onrender.com,https://*.onrender.com,https://cohort-summit-frontend-dpe.pages.dev"
 
 # Supabase Database  
-update_env_var "DATABASE_URL" "postgresql://postgres.yfoopcuwdyotlukbkoej:Cohort_db%40123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+update_env_var "DATABASE_URL" "postgres://postgres.fvsntw%23snav64n86d5da6m.vgnzcacvguipindezvin.supabase.co:6543/postgres"
 
 # Supabase Auth Keys
-update_env_var "SUPABASE_URL" "https://yfoopcuwdyotlukbkoej.supabase.co"
-update_env_var "SUPABASE_ANON_KEY" "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlmb29wY3V3ZHlvdGx1a2Jrb2VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MDA4NDEsImV4cCI6MjA4NTM3Njg0MX0.YK5uw24Grhc2TPYnF98i0eORgZHNHLJMdd5akenvKRs"
-update_env_var "SUPABASE_SERVICE_ROLE_KEY" "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlmb29wY3V3ZHlvdGx1a2Jrb2VqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTgwMDg0MSwiZXhwIjoyMDg1Mzc2ODQxfQ.57FMzdhavCWYdp2-yjiWrtt7ZrEHq3Aq6YyChihx1sc"
-update_env_var "SUPABASE_JWT_SECRET" "zy/392pVFfUBs/+wzZmA9Y8/B+R9tCjSLHZMaubjIiv6NUzu4yMtQtbmNYCFuz7ZVQZHlpAHZ4DHzJqb/Frjcg=="
+update_env_var "SUPABASE_URL" "https://fvsnacsacvguindezvin.supabase.co"
+update_env_var "SUPABASE_ANON_KEY" "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2c25hY3NhY3ZndWluZGV6dmluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk4MDY4NzYsImV4cCI6MjA1NTM4Mjg3Nn0.yGmAsrON9dZMgiEBMyGpUZAimv4xCE6MQFkNZUwM23Mtl/k/G0GZRkQZMI2ERu8u6YZRbqvo2G9M5u7qyy0h3ptBUc"
+update_env_var "SUPABASE_SERVICE_ROLE_KEY" "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2c25hY3NhY3ZndWluZGV6dmluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTgwNjg3NiwiZXhwIjoyMDU1MzgyODc2fQ.NMZ5YKmqh2Z5M8mdCfGlMTc3M1TqyN2zMWcII2XNviIbyMDqsfaTA2MgoaTZJelVr5tgn0t/0aS598NgB6H9ISJ7r2ONDMIN5r6rp3BS_DetNE"
+update_env_var "SUPABASE_JWT_SECRET" "5KdMurJ1xUozb0OtqpF+uZ7B1I5LHK0RRMTtU1nMA0AZzyiGfM7u/Qem1lmKroRf9YwBS0NiXjMmH1WirfTaggBVx+wQ=="
 
 # JWT Configuration
 update_env_var "JWT_SECRET_KEY" "Qsphh6x7bzzHTcNyuyc8DSXlva8y+0XGCE9m0znRdE4="
