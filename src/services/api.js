@@ -4,6 +4,10 @@ import { API_CONFIG } from '../config';
 // Base API configuration
 const API_BASE_URL = API_CONFIG.BASE_URL;
 
+// Debug: Log API BASE URL
+console.log('[API Service] Using Base URL:', API_BASE_URL);
+console.log('[API Service] Environment:', import.meta.env.MODE);
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,

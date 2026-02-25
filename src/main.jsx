@@ -8,4 +8,4 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
-// Force rebuild - 1772027571 (fix gamification endpoints)
+// FINAL deployment - ensure VITE_API_URL is applied - 1772028500

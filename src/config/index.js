@@ -13,6 +13,8 @@ export const API_CONFIG = {
   // Get full API URL
   getApiUrl: (path = '') => {
     const base = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+    console.log('[CONFIG] API Base URL:', base);
+    console.log('[CONFIG] VITE_API_URL env var:', import.meta.env.VITE_API_URL);
     return path ? `${base}${path.startsWith('/') ? path : '/' + path}` : base;
   },
   
