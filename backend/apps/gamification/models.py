@@ -198,7 +198,6 @@ class SeasonScore(models.Model):
             self.cfc_score + 
             self.outcome_score
         )
-        self.save()
         return self.total_score
 
 

@@ -303,6 +303,9 @@ function SubmissionReview({ selectedStudent }) {
             // Refresh submissions from API
             await fetchSubmissions();
             
+            // Refresh gamification data to show updated score
+            await fetchStudentGamification();
+            
             console.log('✅ Submissions refreshed!');
             console.log('New submissions count:', submissions.length);
             
