@@ -39,12 +39,12 @@ update_env_var "DJANGO_SETTINGS_MODULE" "config.settings"
 update_env_var "PYTHON_VERSION" "3.12.2"
 
 # Allowed Hosts & CORS
-update_env_var "ALLOWED_HOSTS" "cohort-backend-api.onrender.com,localhost,127.0.0.1,.onrender.com"
-update_env_var "CORS_ALLOWED_ORIGINS" "https://cohort-summit-frontend-dpe.pages.dev,http://localhost:5173"
+update_env_var "ALLOWED_HOSTS" "cohort-backend-api.onrender.com,localhost,127.0.0.1"
+update_env_var "CORS_ALLOWED_ORIGINS" "https://cohort-summit-frontend-dpe.pages.dev,http://localhost:5173,http://localhost:3000"
 update_env_var "CSRF_TRUSTED_ORIGINS" "https://cohort-backend-api.onrender.com,https://*.onrender.com,https://cohort-summit-frontend-dpe.pages.dev"
 
-# Supabase Database  
-update_env_var "DATABASE_URL" "postgresql://postgres.fvsntw:snav64n86d5da6m@vgnzcacvguipindezvin.supabase.co:6543/postgres?sslmode=require&connect_timeout=10"
+# Supabase Database - Direct connection (port 5432) to avoid IPv6 issues
+update_env_var "DATABASE_URL" "postgresql://postgres:Events%23sns%4034565@db.vkgycspcsybpgdsxjnnn.supabase.co:5432/postgres?sslmode=require"
 
 # Supabase Auth Keys
 update_env_var "SUPABASE_URL" "https://fvsnacsacvguindezvin.supabase.co"

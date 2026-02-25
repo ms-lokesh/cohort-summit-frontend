@@ -95,12 +95,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database - PostgreSQL (production) or SQLite (development)
 if os.getenv('DATABASE_URL'):
     # Production: Use PostgreSQL from DATABASE_URL (Render/Cloud provides this)
+    db_config = dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+    # Add OPTIONS to handle IPv6 issues on Render with Supabase
+    db_config['OPTIONS'] = {
+        'connect_timeout': 10,
+        'options': '-c search_path=public',
+    }
     DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
+        'default': db_config
     }
 elif os.getenv('DB_ENGINE') == 'django.db.backends.postgresql':
     # Local PostgreSQL development
