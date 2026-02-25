@@ -497,8 +497,6 @@ export const CLT = () => {
             </motion.div>
           )}
 
-          )}
-
       {/* Step Indicators */}
       <div className="clt-steps">
         {steps.map((step, index) => {
