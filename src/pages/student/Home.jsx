@@ -110,6 +110,7 @@ export const HomePage = () => {
     const refreshInterval = setInterval(() => {
       fetchDashboardData(true); // Silent refresh
       fetchAnnouncements(true);
+      fetchLeaderboard(); // Refresh leaderboard to show updated scores
     }, 30000);
 
     // Cleanup interval on unmount

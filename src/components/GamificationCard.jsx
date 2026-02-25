@@ -10,31 +10,43 @@ const GamificationCard = () => {
 
   useEffect(() => {
     fetchGamificationData();
+    
+    // Auto-refresh every 30 seconds to show updated scores
+    const intervalId = setInterval(() => {
+      fetchGamificationData();
+    }, 30000); // 30 seconds
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchGamificationData = async () => {
     try {
-      setLoading(true);
+      // Don't show loading spinner for background refreshes
+      if (!data) setLoading(true);
+      
       const response = await gamificationAPI.getStudentOverview();
       setData(response.data);
       setError(null);
     } catch (err) {
       console.error('Failed to fetch gamification data:', err);
-      // Set default data if API fails
-      setData({
-        current_season: null,
-        current_episode: null,
-        episode_progress: 0,
-        season_score: 0,
-        legacy_score: 0,
-        vault_wallet: 0,
-        scd_streak: 0,
-        leaderboard_position: '-',
-        equipped_title: null
-      });
+      // Set default data if API fails (only on first load)
+      if (!data) {
+        setData({
+          current_season: null,
+          current_episode: null,
+          episode_progress: 0,
+          season_score: 0,
+          legacy_score: 0,
+          vault_wallet: 0,
+          scd_streak: 0,
+          leaderboard_position: '-',
+          equipped_title: null
+        });
+      }
       setError(null);
     } finally {
-      setLoading(false);
+      if (!data) setLoading(false);
     }
   };
 
