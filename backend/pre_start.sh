@@ -73,17 +73,19 @@ else
     exit 1
 fi
 
-echo ""
-echo "Creating production users (if not exist)..."
-$PYTHON_CMD manage.py create_production_users || true
-
-echo ""
-echo "Fixing user sequences..."
-$PYTHON_CMD manage.py fix_user_sequence || true
-
-echo ""
-echo "Listing database users..."
-$PYTHON_CMD manage.py list_users || true
+# Skip user creation during deployment - only create users manually once
+# Uncomment these lines if you need to recreate users:
+# echo ""
+# echo "Creating production users (if not exist)..."
+# $PYTHON_CMD manage.py create_production_users || true
+# 
+# echo ""
+# echo "Fixing user sequences..."
+# $PYTHON_CMD manage.py fix_user_sequence || true
+# 
+# echo ""
+# echo "Listing database users..."
+# $PYTHON_CMD manage.py list_users || true
 
 echo ""
 echo "========================================"
