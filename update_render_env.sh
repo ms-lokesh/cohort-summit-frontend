@@ -40,8 +40,8 @@ update_env_var "PYTHON_VERSION" "3.12.2"
 
 # Allowed Hosts & CORS
 update_env_var "ALLOWED_HOSTS" "cohort-backend-api.onrender.com,localhost,127.0.0.1,.onrender.com"
-update_env_var "CORS_ALLOWED_ORIGINS" "https://head.cohort-summit-frontend.pages.dev,http://localhost:5173"
-update_env_var "CSRF_TRUSTED_ORIGINS" "https://cohort-backend-api.onrender.com,https://*.onrender.com,https://head.cohort-summit-frontend.pages.dev"
+update_env_var "CORS_ALLOWED_ORIGINS" "https://cohort-summit-frontend-dpe.pages.dev,http://localhost:5173"
+update_env_var "CSRF_TRUSTED_ORIGINS" "https://cohort-backend-api.onrender.com,https://*.onrender.com,https://cohort-summit-frontend-dpe.pages.dev"
 
 # Supabase Database  
 update_env_var "DATABASE_URL" "postgresql://postgres.yfoopcuwdyotlukbkoej:Cohort_db%40123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"

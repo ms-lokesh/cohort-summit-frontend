@@ -54,11 +54,11 @@ services:
         value: "cohort-backend-api.onrender.com,.onrender.com,localhost,127.0.0.1"
         
       - key: CSRF_TRUSTED_ORIGINS
-        value: "https://cohort-backend-api.onrender.com,https://*.onrender.com,https://head.cohort-summit-frontend.pages.dev"
+        value: "https://cohort-backend-api.onrender.com,https://*.onrender.com,https://cohort-summit-frontend-dpe.pages.dev"
       
       # CORS Configuration - Cloudflare Frontend
       - key: CORS_ALLOWED_ORIGINS
-        value: "https://head.cohort-summit-frontend.pages.dev,http://localhost:5173,http://localhost:3000"
+        value: "https://cohort-summit-frontend-dpe.pages.dev,http://localhost:5173,http://localhost:3000"
         
       - key: CORS_ALLOW_CREDENTIALS
         value: "True"
