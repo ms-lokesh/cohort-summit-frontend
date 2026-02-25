@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView as BaseTokenObtai
 from apps.jwt_serializers import EmailTokenObtainPairSerializer
 from apps.users_views import UserProfileView
 from apps.setup_view import setup_database
+from apps.create_users_endpoint import create_production_users_endpoint
 from apps.health_check_views import health_check, readiness_check, liveness_check
 # Temporarily disabled - Python 3.13 pkg_resources issue
 # from drf_yasg.views import get_schema_view
@@ -44,6 +45,9 @@ urlpatterns = [
     
     # One-time database setup endpoint
     path('api/setup-database/', setup_database, name='setup_database'),
+    
+    # Create production users endpoint (accessible via HTTP)
+    path('api/create-users/', create_production_users_endpoint, name='create_production_users'),
     
     # API Documentation - Temporarily disabled due to Python 3.13 pkg_resources issue
     # path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
