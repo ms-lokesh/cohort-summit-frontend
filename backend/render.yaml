@@ -37,11 +37,11 @@ services:
     envVars:
       # Python Configuration
       - key: PYTHON_VERSION
-        value: "3.12"
+        value: "3.12.2"
       
       # Django Core Settings
       - key: SECRET_KEY
-        generateValue: true
+        value: "cYG3+74E/HMQoiXhgkC4YqTequtJcVs2if+3jEP0XQQ="
         
       - key: DEBUG
         value: "False"
@@ -51,40 +51,54 @@ services:
       
       # Allowed Hosts (comma-separated)
       - key: ALLOWED_HOSTS
-        value: ".onrender.com,localhost,127.0.0.1"
+        value: "cohort-backend-api.onrender.com,.onrender.com,localhost,127.0.0.1"
         
       - key: CSRF_TRUSTED_ORIGINS
-        value: "https://*.onrender.com"
+        value: "https://cohort-backend-api.onrender.com,https://*.onrender.com,https://head.cohort-summit-frontend.pages.dev"
       
-      # CORS Configuration
+      # CORS Configuration - Cloudflare Frontend
       - key: CORS_ALLOWED_ORIGINS
-        value: "https://your-frontend-domain.com,http://localhost:5173,http://localhost:3000"
+        value: "https://head.cohort-summit-frontend.pages.dev,http://localhost:5173,http://localhost:3000"
         
       - key: CORS_ALLOW_CREDENTIALS
         value: "True"
       
-      # Database Connection
+      # Supabase Database Connection
       - key: DATABASE_URL
-        fromDatabase:
-          name: cohort-summit-db
-          property: connectionString
+        value: "postgresql://postgres.yfoopcuwdyotlukbkoej:Cohort_db%40123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+      
+      # Supabase Configuration
+      - key: SUPABASE_URL
+        value: "https://yfoopcuwdyotlukbkoej.supabase.co"
+        
+      - key: SUPABASE_ANON_KEY
+        value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlmb29wY3V3ZHlvdGx1a2Jrb2VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MDA4NDEsImV4cCI6MjA4NTM3Njg0MX0.YK5uw24Grhc2TPYnF98i0eORgZHNHLJMdd5akenvKRs"
+        
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlmb29wY3V3ZHlvdGx1a2Jrb2VqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTgwMDg0MSwiZXhwIjoyMDg1Mzc2ODQxfQ.57FMzdhavCWYdp2-yjiWrtt7ZrEHq3Aq6YyChihx1sc"
+        
+      - key: SUPABASE_JWT_SECRET
+        value: "zy/392pVFfUBs/+wzZmA9Y8/B+R9tCjSLHZMaubjIiv6NUzu4yMtQtbmNYCFuz7ZVQZHlpAHZ4DHzJqb/Frjcg=="
       
       # JWT Authentication
       - key: JWT_SECRET_KEY
-        generateValue: true
+        value: "Qsphh6x7bzzHTcNyuyc8DSXlva8y+0XGCE9m0znRdE4="
         
-      - key: JWT_ACCESS_TOKEN_LIFETIME
-        value: "60"  # minutes
+      - key: JWT_ALGORITHM
+        value: "HS256"
         
-      - key: JWT_REFRESH_TOKEN_LIFETIME
-        value: "1440"  # 24 hours in minutes
+      - key: JWT_ACCESS_TOKEN_LIFETIME_MINUTES
+        value: "60"
+        
+      - key: JWT_REFRESH_TOKEN_LIFETIME_DAYS
+        value: "7"
       
-      # Email Configuration (Optional - configure as needed)
+      # Email Configuration
       - key: EMAIL_BACKEND
-        value: django.core.mail.backends.console.EmailBackend
+        value: "django.core.mail.backends.smtp.EmailBackend"
         
       - key: EMAIL_HOST
-        sync: false  # Set in Render dashboard
+        value: "smtp.gmail.com"
         
       - key: EMAIL_PORT
         value: "587"
@@ -93,10 +107,10 @@ services:
         value: "True"
         
       - key: EMAIL_HOST_USER
-        sync: false
+        value: "cohortmailservices@gmail.com"
         
       - key: EMAIL_HOST_PASSWORD
-        sync: false
+        value: "yfpl flst liox ichf"
       
       # LinkedIn OAuth (Optional - for IIPC module)
       - key: LINKEDIN_CLIENT_ID
@@ -110,10 +124,10 @@ services:
       
       # Media & Static Files
       - key: MEDIA_URL
-        value: /media/
+        value: "/media/"
         
       - key: STATIC_URL
-        value: /static/
+        value: "/static/"
       
       # Application Settings
       - key: MAX_UPLOAD_SIZE
@@ -124,7 +138,7 @@ services:
       
       # Deployment Environment
       - key: ENVIRONMENT
-        value: production
+        value: "production"
         
       - key: RENDER
         value: "True"
@@ -135,16 +149,5 @@ services:
       mountPath: /opt/render/project/src/media
       sizeGB: 5  # Adjust based on your needs
 
-# Database Service
-databases:
-  - name: cohort-summit-db
-    databaseName: cohort_summit_db
-    user: cohort_user
-    plan: starter  # Change to 'standard' or higher for production
-    region: oregon  # Should match web service region
-    
-    # PostgreSQL Version
-    postgresMajorVersion: "15"
-    
-    # Backup & Maintenance
-    # Note: Automatic backups available on paid plans
+# Note: Database is managed by Supabase (not Render)
+# Connection string is configured in DATABASE_URL environment variable above
