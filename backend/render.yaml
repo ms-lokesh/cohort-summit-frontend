@@ -65,7 +65,7 @@ services:
       
       # Supabase Database Connection
       - key: DATABASE_URL
-        value: "postgres://postgres.fvsntw%23snav64n86d5da6m.vgnzcacvguipindezvin.supabase.co:6543/postgres"
+        value: "postgresql://postgres.fvsntw:snav64n86d5da6m@vgnzcacvguipindezvin.supabase.co:6543/postgres"
       
       # Supabase Configuration
       - key: SUPABASE_URL

@@ -44,7 +44,7 @@ update_env_var "CORS_ALLOWED_ORIGINS" "https://cohort-summit-frontend-dpe.pages.
 update_env_var "CSRF_TRUSTED_ORIGINS" "https://cohort-backend-api.onrender.com,https://*.onrender.com,https://cohort-summit-frontend-dpe.pages.dev"
 
 # Supabase Database  
-update_env_var "DATABASE_URL" "postgres://postgres.fvsntw%23snav64n86d5da6m.vgnzcacvguipindezvin.supabase.co:6543/postgres"
+update_env_var "DATABASE_URL" "postgresql://postgres.fvsntw:snav64n86d5da6m@vgnzcacvguipindezvin.supabase.co:6543/postgres"
 
 # Supabase Auth Keys
 update_env_var "SUPABASE_URL" "https://fvsnacsacvguindezvin.supabase.co"
