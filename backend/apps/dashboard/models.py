@@ -67,21 +67,32 @@ class Announcement(models.Model):
         
         # Create notifications for all students under this mentor when announcement is created
         if is_new:
-            from apps.profiles.models import UserProfile
-            students = UserProfile.objects.filter(assigned_mentor=self.mentor).select_related('user')
-            notifications = []
-            for student_profile in students:
-                notifications.append(Notification(
-                    recipient=student_profile.user,
-                    sender=self.mentor,
-                    notification_type='info',
-                    priority=self.priority,
-                    title=f"New Announcement: {self.title}",
-                    message=self.description[:200] + ('...' if len(self.description) > 200 else ''),
-                    action_url=f"/student/announcements"
-                ))
-            if notifications:
-                Notification.objects.bulk_create(notifications)
+            try:
+                from apps.profiles.models import UserProfile
+                import logging
+                logger = logging.getLogger(__name__)
+                
+                students = UserProfile.objects.filter(assigned_mentor=self.mentor).select_related('user')
+                logger.info(f"Creating notifications for {students.count()} students")
+                
+                notifications = []
+                for student_profile in students:
+                    notifications.append(Notification(
+                        recipient=student_profile.user,
+                        sender=self.mentor,
+                        notification_type='info',
+                        priority=self.priority,
+                        title=f"New Announcement: {self.title}",
+                        message=self.description[:200] + ('...' if len(self.description) > 200 else ''),
+                        action_url=f"/student/announcements"
+                    ))
+                if notifications:
+                    Notification.objects.bulk_create(notifications)
+                    logger.info(f"Successfully created {len(notifications)} notifications")
+            except Exception as e:
+                logger.error(f"Failed to create notifications for announcement: {str(e)}")
+                # Don't fail the announcement creation if notification creation fails
+                pass
 
 
 class AnnouncementRead(models.Model):

@@ -1057,20 +1057,33 @@ def announcements(request):
     
     elif request.method == 'POST':
         # Create new announcement
-        print("\n=== ANNOUNCEMENT CREATE DEBUG ===")
-        print(f"Request data: {request.data}")
-        print(f"Content type: {request.content_type}")
+        import logging
+        logger = logging.getLogger(__name__)
         
-        serializer = AnnouncementCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            announcement = serializer.save(mentor=request.user)
+        logger.info("\n=== ANNOUNCEMENT CREATE DEBUG ===")
+        logger.info(f"Request data: {request.data}")
+        logger.info(f"Content type: {request.content_type}")
+        logger.info(f"User: {request.user.username}")
+        
+        try:
+            serializer = AnnouncementCreateSerializer(data=request.data)
+            if serializer.is_valid():
+                announcement = serializer.save(mentor=request.user)
+                logger.info(f"Announcement created successfully: {announcement.id}")
+                return Response(
+                    AnnouncementSerializer(announcement).data,
+                    status=status.HTTP_201_CREATED
+                )
+            
+            logger.error(f"Validation errors: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Exception during announcement creation: {str(e)}")
+            logger.exception(e)
             return Response(
-                AnnouncementSerializer(announcement).data,
-                status=status.HTTP_201_CREATED
+                {"error": str(e), "detail": "Failed to create announcement"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        
-        print(f"Validation errors: {serializer.errors}")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])

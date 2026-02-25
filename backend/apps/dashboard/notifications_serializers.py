@@ -232,11 +232,20 @@ class AnnouncementCreateSerializer(serializers.ModelSerializer):
         
         # If posting a job or internship, ensure required fields are present
         if category in ['job', 'internship']:
-            required_job_fields = ['company_name', 'job_location', 'application_url']
-            for field in required_job_fields:
+            required_job_fields = {
+                'company_name': 'Company Name',
+                'job_location': 'Location',
+                'application_url': 'Application URL'
+            }
+            
+            missing_fields = []
+            for field, display_name in required_job_fields.items():
                 if not data.get(field):
-                    raise serializers.ValidationError(
-                        f"{field.replace('_', ' ').title()} is required for job/internship postings"
-                    )
+                    missing_fields.append(display_name)
+            
+            if missing_fields:
+                raise serializers.ValidationError({
+                    'detail': f"The following fields are required for job/internship postings: {', '.join(missing_fields)}"
+                })
         
         return data
